@@ -1,0 +1,12 @@
+{
+  "restaurantId": "peopletalk",
+  "name": "PeopleTalk",
+  "theme": "peopletalk",
+  "logoUrl": "/assets/peopletalk-logo.png",
+  "defaultLanguage": "en",
+  "enabledLanguages": ["en", "es"],
+  "csvUrl": {
+    "en": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=1714627589&single=true&output=csv",
+    "es": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=1934559009&single=true&output=csv"
+  }
+}

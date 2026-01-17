@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wine Gallery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- =========================
+       БЛОК 1 — СТИЛИ
+       ========================= -->
+  <style>
+    body {
+      margin: 0;
+      font-family: Helvetica, Arial, sans-serif;
+      background: #ffffff;
+      color: #111;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      border-bottom: 1px solid #eee;
+    }
+
+    header img {
+      height: 40px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .section {
+      margin-top: 40px;
+    }
+
+    .section h2 {
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 6px;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+
+    .wine {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .wine:last-child {
+      border-bottom: none;
+    }
+
+    .wine-title {
+      font-weight: 600;
+    }
+
+    .wine-meta {
+      font-size: 13px;
+      color: #555;
+      margin-top: 4px;
+    }
+
+    .wine-price {
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .error {
+      color: red;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =========================
+       БЛОК 2 — HEADER / LOGO
+       ========================= -->
+  <header>
+    <img id="logo" src="" alt="Logo" />
+  </header>
+
+  <!-- =========================
+       БЛОК 3 — КОНТЕЙНЕР
+       ========================= -->
+  <div class="container" id="app"></div>
+
+  <!-- =========================
+       БЛОК 4 — STATE
+       ========================= -->
+  <script>
+    const state = {
+      loading: true,
+      error: null,
+      wines: [],
+      sections: {}
+    };
+  </script>
+
+  <!-- =========================
+       БЛОК 5 — УТИЛИТЫ
+       ========================= -->
+  <script>
+    function groupBy(arr, key) {
+      return arr.reduce((acc, item) => {
+        const v = item[key] || "other";
+        acc[v] = acc[v] || [];
+        acc[v].push(item);
+        return acc;
+      }, {});
+    }
+  </script>
+
+  <!-- =========================
+       БЛОК 6 — CSV ПАРСЕР
+       ========================= -->
+  <script>
+    function parseCSV(text) {
+      const lines = text.split("\n").filter(Boolean);
+      const headers = lines[0].split(",").map(h => h.trim());
+
+      return lines.slice(1).map(line => {
+        const values = line.split(",").map(v => v.trim());
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = values[i] || "");
+        return obj;
+      });
+    }
+  </script>
+
+  <!-- =========================
+       БЛОК 7 — ЗАГРУЗКА CSV
+       ========================= -->
+  <script>
+    async function loadCSV() {
+      const res = await fetch(CSV_URL, { cache: "no-store" });
+      if (!res.ok) throw new Error("CSV fetch failed");
+
+      const text = await res.text();
+      const rows = parseCSV(text);
+
+      state.wines = rows.filter(w =>
+        w.visible === "yes" && w.is_available === "yes"
+      );
+
+      state.sections = groupBy(state.wines, "section");
+      state.loading = false;
+      render();
+    }
+  </script>
+
+  <!-- =========================
+       БЛОК 8 — RENDER
+       ========================= -->
+  <script>
+    function render() {
+      const app = document.getElementById("app");
+      app.innerHTML = "";
+
+      if (state.loading) {
+        app.textContent = "Loading…";
+        return;
+      }
+
+      if (state.error) {
+        app.innerHTML = `<div class="error">${state.error}</div>`;
+        return;
+      }
+
+      Object.keys(state.sections).forEach(section => {
+        const block = document.createElement("div");
+        block.className = "section";
+
+        const h2 = document.createElement("h2");
+        h2.textContent = section;
+        block.appendChild(h2);
+
+        state.sections[section].forEach(w => {
+          const row = document.createElement("div");
+          row.className = "wine";
+
+          const left = document.createElement("div");
+          left.innerHTML = `
+            <div class="wine-title">${w.producer} — ${w.name}</div>
+            <div class="wine-meta">${w.region}, ${w.country}</div>
+          `;
+
+          const right = document.createElement("div");
+          right.className = "wine-price";
+          right.textContent = w.bottle_price;
+
+          row.appendChild(left);
+          row.appendChild(right);
+          block.appendChild(row);
+        });
+
+        app.appendChild(block);
+      });
+    }
+  </script>
+
+  <!-- =========================
+       БЛОК 9 — КОНФИГ / CSV URL / LOGO
+       (НОВЫЙ БЛОК — замена констант)
+       ========================= -->
+  <script>
+    function getParam(name) {
+      const u = new URL(window.location.href);
+      return u.searchParams.get(name);
+    }
+
+    const RESTAURANT_ID = (getParam("r") || "peopletalk").toLowerCase();
+    const LANG = (getParam("lang") || "en").toLowerCase();
+
+    const CONFIG_URL = `configs/${RESTAURANT_ID}.json`;
+
+    let CSV_URL = "";
+    let LOGO_URL = "";
+
+    async function loadConfig() {
+      const res = await fetch(CONFIG_URL, { cache: "no-store" });
+      if (!res.ok) {
+        throw new Error(`Config not found: ${CONFIG_URL}`);
+      }
+
+      const cfg = await res.json();
+      window.APP_CONFIG = cfg;
+
+      CSV_URL =
+        cfg.csvUrl?.[LANG] ||
+        cfg.csvUrl?.[cfg.defaultLanguage] ||
+        cfg.csvUrl?.["en"] ||
+        "";
+
+      LOGO_URL = cfg.logoUrl || "";
+
+      if (!CSV_URL) {
+        throw new Error("CSV URL is empty in config");
+      }
+
+      document.getElementById("logo").src = LOGO_URL;
+    }
+  </script>
+
+  <!-- =========================
+       БЛОК 10 — СТАРТ
+       ========================= -->
+  <script>
+    loadConfig()
+      .then(loadCSV)
+      .catch(err => {
+        state.loading = false;
+        state.error = err.message || String(err);
+        render();
+      });
+  </script>
+
+</body>
+</html>

@@ -2,7 +2,7 @@
   "restaurantId": "peopletalk",
   "name": "PeopleTalk",
   "theme": "peopletalk",
-  "logoUrl": "/assets/peopletalk-logo.png",
+  "logoUrl": "assets/peopletalk-logo.png",
   "defaultLanguage": "en",
   "enabledLanguages": ["en", "es"],
   "csvUrl": {

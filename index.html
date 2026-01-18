@@ -1,268 +1,591 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Wine Gallery</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- =========================
-       БЛОК 1 — СТИЛИ
-       ========================= -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
-    body {
-      margin: 0;
-      font-family: Helvetica, Arial, sans-serif;
-      background: #ffffff;
-      color: #111;
+    /* =========================
+       БЛОК 1 — CSS базовые переменные (меняются темой)
+       ========================= */
+    :root{
+      --bg:#0b0c10;
+      --panel:#12141c;
+      --panel2:#0f1118;
+      --text:#f5f7ff;
+      --muted:#aab0c0;
+      --border:rgba(255,255,255,.10);
+      --accent:#3b82f6;
+      --accent2:#1d4ed8;
+      --chip:#1a1d28;
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --radius:14px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
 
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      border-bottom: 1px solid #eee;
-    }
+    body{margin:0; font-family:var(--font); background:var(--bg); color:var(--text);}
+    a{color:inherit;}
 
-    header img {
-      height: 40px;
-    }
+    /* =========================
+       БЛОК 2 — Layout
+       ========================= */
+    .wrap{max-width:1120px; margin:0 auto; padding:20px 16px 60px;}
+    .topbar{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px;}
+    .brand{display:flex; align-items:center; gap:12px; min-width:0;}
+    .brand img{height:42px; width:auto; display:block;}
+    .brand .title{display:flex; flex-direction:column; min-width:0;}
+    .brand .title strong{font-size:16px; line-height:1.1;}
+    .brand .title span{font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 16px;
-    }
+    .controls{display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end;}
 
-    .section {
-      margin-top: 40px;
-    }
+    .seg{display:inline-flex; border:1px solid var(--border); border-radius:999px; overflow:hidden; background:rgba(255,255,255,.03)}
+    .seg button{border:0; background:transparent; color:var(--muted); padding:8px 12px; font-weight:600; cursor:pointer;}
+    .seg button.active{background:rgba(255,255,255,.10); color:var(--text);}
 
-    .section h2 {
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 6px;
-      margin-bottom: 16px;
-      text-transform: uppercase;
-      font-size: 14px;
-      letter-spacing: 1px;
-    }
+    .search{display:flex; align-items:center; gap:8px; border:1px solid var(--border); background:rgba(255,255,255,.03);
+      border-radius:999px; padding:8px 12px; min-width:260px;}
+    .search input{border:0; outline:none; background:transparent; color:var(--text); width:100%; font-size:14px;}
+    .search input::placeholder{color:rgba(255,255,255,.40)}
 
-    .wine {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
-      padding: 12px 0;
-      border-bottom: 1px solid #f0f0f0;
-    }
+    .tabs{display:flex; gap:10px; margin:18px 0 10px; flex-wrap:wrap;}
+    .tab{border:1px solid var(--border); background:rgba(255,255,255,.03); padding:8px 12px; border-radius:999px; cursor:pointer; color:var(--muted); font-weight:600;}
+    .tab.active{background:rgba(255,255,255,.10); color:var(--text);}
 
-    .wine:last-child {
-      border-bottom: none;
-    }
+    .grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:12px;}
+    @media(max-width:960px){.grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:620px){.grid{grid-template-columns:1fr}.search{min-width:0;width:100%}.controls{justify-content:stretch;width:100%}}
 
-    .wine-title {
-      font-weight: 600;
-    }
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; cursor:pointer;}
+    .card .img{height:190px; background:var(--panel2); display:flex; align-items:center; justify-content:center;}
+    .card .img img{height:170px; width:auto; object-fit:contain;}
+    .card .body{padding:12px; display:flex; flex-direction:column; gap:6px;}
+    .card .line1{display:flex; align-items:flex-start; justify-content:space-between; gap:8px;}
+    .card .name{font-weight:800; font-size:14px; line-height:1.25;}
+    .card .producer{font-size:12px; color:var(--muted)}
+    .chip{display:inline-flex; align-items:center; gap:6px; padding:5px 9px; border-radius:999px; background:var(--chip); border:1px solid var(--border); color:var(--muted); font-size:12px; white-space:nowrap;}
+    .price{font-weight:800; color:var(--text)}
 
-    .wine-meta {
-      font-size: 13px;
-      color: #555;
-      margin-top: 4px;
-    }
+    .hint{margin-top:10px; color:var(--muted); font-size:12px;}
+    .error{margin:16px 0; padding:12px; border-radius:12px; border:1px solid rgba(239,68,68,.35); background:rgba(239,68,68,.08); color:#fecaca;}
 
-    .wine-price {
-      font-weight: 600;
-      white-space: nowrap;
-    }
+    /* =========================
+       БЛОК 3 — Modal
+       ========================= */
+    .backdrop{position:fixed; inset:0; background:rgba(0,0,0,.65); display:none; align-items:center; justify-content:center; padding:18px; z-index:1000;}
+    .backdrop.show{display:flex;}
+    .modal{max-width:900px; width:100%; background:var(--panel); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow);
+      overflow:hidden;}
+    .modalHead{display:flex; align-items:center; justify-content:space-between; padding:14px 14px; border-bottom:1px solid var(--border);}
+    .modalHead strong{font-size:14px;}
+    .close{border:1px solid var(--border); background:rgba(255,255,255,.03); color:var(--text); border-radius:10px; padding:8px 10px; cursor:pointer;}
 
-    .error {
-      color: red;
-      margin-top: 20px;
-    }
+    .modalBody{display:grid; grid-template-columns:320px 1fr; gap:0;}
+    @media(max-width:860px){.modalBody{grid-template-columns:1fr}}
+    .modalImg{background:var(--panel2); display:flex; align-items:center; justify-content:center; padding:16px;}
+    .modalImg img{height:380px; width:auto; object-fit:contain;}
+
+    .modalInfo{padding:16px; display:flex; flex-direction:column; gap:10px;}
+    .modalTitle{font-size:18px; font-weight:900;}
+    .modalSub{color:var(--muted); font-size:13px;}
+
+    .kv{display:grid; grid-template-columns:120px 1fr; gap:8px 10px; font-size:13px;}
+    .kv b{color:var(--muted); font-weight:700;}
+
+    .textblock{border-top:1px solid var(--border); padding-top:10px;}
+    .textblock h4{margin:0 0 6px; font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em}
+    .textblock p{margin:0; font-size:14px; line-height:1.5;}
+
+    /* =========================
+       БЛОК 4 — Themes (подключаем theme из config)
+       ========================= */
+    /* Эти темы основаны на твоём ТЗ:
+       Novikov: green/black/white
+       PeopleTalk: blue/black/white */
+    .theme-novikov_clean{ --bg:#050607; --panel:#0b0d10; --panel2:#07090b; --text:#f8fafc; --muted:#b7c0cd; --border:rgba(255,255,255,.10); --accent:#0f766e; --accent2:#115e59; --chip:#0b1112; }
+    .theme-peopletalk{ --bg:#060a12; --panel:#0b1220; --panel2:#070d18; --text:#f8fafc; --muted:#b7c0cd; --border:rgba(255,255,255,.10); --accent:#2563eb; --accent2:#1d4ed8; --chip:#0b1426; }
   </style>
 </head>
 <body>
+  <div class="wrap">
+    <!-- =========================
+         БЛОК 5 — Header
+         ========================= -->
+    <div class="topbar">
+      <div class="brand">
+        <img id="logo" alt="logo" />
+        <div class="title">
+          <strong id="restaurantName">Wine Gallery</strong>
+          <span id="subtitle">Loading…</span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <!-- переключатель языка (без перезагрузки) -->
+        <div class="seg" id="langSeg">
+          <button data-lang="en">EN</button>
+          <button data-lang="es">ES</button>
+        </div>
+
+        <div class="search">
+          <span style="color:var(--muted)">⌕</span>
+          <input id="q" placeholder="Search by name / producer / region / grape" />
+        </div>
+      </div>
+    </div>
+
+    <!-- секции -->
+    <div class="tabs" id="tabs"></div>
+
+    <!-- ошибки/статус -->
+    <div id="msg"></div>
+
+    <!-- карточки -->
+    <div class="grid" id="grid"></div>
+
+    <div class="hint" id="hint"></div>
+  </div>
 
   <!-- =========================
-       БЛОК 2 — HEADER / LOGO
+       БЛОК 6 — Modal
        ========================= -->
-  <header>
-    <img id="logo" src="" alt="Logo" />
-  </header>
+  <div class="backdrop" id="backdrop" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modalHead">
+        <strong id="modalHeader">Wine</strong>
+        <button class="close" id="closeBtn">Close</button>
+      </div>
+      <div class="modalBody">
+        <div class="modalImg"><img id="modalImg" alt="wine" /></div>
+        <div class="modalInfo">
+          <div>
+            <div class="modalTitle" id="mName"></div>
+            <div class="modalSub" id="mProducer"></div>
+          </div>
+
+          <div class="kv" id="kv"></div>
+
+          <div class="textblock" id="storyBlock" style="display:none">
+            <h4>Story</h4>
+            <p id="mStory"></p>
+          </div>
+
+          <div class="textblock" id="notesBlock" style="display:none">
+            <h4>Notes</h4>
+            <p id="mNotes"></p>
+          </div>
+
+          <div class="textblock" id="pairingBlock" style="display:none">
+            <h4>Pairing</h4>
+            <p id="mPairing"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- =========================
-       БЛОК 3 — КОНТЕЙНЕР
-       ========================= -->
-  <div class="container" id="app"></div>
-
-  <!-- =========================
-       БЛОК 4 — STATE
+       БЛОК 7 — JS: состояние / конфиги / загрузка
        ========================= -->
   <script>
+    /*
+      ВАЖНО: мы работаем «шаг за шагом».
+      Этот index.html:
+      - читает ?r=peopletalk или ?r=novikov_bh
+      - подтягивает configs/{r}.json
+      - подтягивает CSV по языку (en/es) из config.csvUrl[lang]
+      - переключает язык без перезагрузки (history.replaceState + localStorage)
+      - применяет theme из config
+      - строит секции динамически (или по config.sectionsOrder, если добавишь)
+      - поддерживает deep-link ?r=...&w=<wine_id>
+    */
+
     const state = {
-      loading: true,
-      error: null,
+      restaurantId: null,
+      lang: 'en',
+      config: null,
       wines: [],
-      sections: {}
+      filtered: [],
+      section: 'ALL',
+      query: ''
     };
-  </script>
 
-  <!-- =========================
-       БЛОК 5 — УТИЛИТЫ
-       ========================= -->
-  <script>
-    function groupBy(arr, key) {
-      return arr.reduce((acc, item) => {
-        const v = item[key] || "other";
-        acc[v] = acc[v] || [];
-        acc[v].push(item);
-        return acc;
-      }, {});
+    function qs(sel){ return document.querySelector(sel); }
+    function el(id){ return document.getElementById(id); }
+
+    function getParams(){ return new URLSearchParams(window.location.search); }
+    function getParam(name){ return getParams().get(name); }
+
+    function setUrlParam(name, value){
+      const params = getParams();
+      if(value === null || value === undefined || value === '') params.delete(name);
+      else params.set(name, value);
+      const newUrl = `${window.location.pathname}?${params.toString()}`;
+      history.replaceState(null, '', newUrl);
     }
-  </script>
 
-  <!-- =========================
-       БЛОК 6 — CSV ПАРСЕР
-       ========================= -->
-  <script>
-    function parseCSV(text) {
-      const lines = text.split("\n").filter(Boolean);
-      const headers = lines[0].split(",").map(h => h.trim());
+    function safeStr(v){ return (v ?? '').toString().trim(); }
+    function lower(v){ return safeStr(v).toLowerCase(); }
 
-      return lines.slice(1).map(line => {
-        const values = line.split(",").map(v => v.trim());
-        const obj = {};
-        headers.forEach((h, i) => obj[h] = values[i] || "");
-        return obj;
+    function normalizePath(p){
+      // если в config было "/assets/..." — на GitHub Pages это часто ломается.
+      // приводим к относительному пути.
+      if(!p) return '';
+      return p.startsWith('/') ? p.slice(1) : p;
+    }
+
+    function showMsg(html, type){
+      const msg = el('msg');
+      msg.innerHTML = '';
+      if(!html) return;
+      const box = document.createElement('div');
+      box.className = type === 'error' ? 'error' : 'hint';
+      box.innerHTML = html;
+      msg.appendChild(box);
+    }
+
+    function money(v, currency){
+      const n = Number(v);
+      if(!Number.isFinite(n)) return '';
+      try{
+        return new Intl.NumberFormat('en-US', {style:'currency', currency: currency || 'USD', maximumFractionDigits:0}).format(n);
+      }catch{
+        return `${currency || '$'}${n}`;
+      }
+    }
+
+    function applyTheme(theme){
+      document.body.classList.remove('theme-novikov_clean','theme-peopletalk');
+      if(theme) document.body.classList.add(`theme-${theme}`);
+    }
+
+    function setBrand(config){
+      el('restaurantName').textContent = config?.name || 'Wine Gallery';
+      el('subtitle').textContent = `r=${state.restaurantId} • lang=${state.lang}`;
+      const logo = el('logo');
+      logo.src = normalizePath(config?.logoUrl || '');
+      logo.style.visibility = logo.src ? 'visible' : 'hidden';
+    }
+
+    async function loadConfig(restaurantId){
+      const url = `configs/${encodeURIComponent(restaurantId)}.json`;
+      const res = await fetch(url, {cache:'no-store'});
+      if(!res.ok) throw new Error(`Config not found: ${url} (HTTP ${res.status})`);
+      return await res.json();
+    }
+
+    function initLangUI(){
+      const seg = el('langSeg');
+      [...seg.querySelectorAll('button')].forEach(btn=>{
+        btn.classList.toggle('active', btn.dataset.lang === state.lang);
+        btn.onclick = async () => {
+          const next = btn.dataset.lang;
+          if(next === state.lang) return;
+          state.lang = next;
+          localStorage.setItem('wg_lang', next);
+          setUrlParam('lang', next); // без перезагрузки
+          // перезагружаем данные и перерисовываем
+          await loadDataAndRender();
+        };
       });
     }
-  </script>
 
-  <!-- =========================
-       БЛОК 7 — ЗАГРУЗКА CSV
-       ========================= -->
-  <script>
-    async function loadCSV() {
-      const res = await fetch(CSV_URL, { cache: "no-store" });
-      if (!res.ok) throw new Error("CSV fetch failed");
+    function normalizeWineRow(r){
+      // CSV уже плоский и готовый под сайт.
+      // Колонки ожидаем такие:
+      // id, section, order, producer, name, vintage, country, region, grape, style,
+      // btg_price, bottle_price, story, notes, bottle_img, visible, is_available
+      // + (опционально) pairing
+      return {
+        id: safeStr(r.id),
+        section: safeStr(r.section),
+        order: Number(r.order) || 0,
+        producer: safeStr(r.producer),
+        name: safeStr(r.name),
+        vintage: safeStr(r.vintage),
+        country: safeStr(r.country),
+        region: safeStr(r.region),
+        grape: safeStr(r.grape),
+        style: safeStr(r.style),
+        btg_price: safeStr(r.btg_price),
+        bottle_price: safeStr(r.bottle_price),
+        story: safeStr(r.story),
+        notes: safeStr(r.notes),
+        bottle_img: safeStr(r.bottle_img),
+        pairing: safeStr(r.pairing),
+        visible: lower(r.visible) === 'yes',
+        is_available: lower(r.is_available) !== 'no' && lower(r.is_available) !== 'false'
+      };
+    }
 
+    async function fetchCsv(url){
+      const res = await fetch(url, {cache:'no-store'});
+      if(!res.ok) throw new Error(`CSV fetch failed (HTTP ${res.status})`);
       const text = await res.text();
-      const rows = parseCSV(text);
-
-      state.wines = rows.filter(w =>
-        w.visible === "yes" && w.is_available === "yes"
-      );
-
-      state.sections = groupBy(state.wines, "section");
-      state.loading = false;
-      render();
-    }
-  </script>
-
-  <!-- =========================
-       БЛОК 8 — RENDER
-       ========================= -->
-  <script>
-    function render() {
-      const app = document.getElementById("app");
-      app.innerHTML = "";
-
-      if (state.loading) {
-        app.textContent = "Loading…";
-        return;
-      }
-
-      if (state.error) {
-        app.innerHTML = `<div class="error">${state.error}</div>`;
-        return;
-      }
-
-      Object.keys(state.sections).forEach(section => {
-        const block = document.createElement("div");
-        block.className = "section";
-
-        const h2 = document.createElement("h2");
-        h2.textContent = section;
-        block.appendChild(h2);
-
-        state.sections[section].forEach(w => {
-          const row = document.createElement("div");
-          row.className = "wine";
-
-          const left = document.createElement("div");
-          left.innerHTML = `
-            <div class="wine-title">${w.producer} — ${w.name}</div>
-            <div class="wine-meta">${w.region}, ${w.country}</div>
-          `;
-
-          const right = document.createElement("div");
-          right.className = "wine-price";
-          right.textContent = w.bottle_price;
-
-          row.appendChild(left);
-          row.appendChild(right);
-          block.appendChild(row);
+      return new Promise((resolve, reject) => {
+        Papa.parse(text, {
+          header:true,
+          skipEmptyLines:true,
+          complete: (results) => resolve(results.data),
+          error: (err) => reject(err)
         });
-
-        app.appendChild(block);
       });
     }
-  </script>
 
-  <!-- =========================
-       БЛОК 9 — КОНФИГ / CSV URL / LOGO
-       (НОВЫЙ БЛОК — замена констант)
-       ========================= -->
-  <script>
-    function getParam(name) {
-      const u = new URL(window.location.href);
-      return u.searchParams.get(name);
+    function validateWines(wines){
+      // простая валидация как в спринте 1
+      const ids = new Set();
+      const dup = [];
+      for(const w of wines){
+        if(!w.id) return {ok:false, msg:`Found empty id in CSV.`};
+        if(ids.has(w.id)) dup.push(w.id);
+        ids.add(w.id);
+        if(!Number.isFinite(w.order)) return {ok:false, msg:`Non-numeric order for id: ${w.id}`};
+      }
+      if(dup.length) return {ok:false, msg:`Duplicate ids: ${dup.slice(0,10).join(', ')}${dup.length>10?'…':''}`};
+      return {ok:true};
     }
 
-    const RESTAURANT_ID = (getParam("r") || "peopletalk").toLowerCase();
-    const LANG = (getParam("lang") || "en").toLowerCase();
-
-    const CONFIG_URL = `configs/${RESTAURANT_ID}.json`;
-
-    let CSV_URL = "";
-    let LOGO_URL = "";
-
-    async function loadConfig() {
-      const res = await fetch(CONFIG_URL, { cache: "no-store" });
-      if (!res.ok) {
-        throw new Error(`Config not found: ${CONFIG_URL}`);
+    function getSectionsFromData(wines){
+      const seen = new Set();
+      const list = [];
+      for(const w of wines){
+        if(!w.section) continue;
+        if(!seen.has(w.section)){
+          seen.add(w.section);
+          list.push(w.section);
+        }
       }
-
-      const cfg = await res.json();
-      window.APP_CONFIG = cfg;
-
-      CSV_URL =
-        cfg.csvUrl?.[LANG] ||
-        cfg.csvUrl?.[cfg.defaultLanguage] ||
-        cfg.csvUrl?.["en"] ||
-        "";
-
-      LOGO_URL = cfg.logoUrl || "";
-
-      if (!CSV_URL) {
-        throw new Error("CSV URL is empty in config");
-      }
-
-      document.getElementById("logo").src = LOGO_URL;
+      return list;
     }
-  </script>
 
-  <!-- =========================
-       БЛОК 10 — СТАРТ
-       ========================= -->
-  <script>
-    loadConfig()
-      .then(loadCSV)
-      .catch(err => {
-        state.loading = false;
-        state.error = err.message || String(err);
-        render();
-      });
-  </script>
+    function renderTabs(){
+      const tabs = el('tabs');
+      tabs.innerHTML = '';
 
+      const sections = (() => {
+        // Если позже добавишь в config.sectionsOrder — будем использовать его.
+        if(Array.isArray(state.config?.sectionsOrder) && state.config.sectionsOrder.length){
+          return state.config.sectionsOrder;
+        }
+        return getSectionsFromData(state.wines);
+      })();
+
+      const mk = (key, label) => {
+        const b = document.createElement('button');
+        b.className = 'tab' + (state.section===key?' active':'');
+        b.textContent = label;
+        b.onclick = () => {
+          state.section = key;
+          applyFiltersAndRender();
+        };
+        return b;
+      };
+
+      tabs.appendChild(mk('ALL','All'));
+      for(const s of sections){
+        tabs.appendChild(mk(s, s));
+      }
+    }
+
+    function applyFiltersAndRender(){
+      const q = lower(state.query);
+      let items = state.wines.slice();
+
+      // visible
+      items = items.filter(w => w.visible);
+
+      // availability: пока просто показываем, но можно легко скрывать 86
+      // (в спринте 3 решим окончательно)
+
+      // section
+      if(state.section !== 'ALL') items = items.filter(w => w.section === state.section);
+
+      // search
+      if(q){
+        items = items.filter(w => {
+          const hay = `${w.name} ${w.producer} ${w.region} ${w.country} ${w.grape} ${w.style}`.toLowerCase();
+          return hay.includes(q);
+        });
+      }
+
+      // sort
+      items.sort((a,b)=> (a.order-b.order) || a.name.localeCompare(b.name));
+
+      state.filtered = items;
+      renderGrid();
+      renderTabs();
+
+      el('hint').textContent = `${items.length} wines`;
+    }
+
+    function renderGrid(){
+      const grid = el('grid');
+      grid.innerHTML='';
+      for(const w of state.filtered){
+        const card = document.createElement('div');
+        card.className='card';
+        card.onclick = ()=> openModal(w.id);
+
+        const imgUrl = w.bottle_img;
+        card.innerHTML = `
+          <div class="img">${imgUrl?`<img loading="lazy" src="${imgUrl}" alt="${w.name}" />`:''}</div>
+          <div class="body">
+            <div class="line1">
+              <div style="min-width:0">
+                <div class="name">${escapeHtml(w.name)}${w.vintage?` <span style="color:var(--muted); font-weight:700">${escapeHtml(w.vintage)}</span>`:''}</div>
+                <div class="producer">${escapeHtml(w.producer)}</div>
+              </div>
+              <div class="chip"><span class="price">${money(w.btg_price || w.bottle_price, state.config?.currency || 'USD')}</span></div>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap">
+              ${w.region?`<span class="chip">${escapeHtml(w.region)}</span>`:''}
+              ${w.grape?`<span class="chip">${escapeHtml(w.grape)}</span>`:''}
+              ${w.style?`<span class="chip">${escapeHtml(w.style)}</span>`:''}
+              ${w.is_available?'' : '<span class="chip" style="border-color:rgba(239,68,68,.4); color:#fecaca">86</span>'}
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      }
+    }
+
+    function escapeHtml(s){
+      return (s??'').toString()
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'",'&#039;');
+    }
+
+    function openModal(id){
+      const w = state.wines.find(x=>x.id===id);
+      if(!w) return;
+
+      // deep-link
+      setUrlParam('w', id);
+
+      el('modalHeader').textContent = w.section || 'Wine';
+      el('mName').textContent = `${w.name}${w.vintage?` ${w.vintage}`:''}`;
+      el('mProducer').textContent = w.producer;
+      el('modalImg').src = w.bottle_img || '';
+
+      const kv = el('kv');
+      kv.innerHTML='';
+      const add = (k,v) => {
+        if(!v) return;
+        kv.insertAdjacentHTML('beforeend', `<b>${escapeHtml(k)}</b><span>${escapeHtml(v)}</span>`);
+      };
+
+      add('Country', w.country);
+      add('Region', w.region);
+      add('Grape', w.grape);
+      add('Style', w.style);
+
+      const currency = state.config?.currency || 'USD';
+      const prices = [];
+      if(w.btg_price) prices.push(`BTG: ${money(w.btg_price, currency)}`);
+      if(w.bottle_price) prices.push(`Bottle: ${money(w.bottle_price, currency)}`);
+      add('Price', prices.join(' • '));
+
+      const showText = (blockId, textId, value) => {
+        const b = el(blockId);
+        if(value){
+          b.style.display='block';
+          el(textId).textContent = value;
+        } else {
+          b.style.display='none';
+          el(textId).textContent='';
+        }
+      };
+
+      showText('storyBlock','mStory', w.story);
+      showText('notesBlock','mNotes', w.notes);
+      // pairing — только если колонка реально есть (PeopleTalk)
+      showText('pairingBlock','mPairing', w.pairing);
+
+      el('backdrop').classList.add('show');
+    }
+
+    function closeModal(){
+      el('backdrop').classList.remove('show');
+      setUrlParam('w','');
+    }
+
+    el('closeBtn').onclick = closeModal;
+    el('backdrop').onclick = (e)=>{ if(e.target===el('backdrop')) closeModal(); };
+    window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeModal(); });
+
+    el('q').addEventListener('input', (e)=>{
+      state.query = e.target.value || '';
+      applyFiltersAndRender();
+    });
+
+    async function loadDataAndRender(){
+      showMsg('Loading…');
+      initLangUI();
+
+      applyTheme(state.config?.theme);
+      setBrand(state.config);
+
+      const csvUrl = state.config?.csvUrl?.[state.lang];
+      if(!csvUrl) throw new Error(`csvUrl for lang="${state.lang}" is missing in config.`);
+
+      const raw = await fetchCsv(csvUrl);
+      const wines = raw.map(normalizeWineRow);
+      const v = validateWines(wines);
+      if(!v.ok) throw new Error(v.msg);
+
+      state.wines = wines;
+
+      showMsg('');
+      applyFiltersAndRender();
+
+      // Deep-link: ?w=...
+      const w = getParam('w');
+      if(w) openModal(w);
+    }
+
+    async function boot(){
+      try{
+        // restaurant
+        const r = getParam('r') || localStorage.getItem('wg_r') || 'peopletalk';
+        state.restaurantId = r;
+        localStorage.setItem('wg_r', r);
+        setUrlParam('r', r);
+
+        // lang
+        const urlLang = getParam('lang');
+        const savedLang = localStorage.getItem('wg_lang');
+        state.lang = (urlLang || savedLang || 'en').toLowerCase();
+        if(state.lang !== 'en' && state.lang !== 'es') state.lang = 'en';
+        setUrlParam('lang', state.lang);
+
+        // config
+        state.config = await loadConfig(r);
+
+        // доп поля, которые удобно держать в config
+        // (если ты добавишь их позже — код уже готов):
+        // config.currency (мы берём валюту из restaurants.currency)
+        // config.sectionsOrder
+
+        await loadDataAndRender();
+      } catch(err){
+        console.error(err);
+        showMsg(`${escapeHtml(err.message || String(err))}<br><br>
+        Проверь:
+        <ul>
+          <li>Есть ли файл <b>configs/&lt;r&gt;.json</b> в репозитории</li>
+          <li>Правильные ли ссылки <b>csvUrl.en / csvUrl.es</b></li>
+          <li>Не начинается ли logoUrl с <b>"/"</b> (лучше <b>assets/...</b>)</li>
+        </ul>`, 'error');
+      }
+    }
+
+    boot();
+  </script>
 </body>
 </html>

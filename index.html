@@ -4,1090 +4,1011 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>WineGallery</title>
-
   <style>
-    /* =========================================================
-       БАЗОВАЯ ТЕМА/ЛЕЙАУТ (как было) — фон, шрифты, сетка, карточки
-       ========================================================= */
     :root{
-      --bg: #0b0f10;
-      --panel: rgba(18, 23, 24, 0.75);
-      --panel2: rgba(12, 15, 16, 0.65);
-      --text: rgba(255,255,255,0.92);
-      --muted: rgba(255,255,255,0.65);
-      --line: rgba(255,255,255,0.10);
-      --chip: rgba(255,255,255,0.10);
-      --chipOn: rgba(120,220,150,0.20);
-      --accent: rgba(120,220,150,0.85);
-      --shadow: 0 18px 45px rgba(0,0,0,0.35);
-      --radius: 18px;
-      --radius2: 14px;
-      --max: 1200px;
-      --gap: 18px;
-      --blur: 22px;
+      --bg1:#0b0f0e;
+      --bg2:#04110d;
+      --card:#0e1312cc;
+      --card2:#0f1514aa;
+      --stroke:rgba(255,255,255,0.10);
+      --stroke2:rgba(255,255,255,0.14);
+      --text:rgba(255,255,255,0.92);
+      --muted:rgba(255,255,255,0.62);
+      --muted2:rgba(255,255,255,0.50);
+      --chip:rgba(255,255,255,0.06);
+      --chipActive:rgba(156, 255, 206, 0.15);
+      --good:#74ffb6;
+      --shadow:0 12px 35px rgba(0,0,0,0.55);
+      --radius:18px;
+      --radius2:14px;
+      --pad:22px;
+      --gap:16px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
-
-    /* =========================================================
-       ТЕМА ИЗ CONFIG (подключение theme)
-       Реально "скины" ты можешь расширять позже. Сейчас это базовая
-       возможность: менять фон/акцент через data-theme на <html>.
-       ========================================================= */
-    html[data-theme="peopletalk"]{
-      --accent: rgba(110,170,255,0.90);
-      --chipOn: rgba(110,170,255,0.22);
-    }
-    html[data-theme="novikov_clean"]{
-      --accent: rgba(120,220,150,0.85);
-      --chipOn: rgba(120,220,150,0.20);
-    }
-
-    body{
+    html,body{
+      height:100%;
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      background:
-        radial-gradient(1200px 700px at 20% 0%, rgba(100,180,120,0.20), transparent 55%),
-        radial-gradient(900px 500px at 85% 20%, rgba(100,160,210,0.16), transparent 60%),
-        radial-gradient(900px 500px at 55% 90%, rgba(220,180,90,0.10), transparent 60%),
-        var(--bg);
-      color: var(--text);
-      min-height: 100vh;
+      font-family:var(--font);
+      color:var(--text);
+      background: radial-gradient(1200px 800px at 20% 20%, rgba(91,255,170,0.08), transparent 60%),
+                  radial-gradient(900px 650px at 80% 30%, rgba(0,160,255,0.05), transparent 60%),
+                  radial-gradient(900px 700px at 55% 85%, rgba(255,255,255,0.03), transparent 65%),
+                  linear-gradient(120deg, var(--bg2), var(--bg1));
+      overflow-x:hidden;
     }
-
     .wrap{
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 26px 16px 48px;
+      max-width:1240px;
+      margin:0 auto;
+      padding:22px 18px 70px;
     }
-
     .topbar{
+      position: sticky;
+      top: 10px;
+      z-index: 10;
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:14px;
-      padding: 14px 16px;
-      border: 1px solid var(--line);
-      background: var(--panel);
-      backdrop-filter: blur(var(--blur));
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      padding:14px 16px;
+      margin-bottom:14px;
+      border:1px solid var(--stroke);
+      background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      border-radius: 22px;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.35);
+      backdrop-filter: blur(12px);
     }
-
     .brand{
       display:flex;
       align-items:center;
       gap:12px;
-      min-width: 240px;
+      min-width:210px;
     }
-
-    .logo{
-      width: 44px;
-      height: 44px;
+    .brand img{
+      width:42px;
+      height:42px;
       border-radius: 12px;
-      overflow:hidden;
-      border: 1px solid var(--line);
-      background: var(--panel2);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex:0 0 auto;
-    }
-    .logo img{
-      width:100%;
-      height:100%;
       object-fit:contain;
-      display:block;
+      background: rgba(255,255,255,0.06);
+      border:1px solid var(--stroke);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
     }
-
-    .brand h1{
-      font-size: 16px;
-      margin:0;
-      line-height: 1.1;
-      letter-spacing: 0.2px;
+    .brand .title{
+      display:flex;
+      flex-direction:column;
+      line-height:1.1;
     }
-    .brand .sub{
+    .brand .title b{
+      font-size: 14px;
+      letter-spacing:0.2px;
+    }
+    .brand .title span{
       font-size: 12px;
       color: var(--muted);
-      margin-top: 2px;
     }
-
     .controls{
       display:flex;
       align-items:center;
       gap:10px;
-      flex-wrap: wrap;
+      flex-wrap:wrap;
       justify-content:flex-end;
     }
-
     .pill{
       display:flex;
       align-items:center;
-      gap:6px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid var(--line);
-      padding: 6px 10px;
+      gap:8px;
+      padding:7px 10px;
       border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.04);
       font-size: 12px;
       color: var(--muted);
     }
-
     select, input{
-      background: rgba(255,255,255,0.06);
-      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--stroke);
       color: var(--text);
-      padding: 8px 10px;
-      border-radius: 999px;
-      outline: none;
+      outline:none;
+      border-radius: 12px;
+      padding: 7px 10px;
       font-size: 12px;
     }
-
-    input::placeholder{
-      color: rgba(255,255,255,0.45);
+    select{
+      padding-right: 28px;
     }
-
+    input{
+      min-width: 220px;
+    }
     .status{
       font-size: 12px;
       color: var(--muted);
-      padding: 6px 10px;
-      border: 1px solid var(--line);
-      background: rgba(0,0,0,0.20);
+      padding: 7px 10px;
       border-radius: 999px;
-      max-width: 420px;
-      overflow:hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .section-nav{
-      margin-top: 14px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,0.03);
       display:flex;
-      gap:8px;
-      flex-wrap: wrap;
       align-items:center;
+      gap:8px;
     }
-
+    .dot{
+      width:8px;height:8px;border-radius: 999px;
+      background: rgba(255,255,255,0.35);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
+    }
+    .dot.good{
+      background: var(--good);
+      box-shadow: 0 0 0 3px rgba(116,255,182,0.13);
+    }
+    .tabs{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin: 12px 0 12px;
+    }
     .chip{
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.06);
-      color: var(--text);
-      font-size: 12px;
-      padding: 7px 12px;
-      border-radius: 999px;
-      cursor: pointer;
+      cursor:pointer;
       user-select:none;
-      transition: transform .10s ease, background .15s ease, border-color .15s ease;
+      padding:7px 12px;
+      border-radius: 999px;
+      border:1px solid var(--stroke);
+      background: var(--chip);
+      color: var(--muted);
+      font-size: 12px;
+      transition: 0.15s ease;
+      text-transform: none;
     }
-    .chip:hover{ transform: translateY(-1px); }
+    .chip:hover{
+      border-color: var(--stroke2);
+      color: var(--text);
+    }
     .chip.active{
-      background: var(--chipOn);
-      border-color: rgba(120,220,150,0.35);
+      background: var(--chipActive);
+      border-color: rgba(116,255,182,0.45);
+      color: rgba(220,255,240,0.95);
     }
-
     .grid{
-      margin-top: 14px;
       display:grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: var(--gap);
+      gap: 18px;
+      margin-top: 10px;
     }
-
-    @media (max-width: 980px){
+    @media (max-width: 930px){
       .grid{ grid-template-columns: 1fr; }
-      .brand{ min-width: auto; }
+      input{ min-width: 160px; }
     }
-
     .card{
-      border: 1px solid var(--line);
-      background: rgba(0,0,0,0.30);
-      backdrop-filter: blur(var(--blur));
+      position:relative;
       border-radius: var(--radius);
-      padding: 14px;
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, var(--card), var(--card2));
       box-shadow: var(--shadow);
-      display:grid;
-      grid-template-columns: 98px 1fr;
-      gap: 14px;
-      cursor: pointer;
-    }
-
-    .bottle{
-      width: 98px;
-      height: 150px;
-      border-radius: var(--radius2);
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.03);
+      padding: 16px 16px 14px;
       overflow:hidden;
+    }
+    .card:hover{
+      border-color: var(--stroke2);
+    }
+    .row{
       display:flex;
-      align-items:center;
-      justify-content:center;
+      gap: 14px;
+      align-items:flex-start;
     }
-    .bottle img{
-      width:100%;
-      height:100%;
-      object-fit:contain;
-      display:block;
+    .bottle{
+      width: 86px;
+      height: 140px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.05);
+      object-fit: contain;
+      padding: 8px;
+      box-sizing:border-box;
+      flex: 0 0 auto;
     }
-
     .meta{
-      display:flex;
-      flex-direction:column;
-      gap: 8px;
-      min-width: 0;
+      flex:1;
+      min-width:0;
     }
-
-    .row1{
+    .head{
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
-      gap: 10px;
+      gap:10px;
     }
-
-    .title{
-      font-size: 14px;
-      font-weight: 650;
-      line-height: 1.25;
-      margin: 0;
-      white-space: nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
-      max-width: 100%;
-    }
-
-    .price{
-      text-align:right;
+    .name{
       font-weight: 700;
       font-size: 14px;
-      line-height: 1;
-      white-space: nowrap;
-    }
-    .price .sub{
-      display:block;
-      font-weight: 500;
-      color: var(--muted);
-      font-size: 11px;
-      margin-top: 4px;
-    }
-
-    .line2{
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.35;
+      letter-spacing:0.2px;
+      margin-bottom: 4px;
       white-space: nowrap;
       overflow:hidden;
       text-overflow: ellipsis;
     }
-
-    .chips{
-      display:flex;
-      gap: 8px;
-      flex-wrap:wrap;
-      align-items:center;
+    .sub{
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
     }
-
+    .price{
+      text-align:right;
+      font-size: 14px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.92);
+      min-width: 74px;
+      line-height:1.1;
+    }
+    .price small{
+      display:block;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .tags{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top: 6px;
+      margin-bottom: 10px;
+    }
     .tag{
       font-size: 11px;
-      padding: 5px 10px;
+      padding: 4px 8px;
       border-radius: 999px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.06);
-      color: var(--text);
-      white-space: nowrap;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.76);
     }
-
     .desc{
-      color: rgba(255,255,255,0.78);
       font-size: 12px;
       line-height: 1.35;
-      display:-webkit-box;
-      -webkit-line-clamp: 4;
-      -webkit-box-orient: vertical;
-      overflow:hidden;
-      margin-top: 2px;
-    }
-
-    .notes{
-      color: rgba(255,255,255,0.55);
-      font-size: 11px;
-      line-height: 1.25;
-      margin-top: 2px;
-      white-space: nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* =========================================================
-       MODAL (для deep-link ?w=... и просмотра деталей вина)
-       ========================================================= */
-    .modal-backdrop{
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.62);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-      z-index: 1000;
-    }
-    .modal-backdrop.open{ display:flex; }
-
-    .modal{
-      width: min(980px, 100%);
-      border: 1px solid var(--line);
-      background: rgba(10,12,12,0.88);
-      backdrop-filter: blur(var(--blur));
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      color: rgba(255,255,255,0.80);
+      margin-top: 8px;
+      max-height: 5.3em;
       overflow: hidden;
     }
-
-    .modal-head{
+    .notes{
+      font-size: 11px;
+      color: var(--muted2);
+      margin-top: 10px;
+    }
+    .cardBtn{
+      position:absolute;
+      inset:0;
+      cursor:pointer;
+      background: transparent;
+      border:0;
+    }
+    .modalBack{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,0.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      z-index: 50;
+    }
+    .modal{
+      width: min(880px, 100%);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: linear-gradient(180deg, rgba(20,26,24,0.95), rgba(10,14,13,0.92));
+      box-shadow: 0 35px 90px rgba(0,0,0,0.7);
+      overflow:hidden;
+    }
+    .modalTop{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap: 10px;
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--line);
-      background: rgba(255,255,255,0.04);
-    }
-    .modal-head .mh-title{
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      color: rgba(255,255,255,0.85);
       font-size: 13px;
-      font-weight: 650;
-      margin: 0;
-      overflow:hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
     }
-    .modal-close{
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.06);
-      color: var(--text);
-      border-radius: 999px;
-      padding: 8px 12px;
-      cursor: pointer;
-      font-size: 12px;
-    }
-
-    .modal-body{
-      display:grid;
-      grid-template-columns: 180px 1fr;
-      gap: 14px;
-      padding: 14px;
-    }
-    @media (max-width: 720px){
-      .modal-body{ grid-template-columns: 1fr; }
-    }
-
-    .modal-bottle{
-      width: 180px;
-      height: 260px;
-      border-radius: var(--radius2);
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.03);
-      overflow:hidden;
+    .modalBody{
+      padding: 16px;
       display:flex;
-      align-items:center;
-      justify-content:center;
+      gap:16px;
+      align-items:flex-start;
     }
-    .modal-bottle img{
-      width:100%;
-      height:100%;
-      object-fit:contain;
-      display:block;
+    .modalBody .bottle{
+      width: 128px;
+      height: 210px;
+      padding:10px;
     }
-
-    .modal-text{
-      min-width: 0;
-      display:flex;
-      flex-direction:column;
-      gap: 10px;
+    .modalText{
+      flex:1;
+      min-width:0;
     }
-
-    .modal-kv{
-      display:grid;
-      grid-template-columns: 120px 1fr;
-      gap: 6px 10px;
-      font-size: 12px;
-      color: var(--muted);
+    .modalText h2{
+      margin: 0 0 6px 0;
+      font-size: 18px;
+      letter-spacing:0.2px;
     }
-    .modal-kv b{
-      color: var(--text);
-      font-weight: 650;
+    .modalText .sub{
+      margin-bottom: 10px;
+      white-space: normal;
     }
-    .modal-long{
-      color: rgba(255,255,255,0.82);
-      font-size: 12px;
+    .modalText .desc{
+      max-height: none;
+      overflow: visible;
+      font-size: 13px;
       line-height: 1.45;
-      white-space: pre-wrap;
+    }
+    .closeBtn{
+      cursor:pointer;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      padding: 7px 10px;
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.85);
+      font-size: 12px;
+    }
+    .closeBtn:hover{
+      border-color: rgba(255,255,255,0.22);
     }
   </style>
 </head>
-
 <body>
   <div class="wrap">
-    <!-- =========================================================
-         TOPBAR: логотип, ресторан/язык, поиск, статус
-         ========================================================= -->
     <div class="topbar">
       <div class="brand">
-        <div class="logo">
-          <img id="logo" alt="logo" />
-        </div>
-        <div>
-          <h1 id="restaurantName">WineGallery</h1>
-          <div class="sub">Updated from CSV</div>
+        <img id="logo" alt="logo" src="" />
+        <div class="title">
+          <b id="restaurantName">WineGallery</b>
+          <span>Updated from CSV</span>
         </div>
       </div>
 
       <div class="controls">
-        <div class="pill" id="pillRestaurant">r: -</div>
-        <div class="pill" id="pillLang">lang: -</div>
+        <div class="pill"><span>r:</span> <b id="pillRestaurant">-</b></div>
+        <div class="pill"><span>lang:</span> <b id="pillLang">-</b></div>
 
-        <select id="restaurantSelect" aria-label="Restaurant">
-          <option value="novikov_bh">Novikov BH</option>
-          <option value="peopletalk">PeopleTalk</option>
-        </select>
-
-        <select id="langSelect" aria-label="Language">
-          <option value="en">EN</option>
-          <option value="es">ES</option>
-        </select>
+        <select id="restaurantSelect" title="Restaurant"></select>
+        <select id="langSelect" title="Language"></select>
 
         <input id="searchInput" placeholder="Search..." />
-
-        <!-- ✅ Sprint 2: кнопку Reload убрали совсем (по твоему решению) -->
-
-        <div class="status" id="statusBox">Ready</div>
+        <div class="status" id="statusPill"><span class="dot" id="statusDot"></span> <span id="statusText">Idle</span></div>
       </div>
     </div>
 
-    <!-- =========================================================
-         SECTION NAV: кнопки секций (All + sectionsOrder)
-         ========================================================= -->
-    <div class="section-nav" id="sectionNav"></div>
-
-    <!-- =========================================================
-         GRID: карточки вин
-         ========================================================= -->
+    <div class="tabs" id="sectionTabs"></div>
     <div class="grid" id="grid"></div>
   </div>
 
-  <!-- =========================================================
-       MODAL: открывается по клику на карточку и по deep-link ?w=
-       ========================================================= -->
-  <div class="modal-backdrop" id="wineModalBackdrop" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-label="Wine details">
-      <div class="modal-head">
-        <p class="mh-title" id="wineModalTitle">Wine</p>
-        <button class="modal-close" id="wineModalClose">Close</button>
+  <div class="modalBack" id="modalBack">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modalTop">
+        <div id="modalTopText">Wine</div>
+        <button class="closeBtn" id="closeModalBtn">Close</button>
       </div>
-      <div class="modal-body">
-        <div class="modal-bottle">
-          <img id="wineModalImg" alt="bottle" />
-        </div>
-        <div class="modal-text">
-          <div class="modal-kv" id="wineModalKV"></div>
-          <div class="modal-long" id="wineModalDesc"></div>
+      <div class="modalBody">
+        <img class="bottle" id="modalBottle" alt="bottle" src="" />
+        <div class="modalText">
+          <h2 id="modalName"></h2>
+          <div class="sub" id="modalSub"></div>
+          <div class="tags" id="modalTags"></div>
+          <div class="desc" id="modalDesc"></div>
+          <div class="notes" id="modalNotes"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <script>
-    /* =========================================================
-       SPRINT 2 — что добавлено в код (главное):
-       1) sectionsOrder = единственный источник порядка секций (строго)
-       2) deep-links:
-          - ?r=...&lang=...&section=...
-          - ?r=...&lang=...&w=wine_id   (модалка)
-          Приоритет: w (логично) — если w есть, активируем секцию вина.
-       3) кэш config + csv в памяти (на время вкладки)
-       4) debounce на поиске (250мс)
-       5) убрали кнопку Reload (как ты подтвердил)
-       ========================================================= */
+<script>
+/**
+ * =========================
+ * 1) State / helpers
+ * =========================
+ * - Здесь хранится текущее состояние (ресторан, язык, секция, данные).
+ * - И утилиты: нормализация путей, нормализация ключей секций, money(), safe().
+ */
+const $ = (id) => document.getElementById(id);
 
-    /* ---------------------------
-       DOM: ссылки на элементы UI
-       --------------------------- */
-    const el = {
-      logo: document.getElementById('logo'),
-      restaurantName: document.getElementById('restaurantName'),
-      pillRestaurant: document.getElementById('pillRestaurant'),
-      pillLang: document.getElementById('pillLang'),
-      restaurantSelect: document.getElementById('restaurantSelect'),
-      langSelect: document.getElementById('langSelect'),
-      searchInput: document.getElementById('searchInput'),
-      statusBox: document.getElementById('statusBox'),
-      sectionNav: document.getElementById('sectionNav'),
-      grid: document.getElementById('grid'),
+const state = {
+  restaurantId: null,
+  lang: null,
+  config: null,
+  configsIndex: null,
+  wines: [],
+  sectionsEffective: [],
+  activeSection: 'all',
+  search: '',
+  isLoading: false,
+  status: 'Idle',
+  statusType: 'idle',
+  cache: {
+    configsIndex: null,
+    configByRestaurant: new Map(),
+    csvByUrl: new Map(),
+  },
+  modalWineId: null,
+  sectionLabels: {}, // key -> human label
+};
 
-      modalBackdrop: document.getElementById('wineModalBackdrop'),
-      modalClose: document.getElementById('wineModalClose'),
-      modalTitle: document.getElementById('wineModalTitle'),
-      modalImg: document.getElementById('wineModalImg'),
-      modalKV: document.getElementById('wineModalKV'),
-      modalDesc: document.getElementById('wineModalDesc'),
+function normalizeAssetPath(path) {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) return path;
+  if (path.startsWith('/')) return path;
+  return path;
+}
+
+/**
+ * normalizeSectionKey:
+ * - приводит любые варианты ("rosé", "Rose", "dessert wines", "dessert_wines") к одному ключу.
+ * - Это важно, чтобы sectionsOrder не ломал отображение из-за акцентов/пробелов.
+ */
+function normalizeSectionKey(input) {
+  const raw = String(input ?? '').trim();
+  if (!raw) return '';
+  const noDiacritics = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const lowered = noDiacritics.toLowerCase();
+  const cleaned = lowered.replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  return cleaned;
+}
+
+function safe(v) {
+  if (v === null || v === undefined) return '';
+  return String(v);
+}
+
+function money(v) {
+  const n = Number(v);
+  if (!isFinite(n)) return '';
+  return n.toString();
+}
+
+function setStatus(text, type='idle') {
+  state.status = text;
+  state.statusType = type;
+  $('statusText').textContent = text;
+  const dot = $('statusDot');
+  dot.classList.remove('good');
+  if (type === 'good') dot.classList.add('good');
+}
+
+/**
+ * =========================
+ * 2) URL params (deep-links)
+ * =========================
+ * - Читаем ?r=...&lang=...&section=...&w=...
+ * - Пишем обратно при кликах по секциям и открытии/закрытии модалки.
+ */
+function readUrlParams() {
+  const u = new URL(window.location.href);
+  const p = u.searchParams;
+  return {
+    r: p.get('r'),
+    lang: p.get('lang'),
+    section: normalizeSectionKey(p.get('section')),
+    w: p.get('w')
+  };
+}
+
+function writeUrlParams(next) {
+  const u = new URL(window.location.href);
+  const p = u.searchParams;
+
+  if (next.r !== undefined) {
+    if (next.r) p.set('r', next.r); else p.delete('r');
+  }
+  if (next.lang !== undefined) {
+    if (next.lang) p.set('lang', next.lang); else p.delete('lang');
+  }
+  if (next.section !== undefined) {
+    if (next.section && next.section !== 'all') p.set('section', next.section); else p.delete('section');
+  }
+  if (next.w !== undefined) {
+    if (next.w) p.set('w', next.w); else p.delete('w');
+  }
+
+  const newUrl = u.pathname + (p.toString() ? '?' + p.toString() : '');
+  history.replaceState(null, '', newUrl);
+}
+
+function syncUrl() {
+  writeUrlParams({
+    r: state.restaurantId,
+    lang: state.lang,
+    section: state.activeSection,
+    w: state.modalWineId
+  });
+}
+
+/**
+ * =========================
+ * 3) CSV parsing + mapping
+ * =========================
+ * - parseCSV: парсер CSV (простая реализация)
+ * - затем маппим строки в wines-объекты
+ * - ВАЖНО: добавляем sectionKey (нормализованный ключ секции)
+ */
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let cur = '';
+  let inQ = false;
+
+  for (let i=0; i<text.length; i++) {
+    const ch = text[i];
+    const next = text[i+1];
+
+    if (inQ) {
+      if (ch === '"' && next === '"') { cur += '"'; i++; }
+      else if (ch === '"') inQ = false;
+      else cur += ch;
+    } else {
+      if (ch === '"') inQ = true;
+      else if (ch === ',') { row.push(cur); cur=''; }
+      else if (ch === '\n') { row.push(cur); rows.push(row); row=[]; cur=''; }
+      else if (ch === '\r') { /* ignore */ }
+      else cur += ch;
+    }
+  }
+  if (cur.length || row.length) { row.push(cur); rows.push(row); }
+
+  return rows;
+}
+
+function csvToObjects(csvText) {
+  const rows = parseCSV(csvText);
+  if (!rows.length) return [];
+  const headers = rows[0].map(h => safe(h).trim());
+  const objects = [];
+
+  for (let i=1; i<rows.length; i++) {
+    const r = rows[i];
+    const obj = {};
+    for (let j=0; j<headers.length; j++) {
+      obj[headers[j]] = r[j] ?? '';
+    }
+    objects.push(obj);
+  }
+  return objects;
+}
+
+/**
+ * =========================
+ * 4) Data loading (configs + CSV) + caching
+ * =========================
+ * - Кэшируем configsIndex, config и CSV в памяти на время вкладки (сессии).
+ * - Никакого localStorage.
+ */
+async function fetchJson(url) {
+  const res = await fetch(url, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  return await res.json();
+}
+
+async function fetchText(url) {
+  const res = await fetch(url, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  return await res.text();
+}
+
+async function loadConfigsIndex() {
+  if (state.cache.configsIndex) return state.cache.configsIndex;
+  const idx = await fetchJson('configs/index.json');
+  state.cache.configsIndex = idx;
+  return idx;
+}
+
+async function loadRestaurantConfig(restaurantId) {
+  if (state.cache.configByRestaurant.has(restaurantId)) return state.cache.configByRestaurant.get(restaurantId);
+  const cfg = await fetchJson(`configs/${restaurantId}.json`);
+  state.cache.configByRestaurant.set(restaurantId, cfg);
+  return cfg;
+}
+
+async function loadCSV(csvUrl) {
+  if (state.cache.csvByUrl.has(csvUrl)) return state.cache.csvByUrl.get(csvUrl);
+  const text = await fetchText(csvUrl);
+  state.cache.csvByUrl.set(csvUrl, text);
+  return text;
+}
+
+/**
+ * =========================
+ * 5) Sections logic (Sprint 2.1)
+ * =========================
+ * - sectionsOrder из config — источник истины
+ * - секции, которых нет в sectionsOrder — скрываем (строго)
+ * - НО: сравнение идёт по нормализованным ключам sectionKey, чтобы не ловить "пустой экран"
+ */
+function computeSectionsEffective(wines, config) {
+  const labelsFromData = {};
+  const keysInData = new Set();
+
+  for (const w of wines) {
+    const k = w.sectionKey || normalizeSectionKey(w.section);
+    if (k) keysInData.add(k);
+    if (k && !labelsFromData[k]) labelsFromData[k] = w.section;
+  }
+
+  const labelsFromConfig = {};
+  const rawOrder = Array.isArray(config?.sectionsOrder) ? config.sectionsOrder : [];
+  const normalizedOrder = rawOrder
+    .map(x => {
+      const label = String(x ?? '').trim();
+      const key = normalizeSectionKey(label);
+      if (key && !labelsFromConfig[key]) labelsFromConfig[key] = label;
+      return key;
+    })
+    .filter(Boolean);
+
+  state.sectionLabels = { ...labelsFromData, ...labelsFromConfig };
+
+  if (normalizedOrder.length) {
+    const effective = normalizedOrder.filter(k => keysInData.has(k));
+    if (effective.length === 0 && keysInData.size > 0) {
+      console.warn('[WineGallery] sectionsOrder задан, но не совпал ни с одной секцией в CSV. Показываю fallback (All + секции из данных). Проверь названия секций.');
+      return Array.from(keysInData);
+    }
+    return effective;
+  }
+
+  return Array.from(keysInData);
+}
+
+function sectionAllowed(sectionKey) {
+  const order = state.sectionsEffective;
+  if (!order || order.length === 0) return true;
+  return order.includes(sectionKey);
+}
+
+function labelForSectionKey(k) {
+  return state.sectionLabels?.[k] || k;
+}
+
+/**
+ * =========================
+ * 6) Rendering
+ * =========================
+ */
+function renderSectionButtons() {
+  const tabs = $('sectionTabs');
+  tabs.innerHTML = '';
+
+  const addChip = (key, label, active) => {
+    const b = document.createElement('div');
+    b.className = 'chip' + (active ? ' active' : '');
+    b.textContent = label;
+    b.onclick = () => {
+      setActiveSection(key);
     };
+    tabs.appendChild(b);
+  };
 
-    /* ---------------------------------------------------------
-       КЭШ (Sprint 2.3.1): хранится только в памяти вкладки.
-       --------------------------------------------------------- */
-    const configCache = new Map(); // key = restaurantId
-    const csvCache = new Map();    // key = csvUrl
+  addChip('all', 'All', state.activeSection === 'all');
 
-    /* -------------------------------------
-       Глобальное состояние текущего экрана
-       ------------------------------------- */
-    const state = {
-      restaurantId: null,
-      lang: null,
-      config: null,
-      wines: [],
-      sectionsOrder: [],
-      sectionsEffective: [], // реально используемые (есть в данных и в order)
-      activeSection: 'all',
-      search: '',
-      modalWineId: null,
-    };
+  for (const secKey of state.sectionsEffective) {
+    addChip(secKey, labelForSectionKey(secKey), state.activeSection === secKey);
+  }
+}
 
-    /* =========================================================
-       УТИЛИТЫ: статус, деньги, безопасный путь для ассетов
-       ========================================================= */
-    function setStatus(msg, isError=false){
-      el.statusBox.textContent = msg;
-      el.statusBox.style.borderColor = isError ? 'rgba(255,120,120,0.45)' : 'rgba(255,255,255,0.10)';
+function renderGrid(list) {
+  const grid = $('grid');
+  grid.innerHTML = '';
+
+  for (const w of list) {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const row = document.createElement('div');
+    row.className = 'row';
+
+    const img = document.createElement('img');
+    img.className = 'bottle';
+    img.src = normalizeAssetPath(w.imageUrl || '');
+    img.alt = 'bottle';
+
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+
+    const head = document.createElement('div');
+    head.className = 'head';
+
+    const left = document.createElement('div');
+    left.style.minWidth = '0';
+
+    const name = document.createElement('div');
+    name.className = 'name';
+    name.textContent = w.title;
+
+    const sub = document.createElement('div');
+    sub.className = 'sub';
+    sub.textContent = w.sub;
+
+    left.appendChild(name);
+    left.appendChild(sub);
+
+    const price = document.createElement('div');
+    price.className = 'price';
+    price.innerHTML = safe(w.priceBottle) ? `${money(w.priceBottle)}` : '';
+    if (safe(w.priceGlass)) {
+      const sm = document.createElement('small');
+      sm.textContent = `${money(w.priceGlass)} / glass`;
+      price.appendChild(sm);
     }
 
-    function money(v, currencySymbol){
-      // В CSV у нас уже чистые числа — валюту рисуем в UI (как вы решили)
-      if (v === null || v === undefined || v === '') return '';
-      const num = Number(v);
-      if (Number.isNaN(num)) return String(v);
-      return `${currencySymbol}${num}`;
-    }
+    head.appendChild(left);
+    head.appendChild(price);
 
-    function normalizeAssetPath(p){
-      // В config ты используешь "assets/xxx.png" (без ведущего /) — это ок.
-      // Но если кто-то всё же поставит "/assets/..." — мы безопасно уберём слэш.
-      if (!p) return '';
-      return p.replace(/^\\//, '');
-    }
+    const tags = document.createElement('div');
+    tags.className = 'tags';
 
-    /* =========================================================
-       CSV PARSER (как был, но оставил компактный и устойчивый)
-       ========================================================= */
-    function parseCSV(text){
-      // Небольшой CSV парсер: поддерживает кавычки и запятые внутри кавычек.
-      const rows = [];
-      let row = [];
-      let cur = '';
-      let inQuotes = false;
+    const tag1 = document.createElement('div');
+    tag1.className = 'tag';
+    tag1.textContent = labelForSectionKey(w.sectionKey);
 
-      for (let i=0; i<text.length; i++){
-        const ch = text[i];
-        const next = text[i+1];
+    const tag2 = document.createElement('div');
+    tag2.className = 'tag';
+    tag2.textContent = safe(w.style);
 
-        if (ch === '\"'){
-          if (inQuotes && next === '\"'){
-            cur += '\"';
-            i++;
-          } else {
-            inQuotes = !inQuotes;
-          }
-          continue;
-        }
+    tags.appendChild(tag1);
+    if (safe(w.style)) tags.appendChild(tag2);
 
-        if (!inQuotes && (ch === ',')){
-          row.push(cur);
-          cur = '';
-          continue;
-        }
+    const desc = document.createElement('div');
+    desc.className = 'desc';
+    desc.textContent = safe(w.description);
 
-        if (!inQuotes && (ch === '\\n' || ch === '\\r')){
-          if (ch === '\\r' && next === '\\n') i++;
-          row.push(cur);
-          rows.push(row);
-          row = [];
-          cur = '';
-          continue;
-        }
+    const notes = document.createElement('div');
+    notes.className = 'notes';
+    notes.textContent = safe(w.notes) ? `Notes: ${w.notes}` : '';
 
-        cur += ch;
-      }
+    meta.appendChild(head);
+    meta.appendChild(tags);
+    meta.appendChild(desc);
+    meta.appendChild(notes);
 
-      // последний хвост
-      row.push(cur);
-      rows.push(row);
+    row.appendChild(img);
+    row.appendChild(meta);
+    card.appendChild(row);
 
-      return rows;
-    }
+    const btn = document.createElement('button');
+    btn.className = 'cardBtn';
+    btn.onclick = () => openWineModal(w.id);
+    card.appendChild(btn);
 
-    function csvToObjects(text){
-      const rows = parseCSV(text).filter(r => r.some(cell => String(cell).trim() !== ''));
-      if (!rows.length) return [];
-      const header = rows[0].map(h => String(h).trim());
-      const out = [];
+    grid.appendChild(card);
+  }
+}
 
-      for (let i=1; i<rows.length; i++){
-        const r = rows[i];
-        const obj = {};
-        for (let c=0; c<header.length; c++){
-          obj[header[c]] = (r[c] ?? '').toString().trim();
-        }
-        out.push(obj);
-      }
-      return out;
-    }
+function filterAndRender() {
+  let list = state.wines.slice();
 
-    /* =========================================================
-       ЗАГРУЗКА CONFIG и CSV (с кэшированием) — Sprint 2.3.1
-       ========================================================= */
-    async function loadConfig(restaurantId){
-      if (configCache.has(restaurantId)) return configCache.get(restaurantId);
+  list = list.filter(w => sectionAllowed(w.sectionKey));
 
-      const url = `configs/${restaurantId}.json?ts=${Date.now()}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`Config not found: ${url}`);
-      const cfg = await res.json();
+  if (state.activeSection !== 'all') {
+    list = list.filter(w => w.sectionKey === state.activeSection);
+  }
 
-      configCache.set(restaurantId, cfg);
-      return cfg;
-    }
-
-    async function loadCSV(csvUrl){
-      if (csvCache.has(csvUrl)) return csvCache.get(csvUrl);
-
-      const res = await fetch(csvUrl);
-      if (!res.ok) throw new Error(`CSV not доступен: ${csvUrl}`);
-      const text = await res.text();
-
-      const list = csvToObjects(text);
-      csvCache.set(csvUrl, list);
-      return list;
-    }
-
-    /* =========================================================
-       URL: чтение параметров и синхронизация без перезагрузки
-       Формат фиксирован (как ты подтвердил):
-       ?r=novikov_bh&lang=en&section=champagne
-       ?r=peopletalk&lang=es&w=peopletalk_wh_001
-       ========================================================= */
-    function readUrlParams(){
-      const sp = new URLSearchParams(window.location.search);
-      return {
-        r: sp.get('r'),
-        lang: sp.get('lang'),
-        section: sp.get('section'),
-        w: sp.get('w'),
-      };
-    }
-
-    function writeUrlParams({ restaurantId, lang, section, w }){
-      const sp = new URLSearchParams(window.location.search);
-
-      sp.set('r', restaurantId);
-      sp.set('lang', lang);
-
-      if (section && section !== 'all') sp.set('section', section);
-      else sp.delete('section');
-
-      if (w) sp.set('w', w);
-      else sp.delete('w');
-
-      const qs = sp.toString();
-      const next = qs ? `?${qs}` : window.location.pathname;
-      window.history.replaceState(null, '', next);
-    }
-
-    function syncUrl(){
-      writeUrlParams({
-        restaurantId: state.restaurantId,
-        lang: state.lang,
-        section: state.activeSection,
-        w: state.modalWineId,
-      });
-    }
-
-    /* =========================================================
-       SECTIONS ORDER (Sprint 2.1): строго по config.sectionsOrder.
-       Если секция есть в CSV, но нет в sectionsOrder => СКРЫВАЕМ.
-       "All" всегда отдельная кнопка и всегда первая.
-       ========================================================= */
-    function computeSectionsEffective(wines, sectionsOrder){
-      const setInData = new Set(wines.map(w => w.section).filter(Boolean));
-      const ordered = Array.isArray(sectionsOrder) ? sectionsOrder : [];
-
-      // строго: берем только то, что есть и в order, и в данных
-      return ordered.filter(key => setInData.has(key));
-    }
-
-    function sectionAllowed(section){
-      if (!section) return false;
-      if (!state.sectionsOrder.length) return true; // fallback (на время) — если order не задан
-      return state.sectionsEffective.includes(section);
-    }
-
-    function setActiveSection(sectionKey){
-      // если секции нет/пустая/не в order — fallback на All (как ты подтвердил)
-      if (sectionKey && sectionKey !== 'all' && !state.sectionsEffective.includes(sectionKey)){
-        state.activeSection = 'all';
-      } else {
-        state.activeSection = sectionKey || 'all';
-      }
-
-      // при переключении секции модалку закрываем, чтобы URL не конфликтовал
-      if (state.modalWineId){
-        closeModal(false);
-      }
-
-      renderSectionButtons();
-      filterAndRender();
-      syncUrl();
-    }
-
-    function renderSectionButtons(){
-      el.sectionNav.innerHTML = '';
-
-      // All — всегда первым
-      const allBtn = document.createElement('div');
-      allBtn.className = `chip ${state.activeSection==='all' ? 'active' : ''}`;
-      allBtn.textContent = 'All';
-      allBtn.addEventListener('click', () => setActiveSection('all'));
-      el.sectionNav.appendChild(allBtn);
-
-      const list = state.sectionsEffective;
-      for (const key of list){
-        const btn = document.createElement('div');
-        btn.className = `chip ${state.activeSection===key ? 'active' : ''}`;
-        btn.textContent = key;
-        btn.addEventListener('click', () => setActiveSection(key));
-        el.sectionNav.appendChild(btn);
-      }
-    }
-
-    /* =========================================================
-       MODAL (Sprint 2.2.2): открываем по клику и по ?w=
-       Закрытие: убираем w из URL, section сохраняем (как ты подтвердил)
-       ========================================================= */
-    function openModalByWine(wine){
-      if (!wine) return;
-
-      state.modalWineId = wine.id || null;
-
-      // Заголовок
-      el.modalTitle.textContent = wine.name || 'Wine';
-
-      // Картинка
-      el.modalImg.src = wine.image || '';
-      el.modalImg.alt = wine.name || 'bottle';
-
-      // KV блок (пары ключ:значение)
-      const kv = [];
-      kv.push(['Producer', wine.producer]);
-      kv.push(['Vintage', wine.vintage]);
-      kv.push(['Country', wine.country]);
-      kv.push(['Region', wine.region]);
-      kv.push(['Grape', wine.grape]);
-      kv.push(['Style', wine.style]);
-      kv.push(['Price (glass)', wine.priceGlassDisplay]);
-      kv.push(['Price (bottle)', wine.priceBottleDisplay]);
-
-      el.modalKV.innerHTML = kv
-        .filter(([k,v]) => v && String(v).trim() !== '')
-        .map(([k,v]) => `<b>${k}:</b><div>${escapeHtml(String(v))}</div>`)
-        .join('');
-
-      // Описание + notes
-      const long = [];
-      if (wine.description) long.push(wine.description);
-      if (wine.notes) long.push(`Notes: ${wine.notes}`);
-      el.modalDesc.textContent = long.join('\\n\\n');
-
-      // Показываем
-      el.modalBackdrop.classList.add('open');
-      el.modalBackdrop.setAttribute('aria-hidden', 'false');
-
-      syncUrl();
-    }
-
-    function closeModal(sync=true){
-      state.modalWineId = null;
-      el.modalBackdrop.classList.remove('open');
-      el.modalBackdrop.setAttribute('aria-hidden', 'true');
-      if (sync) syncUrl();
-    }
-
-    el.modalClose.addEventListener('click', () => closeModal(true));
-    el.modalBackdrop.addEventListener('click', (e) => {
-      // клик по фону закрывает, клик по самой модалке — нет
-      if (e.target === el.modalBackdrop) closeModal(true);
+  const q = (state.search || '').trim().toLowerCase();
+  if (q) {
+    list = list.filter(w => {
+      const hay = `${w.title} ${w.sub} ${w.section} ${w.style} ${w.description} ${w.notes}`.toLowerCase();
+      return hay.includes(q);
     });
+  }
 
-    /* =========================================================
-       ПОИСК (Sprint 2.3.2): debounce 250мс
-       Debounce = "ждём, пока пользователь перестанет печатать",
-       и только потом применяем фильтр. Это уменьшает лаги и перерисовки.
-       ========================================================= */
-    function debounce(fn, ms){
-      let t = null;
-      return (...args) => {
-        if (t) clearTimeout(t);
-        t = setTimeout(() => fn(...args), ms);
-      };
+  renderSectionButtons();
+  renderGrid(list);
+}
+
+function setActiveSection(sectionKey) {
+  const key = sectionKey || 'all';
+  if (key !== 'all' && !state.sectionsEffective.includes(key)) {
+    state.activeSection = 'all';
+  } else {
+    state.activeSection = key;
+  }
+  state.search = $('searchInput').value || '';
+  state.modalWineId = null;
+  syncUrl();
+  closeModal(false);
+  filterAndRender();
+}
+
+/**
+ * =========================
+ * 7) Modal + deep-link ?w=
+ * =========================
+ */
+function openWineModal(wineId) {
+  const w = state.wines.find(x => x.id === wineId);
+  if (!w) {
+    setStatus('Wine not found', 'idle');
+    return;
+  }
+
+  state.modalWineId = wineId;
+
+  $('modalTopText').textContent = labelForSectionKey(w.sectionKey);
+  $('modalBottle').src = normalizeAssetPath(w.imageUrl || '');
+  $('modalName').textContent = w.title;
+  $('modalSub').textContent = w.sub;
+
+  const tags = $('modalTags');
+  tags.innerHTML = '';
+  const t1 = document.createElement('div');
+  t1.className = 'tag';
+  t1.textContent = labelForSectionKey(w.sectionKey);
+  tags.appendChild(t1);
+
+  if (safe(w.style)) {
+    const t2 = document.createElement('div');
+    t2.className = 'tag';
+    t2.textContent = w.style;
+    tags.appendChild(t2);
+  }
+
+  $('modalDesc').textContent = safe(w.description);
+  $('modalNotes').textContent = safe(w.notes) ? `Notes: ${w.notes}` : '';
+
+  $('modalBack').style.display = 'flex';
+
+  // если пришли по w=... — логично активировать секцию этого вина
+  if (state.activeSection === 'all' || state.activeSection !== w.sectionKey) {
+    if (state.sectionsEffective.includes(w.sectionKey)) {
+      state.activeSection = w.sectionKey;
+    }
+  }
+
+  syncUrl();
+  filterAndRender();
+}
+
+function closeModal(sync=true) {
+  $('modalBack').style.display = 'none';
+  if (sync) {
+    state.modalWineId = null;
+    syncUrl();
+  }
+}
+
+$('modalBack').addEventListener('click', (e) => {
+  if (e.target === $('modalBack')) closeModal(true);
+});
+$('closeModalBtn').addEventListener('click', () => closeModal(true));
+
+/**
+ * =========================
+ * 8) Search debounce (Sprint 2.3.2)
+ * =========================
+ */
+let searchTimer = null;
+function onSearchDebounced() {
+  if (searchTimer) clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    state.search = $('searchInput').value || '';
+    filterAndRender();
+  }, 250);
+}
+$('searchInput').addEventListener('input', onSearchDebounced);
+
+/**
+ * =========================
+ * 9) Boot / init
+ * =========================
+ */
+async function boot() {
+  try {
+    setStatus('Loading...', 'idle');
+
+    state.configsIndex = await loadConfigsIndex();
+
+    const url = readUrlParams();
+
+    const defaultRestaurant = state.configsIndex?.defaultRestaurant || state.configsIndex?.restaurants?.[0]?.id;
+    state.restaurantId = url.r || defaultRestaurant;
+
+    state.config = await loadRestaurantConfig(state.restaurantId);
+
+    const defaultLang = state.config.defaultLanguage || 'en';
+    state.lang = (url.lang && state.config.enabledLanguages?.includes(url.lang)) ? url.lang : defaultLang;
+
+    // UI selects
+    const rs = $('restaurantSelect');
+    rs.innerHTML = '';
+    for (const r of state.configsIndex.restaurants) {
+      const opt = document.createElement('option');
+      opt.value = r.id;
+      opt.textContent = r.label || r.id;
+      if (r.id === state.restaurantId) opt.selected = true;
+      rs.appendChild(opt);
     }
 
-    const onSearchDebounced = debounce(() => {
-      state.search = (el.searchInput.value || '').trim().toLowerCase();
-      filterAndRender();
-      // section/w оставляем как есть, URL не меняем из-за поиска
-    }, 250);
-
-    el.searchInput.addEventListener('input', onSearchDebounced);
-
-    /* =========================================================
-       РЕНДЕР: фильтрация + сортировка + отрисовка карточек
-       ========================================================= */
-    function filterAndRender(){
-      const q = state.search;
-
-      // базовый список: строго только из разрешённых секций (если order задан)
-      let list = state.wines.filter(w => sectionAllowed(w.section));
-
-      // фильтр секции
-      if (state.activeSection !== 'all'){
-        list = list.filter(w => w.section === state.activeSection);
-      }
-
-      // поиск по полям (простая логика)
-      if (q){
-        list = list.filter(w => {
-          const hay = [
-            w.name, w.producer, w.region, w.country, w.grape, w.section
-          ].filter(Boolean).join(' ').toLowerCase();
-          return hay.includes(q);
-        });
-      }
-
-      // сортировка: сначала по порядку секций (sectionsOrder), потом по order (если есть), потом по имени
-      const sectionIndex = new Map(state.sectionsEffective.map((k, i) => [k, i]));
-      list.sort((a,b) => {
-        const sa = sectionIndex.get(a.section) ?? 9999;
-        const sb = sectionIndex.get(b.section) ?? 9999;
-        if (sa !== sb) return sa - sb;
-
-        const oa = Number(a.orderNum ?? 9999);
-        const ob = Number(b.orderNum ?? 9999);
-        if (oa !== ob) return oa - ob;
-
-        return String(a.name||'').localeCompare(String(b.name||''), 'en');
-      });
-
-      renderGrid(list);
+    const ls = $('langSelect');
+    ls.innerHTML = '';
+    for (const l of state.config.enabledLanguages || ['en']) {
+      const opt = document.createElement('option');
+      opt.value = l;
+      opt.textContent = l.toUpperCase();
+      if (l === state.lang) opt.selected = true;
+      ls.appendChild(opt);
     }
 
-    function renderGrid(list){
-      el.grid.innerHTML = '';
+    $('pillRestaurant').textContent = state.restaurantId;
+    $('pillLang').textContent = state.lang;
 
-      for (const w of list){
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.dataset.wineId = w.id || '';
+    $('restaurantName').textContent = state.config.name || state.restaurantId;
+    $('logo').src = normalizeAssetPath(state.config.logoUrl || '');
 
-        // при клике — открываем модалку и пишем w= в URL
-        card.addEventListener('click', () => {
-          // активируем секцию вина (если вдруг были в All)
-          if (w.section && state.activeSection !== w.section) {
-            state.activeSection = w.section; // тут без закрытия (модалки ещё нет)
-            renderSectionButtons();
-          }
-          openModalByWine(w);
-        });
+    // Load CSV
+    const csvUrl = state.config.csvUrl?.[state.lang] || state.config.csvUrl?.en;
+    if (!csvUrl) throw new Error('No csvUrl for selected language');
 
-        card.innerHTML = `
-          <div class="bottle">
-            <img src="${escapeAttr(w.image || '')}" alt="${escapeAttr(w.name || 'bottle')}" />
-          </div>
-          <div class="meta">
-            <div class="row1">
-              <div style="min-width:0">
-                <p class="title">${escapeHtml(w.producer || '')} — ${escapeHtml(w.name || '')}</p>
-                <div class="line2">${escapeHtml(w.vintage || 'NV')} · ${escapeHtml(w.country || '')} · ${escapeHtml(w.region || '')} · ${escapeHtml(w.grape || '')}</div>
-              </div>
-              <div class="price">
-                ${escapeHtml(w.priceBottleDisplay || '')}
-                <span class="sub">${escapeHtml(w.priceGlassDisplay || '')}${w.priceGlassDisplay ? ' / glass' : ''}</span>
-              </div>
-            </div>
+    const csvText = await loadCSV(csvUrl);
+    const raw = csvToObjects(csvText);
 
-            <div class="chips">
-              <span class="tag">${escapeHtml(w.section || '')}</span>
-              ${w.style ? `<span class="tag">${escapeHtml(w.style)}</span>` : ''}
-            </div>
+    // Map raw → wines
+    state.wines = raw
+      .map(x => {
+        const section = String(x.section || x.Section || '').trim();
+        const sectionKey = normalizeSectionKey(section);
+        return {
+          id: String(x.id || x.ID || '').trim(),
+          title: String(x.title || x.name || '').trim(),
+          sub: String(x.sub || x.subtitle || '').trim(),
+          section,
+          sectionKey,
+          style: String(x.style || '').trim(),
+          description: String(x.description || x.desc || '').trim(),
+          notes: String(x.notes || '').trim(),
+          imageUrl: String(x.imageUrl || x.image || '').trim(),
+          priceBottle: String(x.priceBottle || x.price || '').trim(),
+          priceGlass: String(x.priceGlass || '').trim()
+        };
+      })
+      .filter(w => w.id && w.title);
 
-            ${w.description ? `<div class="desc">${escapeHtml(w.description)}</div>` : ''}
-            ${w.notes ? `<div class="notes">Notes: ${escapeHtml(w.notes)}</div>` : ''}
-          </div>
-        `;
+    // sectionsEffective из config + данных
+    state.sectionsEffective = computeSectionsEffective(state.wines, state.config);
 
-        el.grid.appendChild(card);
-      }
-    }
-
-    /* =========================================================
-       Безопасный вывод текста в HTML (чтобы не ломать разметку)
-       ========================================================= */
-    function escapeHtml(s){
-      return String(s).replace(/[&<>\"']/g, c => ({
-        '&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'
-      }[c]));
-    }
-    function escapeAttr(s){ return escapeHtml(s); }
-
-    /* =========================================================
-       Загрузка ресторана/языка + применение URL (section/w)
-       ========================================================= */
-    async function loadRestaurant(restaurantId, lang, urlSection, urlWineId){
-      setStatus('Loading...');
-
-      // config
-      const cfg = await loadConfig(restaurantId);
-      state.config = cfg;
-
-      // theme
-      if (cfg.theme) document.documentElement.setAttribute('data-theme', cfg.theme);
-
-      // name + logo
-      el.restaurantName.textContent = cfg.name || restaurantId;
-      const logoPath = normalizeAssetPath(cfg.logoUrl || '');
-      el.logo.src = logoPath;
-
-      // language
-      const enabled = Array.isArray(cfg.enabledLanguages) ? cfg.enabledLanguages : ['en'];
-      const defaultLang = cfg.defaultLanguage || enabled[0] || 'en';
-      const finalLang = enabled.includes(lang) ? lang : defaultLang;
-
-      state.restaurantId = restaurantId;
-      state.lang = finalLang;
-
-      // pills + selects
-      el.pillRestaurant.textContent = `r: ${state.restaurantId}`;
-      el.pillLang.textContent = `lang: ${state.lang}`;
-      el.restaurantSelect.value = state.restaurantId;
-      el.langSelect.value = state.lang;
-
-      // sectionsOrder
-      state.sectionsOrder = Array.isArray(cfg.sectionsOrder) ? cfg.sectionsOrder : [];
-
-      // csv url
-      const csvUrl = (cfg.csvUrl && cfg.csvUrl[state.lang]) ? cfg.csvUrl[state.lang] : null;
-      if (!csvUrl) throw new Error(`csvUrl отсутствует для lang=${state.lang}`);
-
-      // csv load
-      const raw = await loadCSV(csvUrl);
-
-      // нормализуем записи под UI
-      const currencySymbol = ''; // в UI можно подставить позже через cfg.currency, пока просто ''
-      const curr = cfg.currency || '$';
-      const wines = raw
-        .map(x => ({
-          id: x.id || x.wine_id || x.wineId || x.ID || '',
-          section: x.section || '',
-          producer: x.producer || '',
-          name: x.name || '',
-          vintage: x.vintage || 'NV',
-          country: x.country || '',
-          region: x.region || '',
-          grape: x.grape || '',
-          style: x.style || '',
-          description: x.description || '',
-          notes: x.notes || '',
-          image: x.image || x.image_url || x.img || '',
-          priceBottle: x.price_bottle || x.priceBottle || x.price || '',
-          priceGlass: x.price_glass || x.priceGlass || '',
-          orderNum: x.order || x.sort_order || x.sortOrder || '',
-          // отображение цен: валюта в UI (как вы решили)
-          priceBottleDisplay: x.price_bottle || x.priceBottle || x.price ? money(x.price_bottle || x.priceBottle || x.price, curr) : '',
-          priceGlassDisplay: x.price_glass || x.priceGlass ? money(x.price_glass || x.priceGlass, curr) : '',
-        }))
-        .filter(w => w.id && w.section); // минимальная фильтрация
-
-      state.wines = wines;
-
-      // sectionsEffective = строго по order + реально присутствующим секциям
-      state.sectionsEffective = computeSectionsEffective(state.wines, state.sectionsOrder);
-
-      // 1) применяем section из URL
-      // 2) затем применяем w из URL (приоритетнее: логично) — активируем секцию вина и открываем модалку
+    // Active section from URL
+    const urlSection = url.section;
+    if (urlSection && urlSection !== 'all') {
+      if (state.sectionsEffective.includes(urlSection)) state.activeSection = urlSection;
+      else state.activeSection = 'all';
+    } else {
       state.activeSection = 'all';
-      if (urlSection){
-        if (state.sectionsEffective.includes(urlSection)) state.activeSection = urlSection;
-        else state.activeSection = 'all';
-      }
-
-      renderSectionButtons();
-      filterAndRender();
-
-      if (urlWineId){
-        const found = state.wines.find(w => w.id === urlWineId);
-        if (!found){
-          setStatus(`Wine not found for w=${urlWineId}`, true);
-          // остаёмся на текущей секции/All (как ты подтвердил)
-          state.modalWineId = null;
-          syncUrl(); // уберём w, если он был, чтобы URL не был "битым"
-        } else {
-          // приоритет w: активируем секцию вина и открываем модалку
-          if (sectionAllowed(found.section)){
-            state.activeSection = found.section;
-          } else {
-            state.activeSection = 'all';
-          }
-          renderSectionButtons();
-          filterAndRender();
-          openModalByWine(found);
-        }
-      }
-
-      setStatus(`OK · ${state.wines.length} wines`);
-      syncUrl();
     }
 
-    /* =========================================================
-       EVENTS: смена ресторана/языка (без перезагрузки страницы)
-       ========================================================= */
-    el.restaurantSelect.addEventListener('change', async () => {
-      const r = el.restaurantSelect.value;
-      const params = readUrlParams();
-      // section/w сбрасываем, чтобы не конфликтовали при смене ресторана
-      await safeBoot(r, state.lang || params.lang || 'en', null, null);
-    });
+    setStatus('Ready', 'good');
+    syncUrl();
+    filterAndRender();
 
-    el.langSelect.addEventListener('change', async () => {
-      const lang = el.langSelect.value;
-      const params = readUrlParams();
-      // section/w оставляем, если возможно (логично для пользователя)
-      await safeBoot(state.restaurantId || params.r || 'novikov_bh', lang, params.section, params.w);
-    });
-
-    async function safeBoot(r, lang, section, w){
-      try{
-        closeModal(false);
-        await loadRestaurant(r, lang, section, w);
-      } catch(err){
-        console.error(err);
-        setStatus(String(err.message || err), true);
+    // Deep-link wine
+    if (url.w) {
+      const w = state.wines.find(x => x.id === url.w);
+      if (w) {
+        openWineModal(w.id);
+      } else {
+        setStatus('Wine not found', 'idle');
       }
     }
 
-    /* =========================================================
-       BOOT: старт — читаем URL и грузим
-       ========================================================= */
-    (async function boot(){
-      const p = readUrlParams();
+    // Select change handlers
+    rs.onchange = async () => {
+      state.cache.csvByUrl.clear(); // при смене ресторана не обязательно, но безопасно
+      writeUrlParams({ r: rs.value, w: null });
+      window.location.reload();
+    };
 
-      // restaurant по URL или дефолт
-      const restaurantId = p.r || 'novikov_bh';
+    ls.onchange = () => {
+      writeUrlParams({ lang: ls.value, w: null });
+      window.location.reload();
+    };
 
-      // язык по URL (если валидный — проверим после config)
-      const lang = p.lang || 'en';
+  } catch (err) {
+    console.error(err);
+    setStatus('Error: ' + err.message, 'idle');
+  }
+}
 
-      await safeBoot(restaurantId, lang, p.section, p.w);
-    })();
-  </script>
+boot();
+</script>
 </body>
 </html>

@@ -5,7 +5,7 @@
   "logoUrl": "assets/novikov-logo.png",
   "defaultLanguage": "en",
   "enabledLanguages": ["en", "es"],
-  "sectionsOrder": ["sparkling","champagne","white","rosé","red","dessert wines"],
+  "sectionsOrder": ["Sparkling","Champagne","White","Rosé","Red","Dessert wines"],
   "csvUrl": {
     "en": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=938845198&single=true&output=csv",
     "es": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=379411074&single=true&output=csv"

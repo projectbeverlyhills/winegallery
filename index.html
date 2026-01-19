@@ -2,12 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+
+  <!-- [ЗАЧЕМ] Адаптация под мобильные экраны -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wine Gallery</title>
 
   <style>
     /* =========================================================
-       THEME TOKENS (default; overwritten by config.theme)
+       [ЗАЧЕМ] THEME TOKENS (дефолт; перезаписывается config.theme)
        ========================================================= */
     :root{
       --bg: #0b0b0b;
@@ -15,7 +17,7 @@
       --text: #f5f5f5;
       --muted: rgba(245,245,245,.7);
       --border: rgba(255,255,255,.12);
-      --accent: #1f8a4c;   /* Novikov green default */
+      --accent: #1f8a4c;   /* дефолт Novikov green */
       --accent2: #0e5f34;
       --chip: rgba(255,255,255,.08);
       --chipText: rgba(245,245,245,.92);
@@ -26,7 +28,7 @@
     }
 
     /* =========================================================
-       BASE
+       [ЗАЧЕМ] BASE
        ========================================================= */
     html, body { height: 100%; }
     body{
@@ -37,8 +39,8 @@
                   var(--bg);
       color: var(--text);
     }
-
     a{ color: inherit; }
+
     .wrap{
       max-width: var(--maxw);
       margin: 0 auto;
@@ -46,7 +48,7 @@
     }
 
     /* =========================================================
-       HEADER
+       [ЗАЧЕМ] HEADER
        ========================================================= */
     .topbar{
       display:flex;
@@ -71,9 +73,10 @@
     .brand img{
       height: 34px;
       width: auto;
-      display:block;
+      display:none; /* [ЗАЧЕМ] показываем только если реально загрузился */
       filter: drop-shadow(0 6px 14px rgba(0,0,0,.35));
     }
+
     .brand .title{
       display:flex;
       flex-direction:column;
@@ -149,7 +152,7 @@
     }
 
     /* =========================================================
-       SECTIONS NAV
+       [ЗАЧЕМ] SECTIONS NAV
        ========================================================= */
     .sectionNav{
       display:flex;
@@ -175,7 +178,7 @@
     }
 
     /* =========================================================
-       GRID / CARDS
+       [ЗАЧЕМ] GRID / CARDS
        ========================================================= */
     .grid{
       display:grid;
@@ -290,7 +293,7 @@
     .muted{ color: var(--muted); font-size: 12px; }
 
     /* =========================================================
-       STATUS / ERROR
+       [ЗАЧЕМ] STATUS / ERROR (чтобы НЕ было белого экрана)
        ========================================================= */
     .status{
       margin: 14px 2px 0;
@@ -304,7 +307,6 @@
       white-space: pre-wrap;
     }
     .status.show{ display:block; }
-
   </style>
 </head>
 
@@ -341,6 +343,7 @@
 
     <div class="sectionNav" id="sectionNav"></div>
 
+    <!-- [ЗАЧЕМ] сюда мы показываем любые ошибки и подсказки -->
     <div class="status" id="statusBox"></div>
 
     <div class="grid" id="grid"></div>
@@ -348,18 +351,27 @@
 
   <script>
     /************************************************************
-     * WineGallery v2 (multi-restaurant + multi-language)
-     * - Loads configs/{r}.json
-     * - Loads CSV from config.csvUrl[lang]
-     * - Renders sections and wines
-     * - Language switch WITHOUT page reload (re-fetch CSV)
-     * - Robust: missing logo/image doesn't white-screen
+     * [ЗАЧЕМ] WineGallery v2
+     * - Читает configs/{r}.json
+     * - Берет CSV по config.csvUrl[lang]
+     * - Переключение языка без перезагрузки (пере-фетчим CSV)
+     * - Тема (theme) берется из config
+     * - Защита от "белого экрана": любая ошибка видна на странице
      ************************************************************/
 
+    // ==========================================================
+    // [ЗАЧЕМ] Защита: показываем JS-ошибки на странице
+    // ==========================================================
+    window.addEventListener("error", (e) => {
+      try {
+        const msg = (e && e.message) ? e.message : String(e);
+        showStatus("❌ JS error:\n" + msg);
+      } catch(_) {}
+    });
+
     // -----------------------------
-    // Utilities
+    // [ЗАЧЕМ] Утилиты
     // -----------------------------
-    const qs = (sel) => document.querySelector(sel);
     const el = (id) => document.getElementById(id);
 
     function getParam(name){
@@ -373,13 +385,15 @@
     }
 
     function baseUrl(){
-      // Always resolve relative to the current folder (…/winegallery/)
+      // [ЗАЧЕМ] все относительные пути считаем от текущей папки (…/winegallery/)
       return new URL(".", window.location.href);
     }
 
-    function normalizeLogoUrl(url){
+    function normalizePath(url){
+      // [ЗАЧЕМ] В GitHub Pages (project site) абсолютный путь "/assets/..."
+      // ведет на домен-корень, а не в /winegallery/.
+      // Поэтому делаем относительный "assets/...".
       if(!url) return "";
-      // If config has "/assets/..." this breaks on project pages -> make it relative.
       if(url.startsWith("/assets/")) return url.replace("/assets/", "assets/");
       if(url.startsWith("/configs/")) return url.replace("/configs/", "configs/");
       if(url.startsWith("/data/"))    return url.replace("/data/", "data/");
@@ -397,8 +411,10 @@
       box.classList.remove("show");
     }
 
+    // -----------------------------
+    // [ЗАЧЕМ] Темы (минимум 2 штуки)
+    // -----------------------------
     function applyTheme(themeName){
-      // Theme presets (you can extend later)
       const root = document.documentElement;
 
       const themes = {
@@ -430,7 +446,9 @@
       Object.entries(t).forEach(([k,v]) => root.style.setProperty(k,v));
     }
 
-    // Very small CSV parser (handles commas + quotes).
+    // -----------------------------
+    // [ЗАЧЕМ] CSV parser (простая версия)
+    // -----------------------------
     function parseCSV(text){
       const rows = [];
       let row = [];
@@ -470,7 +488,7 @@
     }
 
     // -----------------------------
-    // App state
+    // [ЗАЧЕМ] App state
     // -----------------------------
     const state = {
       r: "novikov_bh",
@@ -483,7 +501,7 @@
     };
 
     // -----------------------------
-    // Data loading
+    // [ЗАЧЕМ] Загрузка данных
     // -----------------------------
     async function loadConfig(restaurantKey){
       const cfgUrl = new URL(`configs/${restaurantKey}.json`, baseUrl()).toString();
@@ -491,8 +509,8 @@
       if(!res.ok) throw new Error(`Config not found: ${cfgUrl} (${res.status})`);
       const cfg = await res.json();
 
-      // Normalize logoUrl for GH Pages project-site
-      cfg.logoUrl = normalizeLogoUrl(cfg.logoUrl);
+      // нормализуем logoUrl
+      cfg.logoUrl = normalizePath(cfg.logoUrl);
 
       return cfg;
     }
@@ -505,10 +523,9 @@
     }
 
     // -----------------------------
-    // Rendering
+    // [ЗАЧЕМ] Вычисление секций
     // -----------------------------
     function computeSectionsFromData(wines){
-      // If config has sectionsOrder, use it. Else derive.
       const seen = new Set();
       const list = [];
       for(const w of wines){
@@ -522,31 +539,36 @@
       return list;
     }
 
+    // -----------------------------
+    // [ЗАЧЕМ] Рендер шапки + темы
+    // -----------------------------
     function renderHeader(){
       el("restaurantName").textContent = state.config?.name || "Wine Gallery";
       el("chipRestaurant").textContent = `r: ${state.r}`;
       el("chipLang").textContent = `lang: ${state.lang}`;
       el("subtitle").textContent = "Updated from CSV";
 
-      // Logo (do not crash if missing)
-      const logo = el("logo");
-      const url = state.config?.logoUrl || "";
-      if(url){
-        logo.src = new URL(url, baseUrl()).toString();
-        logo.style.display = "block";
-        logo.onerror = () => { logo.style.display = "none"; };
-      } else {
-        logo.style.display = "none";
-      }
-
-      // Theme
       applyTheme(state.config?.theme || "novikov_clean");
 
-      // selects
+      // logo (не ломаем страницу, если файл не найден)
+      const logo = el("logo");
+      const url = state.config?.logoUrl || "";
+      logo.style.display = "none";
+      logo.onerror = () => { logo.style.display = "none"; };
+
+      if(url){
+        logo.src = new URL(url, baseUrl()).toString();
+        logo.onload = () => { logo.style.display = "block"; };
+      }
+
+      // селекты
       el("restaurantSelect").value = state.r;
       el("langSelect").value = state.lang;
     }
 
+    // -----------------------------
+    // [ЗАЧЕМ] Навигация по секциям
+    // -----------------------------
     function renderSectionNav(){
       const nav = el("sectionNav");
       nav.innerHTML = "";
@@ -563,37 +585,36 @@
       };
 
       nav.appendChild(mk("all", "All"));
-
       for(const s of state.sectionsOrdered){
         nav.appendChild(mk(s, s));
       }
     }
 
+    // -----------------------------
+    // [ЗАЧЕМ] Вспомогательная печать цены
+    // -----------------------------
     function formatPrice(v){
       const n = Number(v);
       if(!isFinite(n)) return v || "";
       return String(n);
     }
 
-    function safeImg(url){
-      if(!url) return "";
-      return url;
-    }
-
+    // -----------------------------
+    // [ЗАЧЕМ] Рендер карточек вина
+    // -----------------------------
     function renderGrid(){
       const grid = el("grid");
       grid.innerHTML = "";
 
-      const list = state.filtered;
-
-      for(const w of list){
+      for(const w of state.filtered){
         const card = document.createElement("div");
         card.className = "card";
 
         // bottle image
         const bottle = document.createElement("div");
         bottle.className = "bottle";
-        const imgUrl = safeImg(w.bottle_img || w.primary_image_url || "");
+
+        const imgUrl = (w.bottle_img || w.primary_image_url || "").trim();
         if(imgUrl){
           const img = document.createElement("img");
           img.src = imgUrl;
@@ -612,8 +633,10 @@
 
         const nameBlock = document.createElement("div");
         nameBlock.className = "nameBlock";
+
         const title = document.createElement("strong");
         title.textContent = [w.producer, w.name].filter(Boolean).join(" — ") || w.id || "Wine";
+
         const sub = document.createElement("span");
         const parts = [];
         if(w.vintage) parts.push(w.vintage);
@@ -621,20 +644,26 @@
         if(w.region) parts.push(w.region);
         if(w.grape) parts.push(w.grape);
         sub.textContent = parts.join(" • ");
+
         nameBlock.appendChild(title);
         nameBlock.appendChild(sub);
 
         const prices = document.createElement("div");
         prices.className = "prices";
+
         const btg = (w.btg_price || "").trim();
         const btl = (w.bottle_price || "").trim();
-        // currency column removed in exports; currency comes from config/restaurants
+
+        // [ВАЖНО] currency колонку мы убрали из экспортов → берем currency из config
         const cur = (state.config?.currency || "").trim();
+
         const big = document.createElement("div");
         big.className = "big";
         big.textContent = btl ? `${formatPrice(btl)}${cur ? " " + cur : ""}` : "";
+
         const small = document.createElement("div");
         small.textContent = btg ? `${formatPrice(btg)}${cur ? " " + cur : ""} / glass` : "";
+
         prices.appendChild(big);
         prices.appendChild(small);
 
@@ -658,7 +687,6 @@
           t.textContent = w.style;
           tags.appendChild(t);
         }
-
         meta.appendChild(tags);
 
         // story
@@ -669,16 +697,19 @@
           meta.appendChild(d);
         }
 
-        // notes
+        // notes + availability
         const foot = document.createElement("div");
         foot.className = "foot";
+
         const left = document.createElement("div");
         left.className = "muted";
         left.textContent = w.notes ? `Notes: ${w.notes}` : "";
+
         const right = document.createElement("div");
         right.className = "muted";
         const avail = (w.is_available || "").toLowerCase();
         right.textContent = avail === "no" ? "Not available" : "";
+
         foot.appendChild(left);
         foot.appendChild(right);
         meta.appendChild(foot);
@@ -688,9 +719,11 @@
       }
     }
 
+    // -----------------------------
+    // [ЗАЧЕМ] Фильтрация + сортировка
+    // -----------------------------
     function filterAndRender(){
       const query = (el("searchInput").value || "").trim().toLowerCase();
-
       let list = state.wines;
 
       if(state.activeSection !== "all"){
@@ -706,7 +739,7 @@
         });
       }
 
-      // filter visible + available if present
+      // visible + is_available (если есть)
       list = list.filter(w => {
         const v = (w.visible || "").toLowerCase();
         const a = (w.is_available || "").toLowerCase();
@@ -715,7 +748,7 @@
         return okVisible && okAvail;
       });
 
-      // sort by section then by order numeric (fallback)
+      // сортировка: section, затем order
       list.sort((a,b) => {
         const sa = (a.section || "").toLowerCase();
         const sb = (b.section || "").toLowerCase();
@@ -732,7 +765,7 @@
     }
 
     // -----------------------------
-    // Main flow
+    // [ЗАЧЕМ] Основной запуск (без перезагрузки страницы)
     // -----------------------------
     async function boot(){
       hideStatus();
@@ -745,56 +778,55 @@
         // 1) config
         state.config = await loadConfig(state.r);
 
-        // set default if lang not enabled
+        // 2) проверка языка
         const enabled = state.config.enabledLanguages || ["en"];
         if(!enabled.includes(state.lang)){
           state.lang = state.config.defaultLanguage || enabled[0] || "en";
           setParam("lang", state.lang);
         }
 
-        // 2) theme + header
+        // 3) header + theme
         renderHeader();
 
-        // 3) CSV
+        // 4) csv
         const csvUrl = state.config.csvUrl?.[state.lang];
         if(!csvUrl) throw new Error(`csvUrl for lang '${state.lang}' not found in config`);
 
         const wines = await loadCSV(csvUrl);
         state.wines = wines;
 
-        // 4) sections order
-        state.sectionsOrdered = Array.isArray(state.config.sectionsOrder) && state.config.sectionsOrder.length
-          ? state.config.sectionsOrder
-          : computeSectionsFromData(wines);
+        // 5) sections order — берем ИЗ config, а не из CSV (если задано)
+        state.sectionsOrdered =
+          (Array.isArray(state.config.sectionsOrder) && state.config.sectionsOrder.length)
+            ? state.config.sectionsOrder
+            : computeSectionsFromData(wines);
 
         state.activeSection = "all";
         filterAndRender();
+
       }catch(err){
         console.error(err);
         showStatus(
-          "❌ Error loading Wine Gallery\\n\\n" +
-          String(err && err.message ? err.message : err) +
-          "\\n\\n" +
-          "Check:\\n" +
-          "• configs/{r}.json exists\\n" +
-          "• config.csvUrl[lang] works\\n" +
-          "• GitHub Pages base path (/winegallery/)\\n"
+          "❌ Error loading Wine Gallery\n\n" +
+          (err && err.message ? err.message : String(err)) +
+          "\n\nПроверь:\n" +
+          "• configs/{r}.json существует и доступен\n" +
+          "• config.csvUrl[lang] открывается в браузере\n" +
+          "• GitHub Pages base path (…/winegallery/)\n"
         );
       }
     }
 
     // -----------------------------
-    // UI handlers (no reload needed)
+    // [ЗАЧЕМ] UI handlers
     // -----------------------------
     el("btnReload").addEventListener("click", () => boot());
-
     el("searchInput").addEventListener("input", () => filterAndRender());
 
     el("restaurantSelect").addEventListener("change", async (e) => {
       const r = e.target.value;
       state.r = r;
       setParam("r", r);
-      // keep lang param; boot will fix if not enabled
       await boot();
     });
 
@@ -802,11 +834,10 @@
       const lang = e.target.value;
       state.lang = lang;
       setParam("lang", lang);
-      // IMPORTANT: no full page reload, just re-boot (re-fetch CSV)
-      await boot();
+      await boot(); // без reload страницы
     });
 
-    // Start
+    // START
     boot();
   </script>
 </body>

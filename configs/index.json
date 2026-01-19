@@ -1,0 +1,6 @@
+{
+  "restaurants": [
+    { "id": "novikov_bh", "label": "Novikov BH", "config": "configs/novikov_bh.json" },
+    { "id": "peopletalk", "label": "PeopleTalk", "config": "configs/peopletalk.json" }
+  ]
+}

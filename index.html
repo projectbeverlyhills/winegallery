@@ -10,6 +10,7 @@
   <style>
     /* =========================================================
        [ЗАЧЕМ] THEME TOKENS (дефолт; перезаписывается config.theme)
+       ВАЖНО: добавили --accentRgb, чтобы можно было использовать акцент в rgba().
        ========================================================= */
     :root{
       --bg: #0b0b0b;
@@ -17,8 +18,11 @@
       --text: #f5f5f5;
       --muted: rgba(245,245,245,.7);
       --border: rgba(255,255,255,.12);
-      --accent: #1f8a4c;   /* дефолт Novikov green */
+
+      --accent: #1f8a4c;          /* дефолт Novikov green */
+      --accentRgb: 31,138,76;    /* тот же цвет, но в формате R,G,B */
       --accent2: #0e5f34;
+
       --chip: rgba(255,255,255,.08);
       --chipText: rgba(245,245,245,.92);
       --shadow: 0 10px 24px rgba(0,0,0,.35);
@@ -29,14 +33,16 @@
 
     /* =========================================================
        [ЗАЧЕМ] BASE
+       Здесь фон теперь зависит от темы (через --accentRgb), чтобы PeopleTalk был синим.
        ========================================================= */
     html, body { height: 100%; }
     body{
       margin:0;
       font-family: var(--font);
-      background: radial-gradient(1200px 700px at 20% 10%, rgba(31,138,76,.18), transparent 55%),
-                  radial-gradient(900px 600px at 90% 30%, rgba(255,255,255,.06), transparent 55%),
-                  var(--bg);
+      background:
+        radial-gradient(1200px 700px at 20% 10%, rgba(var(--accentRgb), .18), transparent 55%),
+        radial-gradient(900px 600px at 90% 30%, rgba(255,255,255,.06), transparent 55%),
+        var(--bg);
       color: var(--text);
     }
     a{ color: inherit; }
@@ -125,9 +131,10 @@
     .btn:hover{ background: rgba(255,255,255,.10); }
     .btn:active{ transform: scale(.98); }
 
+    /* [ЗАЧЕМ] Primary теперь тоже зависит от темы */
     .btn.primary{
-      border-color: rgba(31,138,76,.55);
-      background: linear-gradient(180deg, rgba(31,138,76,.28), rgba(31,138,76,.14));
+      border-color: rgba(var(--accentRgb), .55);
+      background: linear-gradient(180deg, rgba(var(--accentRgb), .28), rgba(var(--accentRgb), .14));
     }
 
     .select{
@@ -153,6 +160,7 @@
 
     /* =========================================================
        [ЗАЧЕМ] SECTIONS NAV
+       Активная плашка — теперь тоже через theme (accent).
        ========================================================= */
     .sectionNav{
       display:flex;
@@ -174,7 +182,7 @@
     .pill:hover{ background: rgba(255,255,255,.09); }
     .pill.active{
       border-color: rgba(255,255,255,.22);
-      background: linear-gradient(180deg, rgba(31,138,76,.32), rgba(31,138,76,.14));
+      background: linear-gradient(180deg, rgba(var(--accentRgb), .32), rgba(var(--accentRgb), .14));
     }
 
     /* =========================================================
@@ -336,7 +344,6 @@
         </select>
 
         <input class="search" id="searchInput" placeholder="Search…" />
-
         <button class="btn primary" id="btnReload">Reload</button>
       </div>
     </div>
@@ -351,12 +358,11 @@
 
   <script>
     /************************************************************
-     * [ЗАЧЕМ] WineGallery v2
-     * - Читает configs/{r}.json
-     * - Берет CSV по config.csvUrl[lang]
-     * - Переключение языка без перезагрузки (пере-фетчим CSV)
-     * - Тема (theme) берется из config
-     * - Защита от "белого экрана": любая ошибка видна на странице
+     * [ЗАЧЕМ] WineGallery v2 (обновлено под твои требования)
+     * 1) sections order берём из config.sectionsOrder (если есть), иначе из CSV.
+     * 2) переключение языка БЕЗ перезагрузки страницы: просто пере-фетчим CSV.
+     * 3) theme берём из config.theme и применяем к CSS tokens.
+     * 4) защита от "белого экрана": ошибки выводятся на страницу.
      ************************************************************/
 
     // ==========================================================
@@ -370,7 +376,7 @@
     });
 
     // -----------------------------
-    // [ЗАЧЕМ] Утилиты
+    // [ЗАЧЕМ] Утилиты для DOM/URL
     // -----------------------------
     const el = (id) => document.getElementById(id);
 
@@ -385,14 +391,13 @@
     }
 
     function baseUrl(){
-      // [ЗАЧЕМ] все относительные пути считаем от текущей папки (…/winegallery/)
+      // [ЗАЧЕМ] считаем относительные пути от текущей папки (…/winegallery/)
       return new URL(".", window.location.href);
     }
 
     function normalizePath(url){
-      // [ЗАЧЕМ] В GitHub Pages (project site) абсолютный путь "/assets/..."
-      // ведет на домен-корень, а не в /winegallery/.
-      // Поэтому делаем относительный "assets/...".
+      // [ЗАЧЕМ] На GitHub Pages абсолютный путь "/assets/..." уводит в корень домена,
+      // а нам нужно внутри /winegallery/. Поэтому превращаем в относительный "assets/...".
       if(!url) return "";
       if(url.startsWith("/assets/")) return url.replace("/assets/", "assets/");
       if(url.startsWith("/configs/")) return url.replace("/configs/", "configs/");
@@ -413,6 +418,7 @@
 
     // -----------------------------
     // [ЗАЧЕМ] Темы (минимум 2 штуки)
+    // ВАЖНО: здесь заложены палитры Novikov (зелёный) и PeopleTalk (синий).
     // -----------------------------
     function applyTheme(themeName){
       const root = document.documentElement;
@@ -425,6 +431,7 @@
           "--muted":"rgba(246,247,246,.72)",
           "--border":"rgba(255,255,255,.12)",
           "--accent":"#1f8a4c",
+          "--accentRgb":"31,138,76",
           "--accent2":"#0e5f34",
           "--chip":"rgba(255,255,255,.08)",
           "--chipText":"rgba(246,247,246,.92)"
@@ -436,6 +443,7 @@
           "--muted":"rgba(244,247,255,.72)",
           "--border":"rgba(255,255,255,.12)",
           "--accent":"#2b67ff",
+          "--accentRgb":"43,103,255",
           "--accent2":"#1f49b8",
           "--chip":"rgba(255,255,255,.08)",
           "--chipText":"rgba(244,247,255,.92)"
@@ -448,6 +456,7 @@
 
     // -----------------------------
     // [ЗАЧЕМ] CSV parser (простая версия)
+    // Парсит CSV из Google Sheets publish.
     // -----------------------------
     function parseCSV(text){
       const rows = [];
@@ -501,7 +510,7 @@
     };
 
     // -----------------------------
-    // [ЗАЧЕМ] Загрузка данных
+    // [ЗАЧЕМ] Загрузка config и CSV
     // -----------------------------
     async function loadConfig(restaurantKey){
       const cfgUrl = new URL(`configs/${restaurantKey}.json`, baseUrl()).toString();
@@ -509,7 +518,7 @@
       if(!res.ok) throw new Error(`Config not found: ${cfgUrl} (${res.status})`);
       const cfg = await res.json();
 
-      // нормализуем logoUrl
+      // нормализуем logoUrl (чтобы /assets/... работало в /winegallery/)
       cfg.logoUrl = normalizePath(cfg.logoUrl);
 
       return cfg;
@@ -523,7 +532,8 @@
     }
 
     // -----------------------------
-    // [ЗАЧЕМ] Вычисление секций
+    // [ЗАЧЕМ] Вычисление секций (fallback)
+    // Если config.sectionsOrder не задан — берём уникальные section из CSV.
     // -----------------------------
     function computeSectionsFromData(wines){
       const seen = new Set();
@@ -540,7 +550,7 @@
     }
 
     // -----------------------------
-    // [ЗАЧЕМ] Рендер шапки + темы
+    // [ЗАЧЕМ] Рендер шапки + применение темы
     // -----------------------------
     function renderHeader(){
       el("restaurantName").textContent = state.config?.name || "Wine Gallery";
@@ -591,7 +601,7 @@
     }
 
     // -----------------------------
-    // [ЗАЧЕМ] Вспомогательная печать цены
+    // [ЗАЧЕМ] Печать цены (пока без форматирования валюты)
     // -----------------------------
     function formatPrice(v){
       const n = Number(v);
@@ -601,6 +611,10 @@
 
     // -----------------------------
     // [ЗАЧЕМ] Рендер карточек вина
+    // ВАЖНО (по твоим правилам):
+    // - currency берём из config.currency (в CSV колонки currency больше нет)
+    // - pairing сейчас только в PeopleTalk (но вывод pairing в UI пока не делаем)
+    // - format_ml позже (UI-default)
     // -----------------------------
     function renderGrid(){
       const grid = el("grid");
@@ -655,6 +669,7 @@
         const btl = (w.bottle_price || "").trim();
 
         // [ВАЖНО] currency колонку мы убрали из экспортов → берем currency из config
+        // Если в config currency ещё нет — просто не показываем символ.
         const cur = (state.config?.currency || "").trim();
 
         const big = document.createElement("div");
@@ -721,6 +736,8 @@
 
     // -----------------------------
     // [ЗАЧЕМ] Фильтрация + сортировка
+    // - visible=yes и is_available=yes показываем
+    // - сортировка: section, затем order
     // -----------------------------
     function filterAndRender(){
       const query = (el("searchInput").value || "").trim().toLowerCase();
@@ -766,6 +783,10 @@
 
     // -----------------------------
     // [ЗАЧЕМ] Основной запуск (без перезагрузки страницы)
+    // - читает r/lang из URL
+    // - грузит config + CSV
+    // - применяет theme
+    // - sectionsOrder берёт из config (если задан)
     // -----------------------------
     async function boot(){
       hideStatus();
@@ -791,11 +812,10 @@
         // 4) csv
         const csvUrl = state.config.csvUrl?.[state.lang];
         if(!csvUrl) throw new Error(`csvUrl for lang '${state.lang}' not found in config`);
-
         const wines = await loadCSV(csvUrl);
         state.wines = wines;
 
-        // 5) sections order — берем ИЗ config, а не из CSV (если задано)
+        // 5) sections order — берём ИЗ config, а не из CSV (если задано)
         state.sectionsOrdered =
           (Array.isArray(state.config.sectionsOrder) && state.config.sectionsOrder.length)
             ? state.config.sectionsOrder
@@ -812,13 +832,17 @@
           "\n\nПроверь:\n" +
           "• configs/{r}.json существует и доступен\n" +
           "• config.csvUrl[lang] открывается в браузере\n" +
-          "• GitHub Pages base path (…/winegallery/)\n"
+          "• GitHub Pages base path (…/winegallery/)\n" +
+          "• logoUrl указывает на файл в assets/\n"
         );
       }
     }
 
     // -----------------------------
     // [ЗАЧЕМ] UI handlers
+    // - Reload: просто вызывает boot()
+    // - Search: фильтрация без загрузок
+    // - Смена ресторана/языка: меняем URL и заново грузим config/CSV (без reload страницы)
     // -----------------------------
     el("btnReload").addEventListener("click", () => boot());
     el("searchInput").addEventListener("input", () => filterAndRender());
@@ -834,7 +858,7 @@
       const lang = e.target.value;
       state.lang = lang;
       setParam("lang", lang);
-      await boot(); // без reload страницы
+      await boot(); // без перезагрузки страницы
     });
 
     // START

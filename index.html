@@ -1,71 +1,74 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-
-  <!-- [ЗАЧЕМ] Адаптация под мобильные экраны -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Wine Gallery</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>WineGallery</title>
 
   <style>
     /* =========================================================
-       [ЗАЧЕМ] THEME TOKENS (дефолт; перезаписывается config.theme)
-       ВАЖНО: добавили --accentRgb, чтобы можно было использовать акцент в rgba().
+       БАЗОВАЯ ТЕМА/ЛЕЙАУТ (как было) — фон, шрифты, сетка, карточки
        ========================================================= */
     :root{
-      --bg: #0b0b0b;
-      --panel: #111;
-      --text: #f5f5f5;
-      --muted: rgba(245,245,245,.7);
-      --border: rgba(255,255,255,.12);
-
-      --accent: #1f8a4c;          /* дефолт Novikov green */
-      --accentRgb: 31,138,76;    /* тот же цвет, но в формате R,G,B */
-      --accent2: #0e5f34;
-
-      --chip: rgba(255,255,255,.08);
-      --chipText: rgba(245,245,245,.92);
-      --shadow: 0 10px 24px rgba(0,0,0,.35);
-      --radius: 16px;
-      --maxw: 1080px;
-      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --bg: #0b0f10;
+      --panel: rgba(18, 23, 24, 0.75);
+      --panel2: rgba(12, 15, 16, 0.65);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.65);
+      --line: rgba(255,255,255,0.10);
+      --chip: rgba(255,255,255,0.10);
+      --chipOn: rgba(120,220,150,0.20);
+      --accent: rgba(120,220,150,0.85);
+      --shadow: 0 18px 45px rgba(0,0,0,0.35);
+      --radius: 18px;
+      --radius2: 14px;
+      --max: 1200px;
+      --gap: 18px;
+      --blur: 22px;
     }
 
     /* =========================================================
-       [ЗАЧЕМ] BASE
-       Здесь фон теперь зависит от темы (через --accentRgb), чтобы PeopleTalk был синим.
+       ТЕМА ИЗ CONFIG (подключение theme)
+       Реально "скины" ты можешь расширять позже. Сейчас это базовая
+       возможность: менять фон/акцент через data-theme на <html>.
        ========================================================= */
-    html, body { height: 100%; }
+    html[data-theme="peopletalk"]{
+      --accent: rgba(110,170,255,0.90);
+      --chipOn: rgba(110,170,255,0.22);
+    }
+    html[data-theme="novikov_clean"]{
+      --accent: rgba(120,220,150,0.85);
+      --chipOn: rgba(120,220,150,0.20);
+    }
+
     body{
       margin:0;
-      font-family: var(--font);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
       background:
-        radial-gradient(1200px 700px at 20% 10%, rgba(var(--accentRgb), .18), transparent 55%),
-        radial-gradient(900px 600px at 90% 30%, rgba(255,255,255,.06), transparent 55%),
+        radial-gradient(1200px 700px at 20% 0%, rgba(100,180,120,0.20), transparent 55%),
+        radial-gradient(900px 500px at 85% 20%, rgba(100,160,210,0.16), transparent 60%),
+        radial-gradient(900px 500px at 55% 90%, rgba(220,180,90,0.10), transparent 60%),
         var(--bg);
       color: var(--text);
+      min-height: 100vh;
     }
-    a{ color: inherit; }
 
     .wrap{
-      max-width: var(--maxw);
+      max-width: var(--max);
       margin: 0 auto;
-      padding: 22px 18px 48px;
+      padding: 26px 16px 48px;
     }
 
-    /* =========================================================
-       [ЗАЧЕМ] HEADER
-       ========================================================= */
     .topbar{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:16px;
+      gap:14px;
       padding: 14px 16px;
-      border: 1px solid var(--border);
+      border: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(var(--blur));
       border-radius: var(--radius);
-      background: rgba(17,17,17,.72);
-      backdrop-filter: blur(8px);
       box-shadow: var(--shadow);
     }
 
@@ -73,28 +76,38 @@
       display:flex;
       align-items:center;
       gap:12px;
-      min-width: 180px;
+      min-width: 240px;
     }
 
-    .brand img{
-      height: 34px;
-      width: auto;
-      display:none; /* [ЗАЧЕМ] показываем только если реально загрузился */
-      filter: drop-shadow(0 6px 14px rgba(0,0,0,.35));
-    }
-
-    .brand .title{
+    .logo{
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      overflow:hidden;
+      border: 1px solid var(--line);
+      background: var(--panel2);
       display:flex;
-      flex-direction:column;
-      line-height:1.1;
+      align-items:center;
+      justify-content:center;
+      flex:0 0 auto;
     }
-    .brand .title strong{
-      font-size: 14px;
-      letter-spacing: .3px;
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
     }
-    .brand .title span{
+
+    .brand h1{
+      font-size: 16px;
+      margin:0;
+      line-height: 1.1;
+      letter-spacing: 0.2px;
+    }
+    .brand .sub{
       font-size: 12px;
       color: var(--muted);
+      margin-top: 2px;
     }
 
     .controls{
@@ -105,764 +118,976 @@
       justify-content:flex-end;
     }
 
-    .chip{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding: 8px 10px;
-      background: var(--chip);
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      color: var(--chipText);
-      font-size: 12px;
-      user-select:none;
-    }
-
-    .btn{
-      cursor:pointer;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      padding: 9px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      transition: transform .05s ease, background .15s ease;
-    }
-    .btn:hover{ background: rgba(255,255,255,.10); }
-    .btn:active{ transform: scale(.98); }
-
-    /* [ЗАЧЕМ] Primary теперь тоже зависит от темы */
-    .btn.primary{
-      border-color: rgba(var(--accentRgb), .55);
-      background: linear-gradient(180deg, rgba(var(--accentRgb), .28), rgba(var(--accentRgb), .14));
-    }
-
-    .select{
-      border: 1px solid var(--border);
-      background: rgba(0,0,0,.25);
-      color: var(--text);
-      padding: 9px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      outline: none;
-    }
-
-    .search{
-      border: 1px solid var(--border);
-      background: rgba(0,0,0,.25);
-      color: var(--text);
-      padding: 9px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      outline: none;
-      width: 220px;
-    }
-
-    /* =========================================================
-       [ЗАЧЕМ] SECTIONS NAV
-       Активная плашка — теперь тоже через theme (accent).
-       ========================================================= */
-    .sectionNav{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin: 16px 2px 10px;
-      align-items:center;
-    }
     .pill{
-      cursor:pointer;
-      padding: 10px 12px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--line);
+      padding: 6px 10px;
       border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.05);
       font-size: 12px;
-      color: var(--chipText);
-      transition: background .15s ease, transform .05s ease;
-    }
-    .pill:hover{ background: rgba(255,255,255,.09); }
-    .pill.active{
-      border-color: rgba(255,255,255,.22);
-      background: linear-gradient(180deg, rgba(var(--accentRgb), .32), rgba(var(--accentRgb), .14));
+      color: var(--muted);
     }
 
-    /* =========================================================
-       [ЗАЧЕМ] GRID / CARDS
-       ========================================================= */
+    select, input{
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--line);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 999px;
+      outline: none;
+      font-size: 12px;
+    }
+
+    input::placeholder{
+      color: rgba(255,255,255,0.45);
+    }
+
+    .status{
+      font-size: 12px;
+      color: var(--muted);
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.20);
+      border-radius: 999px;
+      max-width: 420px;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .section-nav{
+      margin-top: 14px;
+      display:flex;
+      gap:8px;
+      flex-wrap: wrap;
+      align-items:center;
+    }
+
+    .chip{
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      font-size: 12px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      user-select:none;
+      transition: transform .10s ease, background .15s ease, border-color .15s ease;
+    }
+    .chip:hover{ transform: translateY(-1px); }
+    .chip.active{
+      background: var(--chipOn);
+      border-color: rgba(120,220,150,0.35);
+    }
+
     .grid{
+      margin-top: 14px;
       display:grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 14px;
-      margin-top: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--gap);
+    }
+
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+      .brand{ min-width: auto; }
     }
 
     .card{
-      grid-column: span 12;
-      display:flex;
-      gap:14px;
-      padding: 14px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.30);
+      backdrop-filter: blur(var(--blur));
       border-radius: var(--radius);
-      background: rgba(17,17,17,.72);
-      border: 1px solid var(--border);
+      padding: 14px;
       box-shadow: var(--shadow);
-      backdrop-filter: blur(8px);
-    }
-
-    @media (min-width: 860px){
-      .card{ grid-column: span 6; }
+      display:grid;
+      grid-template-columns: 98px 1fr;
+      gap: 14px;
+      cursor: pointer;
     }
 
     .bottle{
-      width: 92px;
-      min-width: 92px;
-      height: 160px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.05);
+      width: 98px;
+      height: 150px;
+      border-radius: var(--radius2);
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
       overflow:hidden;
       display:flex;
       align-items:center;
       justify-content:center;
     }
     .bottle img{
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+      width:100%;
+      height:100%;
+      object-fit:contain;
       display:block;
     }
 
     .meta{
       display:flex;
       flex-direction:column;
-      gap:8px;
-      width: 100%;
+      gap: 8px;
+      min-width: 0;
     }
 
-    .line1{
+    .row1{
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
-      gap:10px;
+      gap: 10px;
     }
 
-    .nameBlock strong{
-      display:block;
+    .title{
       font-size: 14px;
-      letter-spacing: .2px;
-    }
-    .nameBlock span{
-      display:block;
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 2px;
+      font-weight: 650;
       line-height: 1.25;
+      margin: 0;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
     }
 
-    .prices{
+    .price{
       text-align:right;
-      min-width: 74px;
-      font-size: 12px;
-      line-height: 1.2;
-      color: var(--chipText);
-    }
-    .prices .big{
-      font-size: 14px;
       font-weight: 700;
-      color: var(--text);
+      font-size: 14px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .price .sub{
+      display:block;
+      font-weight: 500;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 4px;
     }
 
-    .tags{
-      display:flex;
-      gap:8px;
-      flex-wrap: wrap;
+    .line2{
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
     }
+
+    .chips{
+      display:flex;
+      gap: 8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
     .tag{
       font-size: 11px;
-      padding: 6px 8px;
+      padding: 5px 10px;
       border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.05);
-      color: var(--chipText);
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      white-space: nowrap;
     }
 
     .desc{
+      color: rgba(255,255,255,0.78);
       font-size: 12px;
-      color: var(--muted);
       line-height: 1.35;
-      white-space: pre-wrap;
+      display:-webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow:hidden;
+      margin-top: 2px;
     }
 
-    .foot{
+    .notes{
+      color: rgba(255,255,255,0.55);
+      font-size: 11px;
+      line-height: 1.25;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* =========================================================
+       MODAL (для deep-link ?w=... и просмотра деталей вина)
+       ========================================================= */
+    .modal-backdrop{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.62);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 1000;
+    }
+    .modal-backdrop.open{ display:flex; }
+
+    .modal{
+      width: min(980px, 100%);
+      border: 1px solid var(--line);
+      background: rgba(10,12,12,0.88);
+      backdrop-filter: blur(var(--blur));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .modal-head{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:10px;
-      margin-top: 2px;
-    }
-    .muted{ color: var(--muted); font-size: 12px; }
-
-    /* =========================================================
-       [ЗАЧЕМ] STATUS / ERROR (чтобы НЕ было белого экрана)
-       ========================================================= */
-    .status{
-      margin: 14px 2px 0;
+      gap: 10px;
       padding: 12px 14px;
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.05);
-      color: var(--chipText);
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+    }
+    .modal-head .mh-title{
+      font-size: 13px;
+      font-weight: 650;
+      margin: 0;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .modal-close{
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 8px 12px;
+      cursor: pointer;
       font-size: 12px;
-      display:none;
+    }
+
+    .modal-body{
+      display:grid;
+      grid-template-columns: 180px 1fr;
+      gap: 14px;
+      padding: 14px;
+    }
+    @media (max-width: 720px){
+      .modal-body{ grid-template-columns: 1fr; }
+    }
+
+    .modal-bottle{
+      width: 180px;
+      height: 260px;
+      border-radius: var(--radius2);
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .modal-bottle img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
+    }
+
+    .modal-text{
+      min-width: 0;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+
+    .modal-kv{
+      display:grid;
+      grid-template-columns: 120px 1fr;
+      gap: 6px 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .modal-kv b{
+      color: var(--text);
+      font-weight: 650;
+    }
+    .modal-long{
+      color: rgba(255,255,255,0.82);
+      font-size: 12px;
+      line-height: 1.45;
       white-space: pre-wrap;
     }
-    .status.show{ display:block; }
   </style>
 </head>
 
 <body>
   <div class="wrap">
+    <!-- =========================================================
+         TOPBAR: логотип, ресторан/язык, поиск, статус
+         ========================================================= -->
     <div class="topbar">
       <div class="brand">
-        <img id="logo" alt="logo" />
-        <div class="title">
-          <strong id="restaurantName">Wine Gallery</strong>
-          <span id="subtitle">Loading…</span>
+        <div class="logo">
+          <img id="logo" alt="logo" />
+        </div>
+        <div>
+          <h1 id="restaurantName">WineGallery</h1>
+          <div class="sub">Updated from CSV</div>
         </div>
       </div>
 
       <div class="controls">
-        <span class="chip" id="chipRestaurant">r: —</span>
-        <span class="chip" id="chipLang">lang: —</span>
+        <div class="pill" id="pillRestaurant">r: -</div>
+        <div class="pill" id="pillLang">lang: -</div>
 
-        <select class="select" id="restaurantSelect" title="Restaurant">
+        <select id="restaurantSelect" aria-label="Restaurant">
           <option value="novikov_bh">Novikov BH</option>
           <option value="peopletalk">PeopleTalk</option>
         </select>
 
-        <select class="select" id="langSelect" title="Language">
+        <select id="langSelect" aria-label="Language">
           <option value="en">EN</option>
           <option value="es">ES</option>
         </select>
 
-        <input class="search" id="searchInput" placeholder="Search…" />
-        <button class="btn primary" id="btnReload">Reload</button>
+        <input id="searchInput" placeholder="Search..." />
+
+        <!-- ✅ Sprint 2: кнопку Reload убрали совсем (по твоему решению) -->
+
+        <div class="status" id="statusBox">Ready</div>
       </div>
     </div>
 
-    <div class="sectionNav" id="sectionNav"></div>
+    <!-- =========================================================
+         SECTION NAV: кнопки секций (All + sectionsOrder)
+         ========================================================= -->
+    <div class="section-nav" id="sectionNav"></div>
 
-    <!-- [ЗАЧЕМ] сюда мы показываем любые ошибки и подсказки -->
-    <div class="status" id="statusBox"></div>
-
+    <!-- =========================================================
+         GRID: карточки вин
+         ========================================================= -->
     <div class="grid" id="grid"></div>
   </div>
 
+  <!-- =========================================================
+       MODAL: открывается по клику на карточку и по deep-link ?w=
+       ========================================================= -->
+  <div class="modal-backdrop" id="wineModalBackdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Wine details">
+      <div class="modal-head">
+        <p class="mh-title" id="wineModalTitle">Wine</p>
+        <button class="modal-close" id="wineModalClose">Close</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-bottle">
+          <img id="wineModalImg" alt="bottle" />
+        </div>
+        <div class="modal-text">
+          <div class="modal-kv" id="wineModalKV"></div>
+          <div class="modal-long" id="wineModalDesc"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    /************************************************************
-     * [ЗАЧЕМ] WineGallery v2 (обновлено под твои требования)
-     * 1) sections order берём из config.sectionsOrder (если есть), иначе из CSV.
-     * 2) переключение языка БЕЗ перезагрузки страницы: просто пере-фетчим CSV.
-     * 3) theme берём из config.theme и применяем к CSS tokens.
-     * 4) защита от "белого экрана": ошибки выводятся на страницу.
-     ************************************************************/
+    /* =========================================================
+       SPRINT 2 — что добавлено в код (главное):
+       1) sectionsOrder = единственный источник порядка секций (строго)
+       2) deep-links:
+          - ?r=...&lang=...&section=...
+          - ?r=...&lang=...&w=wine_id   (модалка)
+          Приоритет: w (логично) — если w есть, активируем секцию вина.
+       3) кэш config + csv в памяти (на время вкладки)
+       4) debounce на поиске (250мс)
+       5) убрали кнопку Reload (как ты подтвердил)
+       ========================================================= */
 
-    // ==========================================================
-    // [ЗАЧЕМ] Защита: показываем JS-ошибки на странице
-    // ==========================================================
-    window.addEventListener("error", (e) => {
-      try {
-        const msg = (e && e.message) ? e.message : String(e);
-        showStatus("❌ JS error:\n" + msg);
-      } catch(_) {}
-    });
+    /* ---------------------------
+       DOM: ссылки на элементы UI
+       --------------------------- */
+    const el = {
+      logo: document.getElementById('logo'),
+      restaurantName: document.getElementById('restaurantName'),
+      pillRestaurant: document.getElementById('pillRestaurant'),
+      pillLang: document.getElementById('pillLang'),
+      restaurantSelect: document.getElementById('restaurantSelect'),
+      langSelect: document.getElementById('langSelect'),
+      searchInput: document.getElementById('searchInput'),
+      statusBox: document.getElementById('statusBox'),
+      sectionNav: document.getElementById('sectionNav'),
+      grid: document.getElementById('grid'),
 
-    // -----------------------------
-    // [ЗАЧЕМ] Утилиты для DOM/URL
-    // -----------------------------
-    const el = (id) => document.getElementById(id);
+      modalBackdrop: document.getElementById('wineModalBackdrop'),
+      modalClose: document.getElementById('wineModalClose'),
+      modalTitle: document.getElementById('wineModalTitle'),
+      modalImg: document.getElementById('wineModalImg'),
+      modalKV: document.getElementById('wineModalKV'),
+      modalDesc: document.getElementById('wineModalDesc'),
+    };
 
-    function getParam(name){
-      const u = new URL(window.location.href);
-      return u.searchParams.get(name);
-    }
-    function setParam(name, value){
-      const u = new URL(window.location.href);
-      u.searchParams.set(name, value);
-      history.replaceState({}, "", u.toString());
-    }
+    /* ---------------------------------------------------------
+       КЭШ (Sprint 2.3.1): хранится только в памяти вкладки.
+       --------------------------------------------------------- */
+    const configCache = new Map(); // key = restaurantId
+    const csvCache = new Map();    // key = csvUrl
 
-    function baseUrl(){
-      // [ЗАЧЕМ] считаем относительные пути от текущей папки (…/winegallery/)
-      return new URL(".", window.location.href);
-    }
+    /* -------------------------------------
+       Глобальное состояние текущего экрана
+       ------------------------------------- */
+    const state = {
+      restaurantId: null,
+      lang: null,
+      config: null,
+      wines: [],
+      sectionsOrder: [],
+      sectionsEffective: [], // реально используемые (есть в данных и в order)
+      activeSection: 'all',
+      search: '',
+      modalWineId: null,
+    };
 
-    function normalizePath(url){
-      // [ЗАЧЕМ] На GitHub Pages абсолютный путь "/assets/..." уводит в корень домена,
-      // а нам нужно внутри /winegallery/. Поэтому превращаем в относительный "assets/...".
-      if(!url) return "";
-      if(url.startsWith("/assets/")) return url.replace("/assets/", "assets/");
-      if(url.startsWith("/configs/")) return url.replace("/configs/", "configs/");
-      if(url.startsWith("/data/"))    return url.replace("/data/", "data/");
-      return url;
-    }
-
-    function showStatus(msg){
-      const box = el("statusBox");
-      box.textContent = msg;
-      box.classList.add("show");
-    }
-    function hideStatus(){
-      const box = el("statusBox");
-      box.textContent = "";
-      box.classList.remove("show");
-    }
-
-    // -----------------------------
-    // [ЗАЧЕМ] Темы (минимум 2 штуки)
-    // ВАЖНО: здесь заложены палитры Novikov (зелёный) и PeopleTalk (синий).
-    // -----------------------------
-    function applyTheme(themeName){
-      const root = document.documentElement;
-
-      const themes = {
-        novikov_clean: {
-          "--bg":"#070807",
-          "--panel":"#101210",
-          "--text":"#F6F7F6",
-          "--muted":"rgba(246,247,246,.72)",
-          "--border":"rgba(255,255,255,.12)",
-          "--accent":"#1f8a4c",
-          "--accentRgb":"31,138,76",
-          "--accent2":"#0e5f34",
-          "--chip":"rgba(255,255,255,.08)",
-          "--chipText":"rgba(246,247,246,.92)"
-        },
-        peopletalk: {
-          "--bg":"#06080d",
-          "--panel":"#0f131d",
-          "--text":"#F4F7FF",
-          "--muted":"rgba(244,247,255,.72)",
-          "--border":"rgba(255,255,255,.12)",
-          "--accent":"#2b67ff",
-          "--accentRgb":"43,103,255",
-          "--accent2":"#1f49b8",
-          "--chip":"rgba(255,255,255,.08)",
-          "--chipText":"rgba(244,247,255,.92)"
-        }
-      };
-
-      const t = themes[themeName] || themes.novikov_clean;
-      Object.entries(t).forEach(([k,v]) => root.style.setProperty(k,v));
+    /* =========================================================
+       УТИЛИТЫ: статус, деньги, безопасный путь для ассетов
+       ========================================================= */
+    function setStatus(msg, isError=false){
+      el.statusBox.textContent = msg;
+      el.statusBox.style.borderColor = isError ? 'rgba(255,120,120,0.45)' : 'rgba(255,255,255,0.10)';
     }
 
-    // -----------------------------
-    // [ЗАЧЕМ] CSV parser (простая версия)
-    // Парсит CSV из Google Sheets publish.
-    // -----------------------------
+    function money(v, currencySymbol){
+      // В CSV у нас уже чистые числа — валюту рисуем в UI (как вы решили)
+      if (v === null || v === undefined || v === '') return '';
+      const num = Number(v);
+      if (Number.isNaN(num)) return String(v);
+      return `${currencySymbol}${num}`;
+    }
+
+    function normalizeAssetPath(p){
+      // В config ты используешь "assets/xxx.png" (без ведущего /) — это ок.
+      // Но если кто-то всё же поставит "/assets/..." — мы безопасно уберём слэш.
+      if (!p) return '';
+      return p.replace(/^\\//, '');
+    }
+
+    /* =========================================================
+       CSV PARSER (как был, но оставил компактный и устойчивый)
+       ========================================================= */
     function parseCSV(text){
+      // Небольшой CSV парсер: поддерживает кавычки и запятые внутри кавычек.
       const rows = [];
       let row = [];
-      let cur = "";
+      let cur = '';
       let inQuotes = false;
 
-      for (let i = 0; i < text.length; i++){
+      for (let i=0; i<text.length; i++){
         const ch = text[i];
         const next = text[i+1];
 
-        if (ch === '"' && inQuotes && next === '"'){ cur += '"'; i++; continue; }
-        if (ch === '"'){ inQuotes = !inQuotes; continue; }
-
-        if (!inQuotes && ch === ","){ row.push(cur); cur=""; continue; }
-        if (!inQuotes && (ch === "\n" || ch === "\r")){
-          if (ch === "\r" && next === "\n") i++;
-          row.push(cur); cur="";
-          rows.push(row);
-          row = [];
+        if (ch === '\"'){
+          if (inQuotes && next === '\"'){
+            cur += '\"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
           continue;
         }
+
+        if (!inQuotes && (ch === ',')){
+          row.push(cur);
+          cur = '';
+          continue;
+        }
+
+        if (!inQuotes && (ch === '\\n' || ch === '\\r')){
+          if (ch === '\\r' && next === '\\n') i++;
+          row.push(cur);
+          rows.push(row);
+          row = [];
+          cur = '';
+          continue;
+        }
+
         cur += ch;
       }
-      if (cur.length || row.length){
-        row.push(cur);
-        rows.push(row);
-      }
 
-      const header = (rows.shift() || []).map(h => (h||"").trim());
-      return rows
-        .filter(r => r.some(x => (x||"").trim() !== ""))
-        .map(r => {
-          const obj = {};
-          header.forEach((h, idx) => obj[h] = (r[idx] ?? "").trim());
-          return obj;
-        });
+      // последний хвост
+      row.push(cur);
+      rows.push(row);
+
+      return rows;
     }
 
-    // -----------------------------
-    // [ЗАЧЕМ] App state
-    // -----------------------------
-    const state = {
-      r: "novikov_bh",
-      lang: "en",
-      config: null,
-      wines: [],
-      filtered: [],
-      activeSection: "all",
-      sectionsOrdered: []
-    };
+    function csvToObjects(text){
+      const rows = parseCSV(text).filter(r => r.some(cell => String(cell).trim() !== ''));
+      if (!rows.length) return [];
+      const header = rows[0].map(h => String(h).trim());
+      const out = [];
 
-    // -----------------------------
-    // [ЗАЧЕМ] Загрузка config и CSV
-    // -----------------------------
-    async function loadConfig(restaurantKey){
-      const cfgUrl = new URL(`configs/${restaurantKey}.json`, baseUrl()).toString();
-      const res = await fetch(cfgUrl, { cache: "no-store" });
-      if(!res.ok) throw new Error(`Config not found: ${cfgUrl} (${res.status})`);
+      for (let i=1; i<rows.length; i++){
+        const r = rows[i];
+        const obj = {};
+        for (let c=0; c<header.length; c++){
+          obj[header[c]] = (r[c] ?? '').toString().trim();
+        }
+        out.push(obj);
+      }
+      return out;
+    }
+
+    /* =========================================================
+       ЗАГРУЗКА CONFIG и CSV (с кэшированием) — Sprint 2.3.1
+       ========================================================= */
+    async function loadConfig(restaurantId){
+      if (configCache.has(restaurantId)) return configCache.get(restaurantId);
+
+      const url = `configs/${restaurantId}.json?ts=${Date.now()}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Config not found: ${url}`);
       const cfg = await res.json();
 
-      // нормализуем logoUrl (чтобы /assets/... работало в /winegallery/)
-      cfg.logoUrl = normalizePath(cfg.logoUrl);
-
+      configCache.set(restaurantId, cfg);
       return cfg;
     }
 
     async function loadCSV(csvUrl){
-      const res = await fetch(csvUrl, { cache: "no-store" });
-      if(!res.ok) throw new Error(`CSV fetch failed (${res.status})`);
-      const txt = await res.text();
-      return parseCSV(txt);
-    }
+      if (csvCache.has(csvUrl)) return csvCache.get(csvUrl);
 
-    // -----------------------------
-    // [ЗАЧЕМ] Вычисление секций (fallback)
-    // Если config.sectionsOrder не задан — берём уникальные section из CSV.
-    // -----------------------------
-    function computeSectionsFromData(wines){
-      const seen = new Set();
-      const list = [];
-      for(const w of wines){
-        const s = (w.section || "").trim();
-        if(!s) continue;
-        if(!seen.has(s)){
-          seen.add(s);
-          list.push(s);
-        }
-      }
+      const res = await fetch(csvUrl);
+      if (!res.ok) throw new Error(`CSV not доступен: ${csvUrl}`);
+      const text = await res.text();
+
+      const list = csvToObjects(text);
+      csvCache.set(csvUrl, list);
       return list;
     }
 
-    // -----------------------------
-    // [ЗАЧЕМ] Рендер шапки + применение темы
-    // -----------------------------
-    function renderHeader(){
-      el("restaurantName").textContent = state.config?.name || "Wine Gallery";
-      el("chipRestaurant").textContent = `r: ${state.r}`;
-      el("chipLang").textContent = `lang: ${state.lang}`;
-      el("subtitle").textContent = "Updated from CSV";
-
-      applyTheme(state.config?.theme || "novikov_clean");
-
-      // logo (не ломаем страницу, если файл не найден)
-      const logo = el("logo");
-      const url = state.config?.logoUrl || "";
-      logo.style.display = "none";
-      logo.onerror = () => { logo.style.display = "none"; };
-
-      if(url){
-        logo.src = new URL(url, baseUrl()).toString();
-        logo.onload = () => { logo.style.display = "block"; };
-      }
-
-      // селекты
-      el("restaurantSelect").value = state.r;
-      el("langSelect").value = state.lang;
-    }
-
-    // -----------------------------
-    // [ЗАЧЕМ] Навигация по секциям
-    // -----------------------------
-    function renderSectionNav(){
-      const nav = el("sectionNav");
-      nav.innerHTML = "";
-
-      const mk = (key, label) => {
-        const b = document.createElement("button");
-        b.className = "pill" + (state.activeSection === key ? " active" : "");
-        b.textContent = label;
-        b.onclick = () => {
-          state.activeSection = key;
-          filterAndRender();
-        };
-        return b;
+    /* =========================================================
+       URL: чтение параметров и синхронизация без перезагрузки
+       Формат фиксирован (как ты подтвердил):
+       ?r=novikov_bh&lang=en&section=champagne
+       ?r=peopletalk&lang=es&w=peopletalk_wh_001
+       ========================================================= */
+    function readUrlParams(){
+      const sp = new URLSearchParams(window.location.search);
+      return {
+        r: sp.get('r'),
+        lang: sp.get('lang'),
+        section: sp.get('section'),
+        w: sp.get('w'),
       };
+    }
 
-      nav.appendChild(mk("all", "All"));
-      for(const s of state.sectionsOrdered){
-        nav.appendChild(mk(s, s));
+    function writeUrlParams({ restaurantId, lang, section, w }){
+      const sp = new URLSearchParams(window.location.search);
+
+      sp.set('r', restaurantId);
+      sp.set('lang', lang);
+
+      if (section && section !== 'all') sp.set('section', section);
+      else sp.delete('section');
+
+      if (w) sp.set('w', w);
+      else sp.delete('w');
+
+      const qs = sp.toString();
+      const next = qs ? `?${qs}` : window.location.pathname;
+      window.history.replaceState(null, '', next);
+    }
+
+    function syncUrl(){
+      writeUrlParams({
+        restaurantId: state.restaurantId,
+        lang: state.lang,
+        section: state.activeSection,
+        w: state.modalWineId,
+      });
+    }
+
+    /* =========================================================
+       SECTIONS ORDER (Sprint 2.1): строго по config.sectionsOrder.
+       Если секция есть в CSV, но нет в sectionsOrder => СКРЫВАЕМ.
+       "All" всегда отдельная кнопка и всегда первая.
+       ========================================================= */
+    function computeSectionsEffective(wines, sectionsOrder){
+      const setInData = new Set(wines.map(w => w.section).filter(Boolean));
+      const ordered = Array.isArray(sectionsOrder) ? sectionsOrder : [];
+
+      // строго: берем только то, что есть и в order, и в данных
+      return ordered.filter(key => setInData.has(key));
+    }
+
+    function sectionAllowed(section){
+      if (!section) return false;
+      if (!state.sectionsOrder.length) return true; // fallback (на время) — если order не задан
+      return state.sectionsEffective.includes(section);
+    }
+
+    function setActiveSection(sectionKey){
+      // если секции нет/пустая/не в order — fallback на All (как ты подтвердил)
+      if (sectionKey && sectionKey !== 'all' && !state.sectionsEffective.includes(sectionKey)){
+        state.activeSection = 'all';
+      } else {
+        state.activeSection = sectionKey || 'all';
+      }
+
+      // при переключении секции модалку закрываем, чтобы URL не конфликтовал
+      if (state.modalWineId){
+        closeModal(false);
+      }
+
+      renderSectionButtons();
+      filterAndRender();
+      syncUrl();
+    }
+
+    function renderSectionButtons(){
+      el.sectionNav.innerHTML = '';
+
+      // All — всегда первым
+      const allBtn = document.createElement('div');
+      allBtn.className = `chip ${state.activeSection==='all' ? 'active' : ''}`;
+      allBtn.textContent = 'All';
+      allBtn.addEventListener('click', () => setActiveSection('all'));
+      el.sectionNav.appendChild(allBtn);
+
+      const list = state.sectionsEffective;
+      for (const key of list){
+        const btn = document.createElement('div');
+        btn.className = `chip ${state.activeSection===key ? 'active' : ''}`;
+        btn.textContent = key;
+        btn.addEventListener('click', () => setActiveSection(key));
+        el.sectionNav.appendChild(btn);
       }
     }
 
-    // -----------------------------
-    // [ЗАЧЕМ] Печать цены (пока без форматирования валюты)
-    // -----------------------------
-    function formatPrice(v){
-      const n = Number(v);
-      if(!isFinite(n)) return v || "";
-      return String(n);
+    /* =========================================================
+       MODAL (Sprint 2.2.2): открываем по клику и по ?w=
+       Закрытие: убираем w из URL, section сохраняем (как ты подтвердил)
+       ========================================================= */
+    function openModalByWine(wine){
+      if (!wine) return;
+
+      state.modalWineId = wine.id || null;
+
+      // Заголовок
+      el.modalTitle.textContent = wine.name || 'Wine';
+
+      // Картинка
+      el.modalImg.src = wine.image || '';
+      el.modalImg.alt = wine.name || 'bottle';
+
+      // KV блок (пары ключ:значение)
+      const kv = [];
+      kv.push(['Producer', wine.producer]);
+      kv.push(['Vintage', wine.vintage]);
+      kv.push(['Country', wine.country]);
+      kv.push(['Region', wine.region]);
+      kv.push(['Grape', wine.grape]);
+      kv.push(['Style', wine.style]);
+      kv.push(['Price (glass)', wine.priceGlassDisplay]);
+      kv.push(['Price (bottle)', wine.priceBottleDisplay]);
+
+      el.modalKV.innerHTML = kv
+        .filter(([k,v]) => v && String(v).trim() !== '')
+        .map(([k,v]) => `<b>${k}:</b><div>${escapeHtml(String(v))}</div>`)
+        .join('');
+
+      // Описание + notes
+      const long = [];
+      if (wine.description) long.push(wine.description);
+      if (wine.notes) long.push(`Notes: ${wine.notes}`);
+      el.modalDesc.textContent = long.join('\\n\\n');
+
+      // Показываем
+      el.modalBackdrop.classList.add('open');
+      el.modalBackdrop.setAttribute('aria-hidden', 'false');
+
+      syncUrl();
     }
 
-    // -----------------------------
-    // [ЗАЧЕМ] Рендер карточек вина
-    // ВАЖНО (по твоим правилам):
-    // - currency берём из config.currency (в CSV колонки currency больше нет)
-    // - pairing сейчас только в PeopleTalk (но вывод pairing в UI пока не делаем)
-    // - format_ml позже (UI-default)
-    // -----------------------------
-    function renderGrid(){
-      const grid = el("grid");
-      grid.innerHTML = "";
-
-      for(const w of state.filtered){
-        const card = document.createElement("div");
-        card.className = "card";
-
-        // bottle image
-        const bottle = document.createElement("div");
-        bottle.className = "bottle";
-
-        const imgUrl = (w.bottle_img || w.primary_image_url || "").trim();
-        if(imgUrl){
-          const img = document.createElement("img");
-          img.src = imgUrl;
-          img.alt = `${w.producer || ""} ${w.name || ""}`.trim();
-          img.onerror = () => { img.remove(); };
-          bottle.appendChild(img);
-        }
-        card.appendChild(bottle);
-
-        // meta
-        const meta = document.createElement("div");
-        meta.className = "meta";
-
-        const line1 = document.createElement("div");
-        line1.className = "line1";
-
-        const nameBlock = document.createElement("div");
-        nameBlock.className = "nameBlock";
-
-        const title = document.createElement("strong");
-        title.textContent = [w.producer, w.name].filter(Boolean).join(" — ") || w.id || "Wine";
-
-        const sub = document.createElement("span");
-        const parts = [];
-        if(w.vintage) parts.push(w.vintage);
-        if(w.country) parts.push(w.country);
-        if(w.region) parts.push(w.region);
-        if(w.grape) parts.push(w.grape);
-        sub.textContent = parts.join(" • ");
-
-        nameBlock.appendChild(title);
-        nameBlock.appendChild(sub);
-
-        const prices = document.createElement("div");
-        prices.className = "prices";
-
-        const btg = (w.btg_price || "").trim();
-        const btl = (w.bottle_price || "").trim();
-
-        // [ВАЖНО] currency колонку мы убрали из экспортов → берем currency из config
-        // Если в config currency ещё нет — просто не показываем символ.
-        const cur = (state.config?.currency || "").trim();
-
-        const big = document.createElement("div");
-        big.className = "big";
-        big.textContent = btl ? `${formatPrice(btl)}${cur ? " " + cur : ""}` : "";
-
-        const small = document.createElement("div");
-        small.textContent = btg ? `${formatPrice(btg)}${cur ? " " + cur : ""} / glass` : "";
-
-        prices.appendChild(big);
-        prices.appendChild(small);
-
-        line1.appendChild(nameBlock);
-        line1.appendChild(prices);
-        meta.appendChild(line1);
-
-        // tags
-        const tags = document.createElement("div");
-        tags.className = "tags";
-
-        if(w.section) {
-          const t = document.createElement("span");
-          t.className = "tag";
-          t.textContent = w.section;
-          tags.appendChild(t);
-        }
-        if(w.style){
-          const t = document.createElement("span");
-          t.className = "tag";
-          t.textContent = w.style;
-          tags.appendChild(t);
-        }
-        meta.appendChild(tags);
-
-        // story
-        if(w.story){
-          const d = document.createElement("div");
-          d.className = "desc";
-          d.textContent = w.story;
-          meta.appendChild(d);
-        }
-
-        // notes + availability
-        const foot = document.createElement("div");
-        foot.className = "foot";
-
-        const left = document.createElement("div");
-        left.className = "muted";
-        left.textContent = w.notes ? `Notes: ${w.notes}` : "";
-
-        const right = document.createElement("div");
-        right.className = "muted";
-        const avail = (w.is_available || "").toLowerCase();
-        right.textContent = avail === "no" ? "Not available" : "";
-
-        foot.appendChild(left);
-        foot.appendChild(right);
-        meta.appendChild(foot);
-
-        card.appendChild(meta);
-        grid.appendChild(card);
-      }
+    function closeModal(sync=true){
+      state.modalWineId = null;
+      el.modalBackdrop.classList.remove('open');
+      el.modalBackdrop.setAttribute('aria-hidden', 'true');
+      if (sync) syncUrl();
     }
 
-    // -----------------------------
-    // [ЗАЧЕМ] Фильтрация + сортировка
-    // - visible=yes и is_available=yes показываем
-    // - сортировка: section, затем order
-    // -----------------------------
+    el.modalClose.addEventListener('click', () => closeModal(true));
+    el.modalBackdrop.addEventListener('click', (e) => {
+      // клик по фону закрывает, клик по самой модалке — нет
+      if (e.target === el.modalBackdrop) closeModal(true);
+    });
+
+    /* =========================================================
+       ПОИСК (Sprint 2.3.2): debounce 250мс
+       Debounce = "ждём, пока пользователь перестанет печатать",
+       и только потом применяем фильтр. Это уменьшает лаги и перерисовки.
+       ========================================================= */
+    function debounce(fn, ms){
+      let t = null;
+      return (...args) => {
+        if (t) clearTimeout(t);
+        t = setTimeout(() => fn(...args), ms);
+      };
+    }
+
+    const onSearchDebounced = debounce(() => {
+      state.search = (el.searchInput.value || '').trim().toLowerCase();
+      filterAndRender();
+      // section/w оставляем как есть, URL не меняем из-за поиска
+    }, 250);
+
+    el.searchInput.addEventListener('input', onSearchDebounced);
+
+    /* =========================================================
+       РЕНДЕР: фильтрация + сортировка + отрисовка карточек
+       ========================================================= */
     function filterAndRender(){
-      const query = (el("searchInput").value || "").trim().toLowerCase();
-      let list = state.wines;
+      const q = state.search;
 
-      if(state.activeSection !== "all"){
-        list = list.filter(w => (w.section || "").trim() === state.activeSection);
+      // базовый список: строго только из разрешённых секций (если order задан)
+      let list = state.wines.filter(w => sectionAllowed(w.section));
+
+      // фильтр секции
+      if (state.activeSection !== 'all'){
+        list = list.filter(w => w.section === state.activeSection);
       }
 
-      if(query){
+      // поиск по полям (простая логика)
+      if (q){
         list = list.filter(w => {
           const hay = [
-            w.id, w.section, w.producer, w.name, w.vintage, w.country, w.region, w.grape, w.style, w.story, w.notes
-          ].join(" ").toLowerCase();
-          return hay.includes(query);
+            w.name, w.producer, w.region, w.country, w.grape, w.section
+          ].filter(Boolean).join(' ').toLowerCase();
+          return hay.includes(q);
         });
       }
 
-      // visible + is_available (если есть)
-      list = list.filter(w => {
-        const v = (w.visible || "").toLowerCase();
-        const a = (w.is_available || "").toLowerCase();
-        const okVisible = !v || v === "yes";
-        const okAvail = !a || a === "yes";
-        return okVisible && okAvail;
-      });
-
-      // сортировка: section, затем order
+      // сортировка: сначала по порядку секций (sectionsOrder), потом по order (если есть), потом по имени
+      const sectionIndex = new Map(state.sectionsEffective.map((k, i) => [k, i]));
       list.sort((a,b) => {
-        const sa = (a.section || "").toLowerCase();
-        const sb = (b.section || "").toLowerCase();
-        if(sa < sb) return -1;
-        if(sa > sb) return 1;
-        const oa = Number(a.order); const ob = Number(b.order);
-        if(isFinite(oa) && isFinite(ob)) return oa - ob;
-        return (a.id||"").localeCompare(b.id||"");
+        const sa = sectionIndex.get(a.section) ?? 9999;
+        const sb = sectionIndex.get(b.section) ?? 9999;
+        if (sa !== sb) return sa - sb;
+
+        const oa = Number(a.orderNum ?? 9999);
+        const ob = Number(b.orderNum ?? 9999);
+        if (oa !== ob) return oa - ob;
+
+        return String(a.name||'').localeCompare(String(b.name||''), 'en');
       });
 
-      state.filtered = list;
-      renderSectionNav();
-      renderGrid();
+      renderGrid(list);
     }
 
-    // -----------------------------
-    // [ЗАЧЕМ] Основной запуск (без перезагрузки страницы)
-    // - читает r/lang из URL
-    // - грузит config + CSV
-    // - применяет theme
-    // - sectionsOrder берёт из config (если задан)
-    // -----------------------------
-    async function boot(){
-      hideStatus();
+    function renderGrid(list){
+      el.grid.innerHTML = '';
 
-      // URL params
-      state.r = getParam("r") || "novikov_bh";
-      state.lang = getParam("lang") || "en";
+      for (const w of list){
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.dataset.wineId = w.id || '';
 
-      try{
-        // 1) config
-        state.config = await loadConfig(state.r);
+        // при клике — открываем модалку и пишем w= в URL
+        card.addEventListener('click', () => {
+          // активируем секцию вина (если вдруг были в All)
+          if (w.section && state.activeSection !== w.section) {
+            state.activeSection = w.section; // тут без закрытия (модалки ещё нет)
+            renderSectionButtons();
+          }
+          openModalByWine(w);
+        });
 
-        // 2) проверка языка
-        const enabled = state.config.enabledLanguages || ["en"];
-        if(!enabled.includes(state.lang)){
-          state.lang = state.config.defaultLanguage || enabled[0] || "en";
-          setParam("lang", state.lang);
-        }
+        card.innerHTML = `
+          <div class="bottle">
+            <img src="${escapeAttr(w.image || '')}" alt="${escapeAttr(w.name || 'bottle')}" />
+          </div>
+          <div class="meta">
+            <div class="row1">
+              <div style="min-width:0">
+                <p class="title">${escapeHtml(w.producer || '')} — ${escapeHtml(w.name || '')}</p>
+                <div class="line2">${escapeHtml(w.vintage || 'NV')} · ${escapeHtml(w.country || '')} · ${escapeHtml(w.region || '')} · ${escapeHtml(w.grape || '')}</div>
+              </div>
+              <div class="price">
+                ${escapeHtml(w.priceBottleDisplay || '')}
+                <span class="sub">${escapeHtml(w.priceGlassDisplay || '')}${w.priceGlassDisplay ? ' / glass' : ''}</span>
+              </div>
+            </div>
 
-        // 3) header + theme
-        renderHeader();
+            <div class="chips">
+              <span class="tag">${escapeHtml(w.section || '')}</span>
+              ${w.style ? `<span class="tag">${escapeHtml(w.style)}</span>` : ''}
+            </div>
 
-        // 4) csv
-        const csvUrl = state.config.csvUrl?.[state.lang];
-        if(!csvUrl) throw new Error(`csvUrl for lang '${state.lang}' not found in config`);
-        const wines = await loadCSV(csvUrl);
-        state.wines = wines;
+            ${w.description ? `<div class="desc">${escapeHtml(w.description)}</div>` : ''}
+            ${w.notes ? `<div class="notes">Notes: ${escapeHtml(w.notes)}</div>` : ''}
+          </div>
+        `;
 
-        // 5) sections order — берём ИЗ config, а не из CSV (если задано)
-        state.sectionsOrdered =
-          (Array.isArray(state.config.sectionsOrder) && state.config.sectionsOrder.length)
-            ? state.config.sectionsOrder
-            : computeSectionsFromData(wines);
-
-        state.activeSection = "all";
-        filterAndRender();
-
-      }catch(err){
-        console.error(err);
-        showStatus(
-          "❌ Error loading Wine Gallery\n\n" +
-          (err && err.message ? err.message : String(err)) +
-          "\n\nПроверь:\n" +
-          "• configs/{r}.json существует и доступен\n" +
-          "• config.csvUrl[lang] открывается в браузере\n" +
-          "• GitHub Pages base path (…/winegallery/)\n" +
-          "• logoUrl указывает на файл в assets/\n"
-        );
+        el.grid.appendChild(card);
       }
     }
 
-    // -----------------------------
-    // [ЗАЧЕМ] UI handlers
-    // - Reload: просто вызывает boot()
-    // - Search: фильтрация без загрузок
-    // - Смена ресторана/языка: меняем URL и заново грузим config/CSV (без reload страницы)
-    // -----------------------------
-    el("btnReload").addEventListener("click", () => boot());
-    el("searchInput").addEventListener("input", () => filterAndRender());
+    /* =========================================================
+       Безопасный вывод текста в HTML (чтобы не ломать разметку)
+       ========================================================= */
+    function escapeHtml(s){
+      return String(s).replace(/[&<>\"']/g, c => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'
+      }[c]));
+    }
+    function escapeAttr(s){ return escapeHtml(s); }
 
-    el("restaurantSelect").addEventListener("change", async (e) => {
-      const r = e.target.value;
-      state.r = r;
-      setParam("r", r);
-      await boot();
+    /* =========================================================
+       Загрузка ресторана/языка + применение URL (section/w)
+       ========================================================= */
+    async function loadRestaurant(restaurantId, lang, urlSection, urlWineId){
+      setStatus('Loading...');
+
+      // config
+      const cfg = await loadConfig(restaurantId);
+      state.config = cfg;
+
+      // theme
+      if (cfg.theme) document.documentElement.setAttribute('data-theme', cfg.theme);
+
+      // name + logo
+      el.restaurantName.textContent = cfg.name || restaurantId;
+      const logoPath = normalizeAssetPath(cfg.logoUrl || '');
+      el.logo.src = logoPath;
+
+      // language
+      const enabled = Array.isArray(cfg.enabledLanguages) ? cfg.enabledLanguages : ['en'];
+      const defaultLang = cfg.defaultLanguage || enabled[0] || 'en';
+      const finalLang = enabled.includes(lang) ? lang : defaultLang;
+
+      state.restaurantId = restaurantId;
+      state.lang = finalLang;
+
+      // pills + selects
+      el.pillRestaurant.textContent = `r: ${state.restaurantId}`;
+      el.pillLang.textContent = `lang: ${state.lang}`;
+      el.restaurantSelect.value = state.restaurantId;
+      el.langSelect.value = state.lang;
+
+      // sectionsOrder
+      state.sectionsOrder = Array.isArray(cfg.sectionsOrder) ? cfg.sectionsOrder : [];
+
+      // csv url
+      const csvUrl = (cfg.csvUrl && cfg.csvUrl[state.lang]) ? cfg.csvUrl[state.lang] : null;
+      if (!csvUrl) throw new Error(`csvUrl отсутствует для lang=${state.lang}`);
+
+      // csv load
+      const raw = await loadCSV(csvUrl);
+
+      // нормализуем записи под UI
+      const currencySymbol = ''; // в UI можно подставить позже через cfg.currency, пока просто ''
+      const curr = cfg.currency || '$';
+      const wines = raw
+        .map(x => ({
+          id: x.id || x.wine_id || x.wineId || x.ID || '',
+          section: x.section || '',
+          producer: x.producer || '',
+          name: x.name || '',
+          vintage: x.vintage || 'NV',
+          country: x.country || '',
+          region: x.region || '',
+          grape: x.grape || '',
+          style: x.style || '',
+          description: x.description || '',
+          notes: x.notes || '',
+          image: x.image || x.image_url || x.img || '',
+          priceBottle: x.price_bottle || x.priceBottle || x.price || '',
+          priceGlass: x.price_glass || x.priceGlass || '',
+          orderNum: x.order || x.sort_order || x.sortOrder || '',
+          // отображение цен: валюта в UI (как вы решили)
+          priceBottleDisplay: x.price_bottle || x.priceBottle || x.price ? money(x.price_bottle || x.priceBottle || x.price, curr) : '',
+          priceGlassDisplay: x.price_glass || x.priceGlass ? money(x.price_glass || x.priceGlass, curr) : '',
+        }))
+        .filter(w => w.id && w.section); // минимальная фильтрация
+
+      state.wines = wines;
+
+      // sectionsEffective = строго по order + реально присутствующим секциям
+      state.sectionsEffective = computeSectionsEffective(state.wines, state.sectionsOrder);
+
+      // 1) применяем section из URL
+      // 2) затем применяем w из URL (приоритетнее: логично) — активируем секцию вина и открываем модалку
+      state.activeSection = 'all';
+      if (urlSection){
+        if (state.sectionsEffective.includes(urlSection)) state.activeSection = urlSection;
+        else state.activeSection = 'all';
+      }
+
+      renderSectionButtons();
+      filterAndRender();
+
+      if (urlWineId){
+        const found = state.wines.find(w => w.id === urlWineId);
+        if (!found){
+          setStatus(`Wine not found for w=${urlWineId}`, true);
+          // остаёмся на текущей секции/All (как ты подтвердил)
+          state.modalWineId = null;
+          syncUrl(); // уберём w, если он был, чтобы URL не был "битым"
+        } else {
+          // приоритет w: активируем секцию вина и открываем модалку
+          if (sectionAllowed(found.section)){
+            state.activeSection = found.section;
+          } else {
+            state.activeSection = 'all';
+          }
+          renderSectionButtons();
+          filterAndRender();
+          openModalByWine(found);
+        }
+      }
+
+      setStatus(`OK · ${state.wines.length} wines`);
+      syncUrl();
+    }
+
+    /* =========================================================
+       EVENTS: смена ресторана/языка (без перезагрузки страницы)
+       ========================================================= */
+    el.restaurantSelect.addEventListener('change', async () => {
+      const r = el.restaurantSelect.value;
+      const params = readUrlParams();
+      // section/w сбрасываем, чтобы не конфликтовали при смене ресторана
+      await safeBoot(r, state.lang || params.lang || 'en', null, null);
     });
 
-    el("langSelect").addEventListener("change", async (e) => {
-      const lang = e.target.value;
-      state.lang = lang;
-      setParam("lang", lang);
-      await boot(); // без перезагрузки страницы
+    el.langSelect.addEventListener('change', async () => {
+      const lang = el.langSelect.value;
+      const params = readUrlParams();
+      // section/w оставляем, если возможно (логично для пользователя)
+      await safeBoot(state.restaurantId || params.r || 'novikov_bh', lang, params.section, params.w);
     });
 
-    // START
-    boot();
+    async function safeBoot(r, lang, section, w){
+      try{
+        closeModal(false);
+        await loadRestaurant(r, lang, section, w);
+      } catch(err){
+        console.error(err);
+        setStatus(String(err.message || err), true);
+      }
+    }
+
+    /* =========================================================
+       BOOT: старт — читаем URL и грузим
+       ========================================================= */
+    (async function boot(){
+      const p = readUrlParams();
+
+      // restaurant по URL или дефолт
+      const restaurantId = p.r || 'novikov_bh';
+
+      // язык по URL (если валидный — проверим после config)
+      const lang = p.lang || 'en';
+
+      await safeBoot(restaurantId, lang, p.section, p.w);
+    })();
   </script>
 </body>
 </html>

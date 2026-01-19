@@ -1,118 +1,315 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wine Gallery</title>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
   <style>
-    /* =========================
-       БЛОК 1 — CSS базовые переменные (меняются темой)
-       ========================= */
+    /* =========================================================
+       THEME TOKENS (default; overwritten by config.theme)
+       ========================================================= */
     :root{
-      --bg:#0b0c10;
-      --panel:#12141c;
-      --panel2:#0f1118;
-      --text:#f5f7ff;
-      --muted:#aab0c0;
-      --border:rgba(255,255,255,.10);
-      --accent:#3b82f6;
-      --accent2:#1d4ed8;
-      --chip:#1a1d28;
-      --shadow:0 10px 30px rgba(0,0,0,.35);
-      --radius:14px;
-      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      --bg: #0b0b0b;
+      --panel: #111;
+      --text: #f5f5f5;
+      --muted: rgba(245,245,245,.7);
+      --border: rgba(255,255,255,.12);
+      --accent: #1f8a4c;   /* Novikov green default */
+      --accent2: #0e5f34;
+      --chip: rgba(255,255,255,.08);
+      --chipText: rgba(245,245,245,.92);
+      --shadow: 0 10px 24px rgba(0,0,0,.35);
+      --radius: 16px;
+      --maxw: 1080px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
-    body{margin:0; font-family:var(--font); background:var(--bg); color:var(--text);}
-    a{color:inherit;}
+    /* =========================================================
+       BASE
+       ========================================================= */
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      font-family: var(--font);
+      background: radial-gradient(1200px 700px at 20% 10%, rgba(31,138,76,.18), transparent 55%),
+                  radial-gradient(900px 600px at 90% 30%, rgba(255,255,255,.06), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+    }
 
-    /* =========================
-       БЛОК 2 — Layout
-       ========================= */
-    .wrap{max-width:1120px; margin:0 auto; padding:20px 16px 60px;}
-    .topbar{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px;}
-    .brand{display:flex; align-items:center; gap:12px; min-width:0;}
-    .brand img{height:42px; width:auto; display:block;}
-    .brand .title{display:flex; flex-direction:column; min-width:0;}
-    .brand .title strong{font-size:16px; line-height:1.1;}
-    .brand .title span{font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+    a{ color: inherit; }
+    .wrap{
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 22px 18px 48px;
+    }
 
-    .controls{display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end;}
+    /* =========================================================
+       HEADER
+       ========================================================= */
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(17,17,17,.72);
+      backdrop-filter: blur(8px);
+      box-shadow: var(--shadow);
+    }
 
-    .seg{display:inline-flex; border:1px solid var(--border); border-radius:999px; overflow:hidden; background:rgba(255,255,255,.03)}
-    .seg button{border:0; background:transparent; color:var(--muted); padding:8px 12px; font-weight:600; cursor:pointer;}
-    .seg button.active{background:rgba(255,255,255,.10); color:var(--text);}
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width: 180px;
+    }
 
-    .search{display:flex; align-items:center; gap:8px; border:1px solid var(--border); background:rgba(255,255,255,.03);
-      border-radius:999px; padding:8px 12px; min-width:260px;}
-    .search input{border:0; outline:none; background:transparent; color:var(--text); width:100%; font-size:14px;}
-    .search input::placeholder{color:rgba(255,255,255,.40)}
+    .brand img{
+      height: 34px;
+      width: auto;
+      display:block;
+      filter: drop-shadow(0 6px 14px rgba(0,0,0,.35));
+    }
+    .brand .title{
+      display:flex;
+      flex-direction:column;
+      line-height:1.1;
+    }
+    .brand .title strong{
+      font-size: 14px;
+      letter-spacing: .3px;
+    }
+    .brand .title span{
+      font-size: 12px;
+      color: var(--muted);
+    }
 
-    .tabs{display:flex; gap:10px; margin:18px 0 10px; flex-wrap:wrap;}
-    .tab{border:1px solid var(--border); background:rgba(255,255,255,.03); padding:8px 12px; border-radius:999px; cursor:pointer; color:var(--muted); font-weight:600;}
-    .tab.active{background:rgba(255,255,255,.10); color:var(--text);}
+    .controls{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap: wrap;
+      justify-content:flex-end;
+    }
 
-    .grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:12px;}
-    @media(max-width:960px){.grid{grid-template-columns:repeat(2,1fr)}}
-    @media(max-width:620px){.grid{grid-template-columns:1fr}.search{min-width:0;width:100%}.controls{justify-content:stretch;width:100%}}
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--chipText);
+      font-size: 12px;
+      user-select:none;
+    }
 
-    .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; cursor:pointer;}
-    .card .img{height:190px; background:var(--panel2); display:flex; align-items:center; justify-content:center;}
-    .card .img img{height:170px; width:auto; object-fit:contain;}
-    .card .body{padding:12px; display:flex; flex-direction:column; gap:6px;}
-    .card .line1{display:flex; align-items:flex-start; justify-content:space-between; gap:8px;}
-    .card .name{font-weight:800; font-size:14px; line-height:1.25;}
-    .card .producer{font-size:12px; color:var(--muted)}
-    .chip{display:inline-flex; align-items:center; gap:6px; padding:5px 9px; border-radius:999px; background:var(--chip); border:1px solid var(--border); color:var(--muted); font-size:12px; white-space:nowrap;}
-    .price{font-weight:800; color:var(--text)}
+    .btn{
+      cursor:pointer;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      transition: transform .05s ease, background .15s ease;
+    }
+    .btn:hover{ background: rgba(255,255,255,.10); }
+    .btn:active{ transform: scale(.98); }
 
-    .hint{margin-top:10px; color:var(--muted); font-size:12px;}
-    .error{margin:16px 0; padding:12px; border-radius:12px; border:1px solid rgba(239,68,68,.35); background:rgba(239,68,68,.08); color:#fecaca;}
+    .btn.primary{
+      border-color: rgba(31,138,76,.55);
+      background: linear-gradient(180deg, rgba(31,138,76,.28), rgba(31,138,76,.14));
+    }
 
-    /* =========================
-       БЛОК 3 — Modal
-       ========================= */
-    .backdrop{position:fixed; inset:0; background:rgba(0,0,0,.65); display:none; align-items:center; justify-content:center; padding:18px; z-index:1000;}
-    .backdrop.show{display:flex;}
-    .modal{max-width:900px; width:100%; background:var(--panel); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow);
-      overflow:hidden;}
-    .modalHead{display:flex; align-items:center; justify-content:space-between; padding:14px 14px; border-bottom:1px solid var(--border);}
-    .modalHead strong{font-size:14px;}
-    .close{border:1px solid var(--border); background:rgba(255,255,255,.03); color:var(--text); border-radius:10px; padding:8px 10px; cursor:pointer;}
+    .select{
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      outline: none;
+    }
 
-    .modalBody{display:grid; grid-template-columns:320px 1fr; gap:0;}
-    @media(max-width:860px){.modalBody{grid-template-columns:1fr}}
-    .modalImg{background:var(--panel2); display:flex; align-items:center; justify-content:center; padding:16px;}
-    .modalImg img{height:380px; width:auto; object-fit:contain;}
+    .search{
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      outline: none;
+      width: 220px;
+    }
 
-    .modalInfo{padding:16px; display:flex; flex-direction:column; gap:10px;}
-    .modalTitle{font-size:18px; font-weight:900;}
-    .modalSub{color:var(--muted); font-size:13px;}
+    /* =========================================================
+       SECTIONS NAV
+       ========================================================= */
+    .sectionNav{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin: 16px 2px 10px;
+      align-items:center;
+    }
+    .pill{
+      cursor:pointer;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      font-size: 12px;
+      color: var(--chipText);
+      transition: background .15s ease, transform .05s ease;
+    }
+    .pill:hover{ background: rgba(255,255,255,.09); }
+    .pill.active{
+      border-color: rgba(255,255,255,.22);
+      background: linear-gradient(180deg, rgba(31,138,76,.32), rgba(31,138,76,.14));
+    }
 
-    .kv{display:grid; grid-template-columns:120px 1fr; gap:8px 10px; font-size:13px;}
-    .kv b{color:var(--muted); font-weight:700;}
+    /* =========================================================
+       GRID / CARDS
+       ========================================================= */
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+      margin-top: 10px;
+    }
 
-    .textblock{border-top:1px solid var(--border); padding-top:10px;}
-    .textblock h4{margin:0 0 6px; font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em}
-    .textblock p{margin:0; font-size:14px; line-height:1.5;}
+    .card{
+      grid-column: span 12;
+      display:flex;
+      gap:14px;
+      padding: 14px;
+      border-radius: var(--radius);
+      background: rgba(17,17,17,.72);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
 
-    /* =========================
-       БЛОК 4 — Themes (подключаем theme из config)
-       ========================= */
-    /* Эти темы основаны на твоём ТЗ:
-       Novikov: green/black/white
-       PeopleTalk: blue/black/white */
-    .theme-novikov_clean{ --bg:#050607; --panel:#0b0d10; --panel2:#07090b; --text:#f8fafc; --muted:#b7c0cd; --border:rgba(255,255,255,.10); --accent:#0f766e; --accent2:#115e59; --chip:#0b1112; }
-    .theme-peopletalk{ --bg:#060a12; --panel:#0b1220; --panel2:#070d18; --text:#f8fafc; --muted:#b7c0cd; --border:rgba(255,255,255,.10); --accent:#2563eb; --accent2:#1d4ed8; --chip:#0b1426; }
+    @media (min-width: 860px){
+      .card{ grid-column: span 6; }
+    }
+
+    .bottle{
+      width: 92px;
+      min-width: 92px;
+      height: 160px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .bottle img{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display:block;
+    }
+
+    .meta{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      width: 100%;
+    }
+
+    .line1{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .nameBlock strong{
+      display:block;
+      font-size: 14px;
+      letter-spacing: .2px;
+    }
+    .nameBlock span{
+      display:block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+      line-height: 1.25;
+    }
+
+    .prices{
+      text-align:right;
+      min-width: 74px;
+      font-size: 12px;
+      line-height: 1.2;
+      color: var(--chipText);
+    }
+    .prices .big{
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .tags{
+      display:flex;
+      gap:8px;
+      flex-wrap: wrap;
+    }
+    .tag{
+      font-size: 11px;
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      color: var(--chipText);
+    }
+
+    .desc{
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+      white-space: pre-wrap;
+    }
+
+    .foot{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-top: 2px;
+    }
+    .muted{ color: var(--muted); font-size: 12px; }
+
+    /* =========================================================
+       STATUS / ERROR
+       ========================================================= */
+    .status{
+      margin: 14px 2px 0;
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      color: var(--chipText);
+      font-size: 12px;
+      display:none;
+      white-space: pre-wrap;
+    }
+    .status.show{ display:block; }
+
   </style>
 </head>
+
 <body>
   <div class="wrap">
-    <!-- =========================
-         БЛОК 5 — Header
-         ========================= -->
     <div class="topbar">
       <div class="brand">
         <img id="logo" alt="logo" />
@@ -123,468 +320,493 @@
       </div>
 
       <div class="controls">
-        <!-- переключатель языка (без перезагрузки) -->
-        <div class="seg" id="langSeg">
-          <button data-lang="en">EN</button>
-          <button data-lang="es">ES</button>
-        </div>
+        <span class="chip" id="chipRestaurant">r: —</span>
+        <span class="chip" id="chipLang">lang: —</span>
 
-        <div class="search">
-          <span style="color:var(--muted)">⌕</span>
-          <input id="q" placeholder="Search by name / producer / region / grape" />
-        </div>
+        <select class="select" id="restaurantSelect" title="Restaurant">
+          <option value="novikov_bh">Novikov BH</option>
+          <option value="peopletalk">PeopleTalk</option>
+        </select>
+
+        <select class="select" id="langSelect" title="Language">
+          <option value="en">EN</option>
+          <option value="es">ES</option>
+        </select>
+
+        <input class="search" id="searchInput" placeholder="Search…" />
+
+        <button class="btn primary" id="btnReload">Reload</button>
       </div>
     </div>
 
-    <!-- секции -->
-    <div class="tabs" id="tabs"></div>
+    <div class="sectionNav" id="sectionNav"></div>
 
-    <!-- ошибки/статус -->
-    <div id="msg"></div>
+    <div class="status" id="statusBox"></div>
 
-    <!-- карточки -->
     <div class="grid" id="grid"></div>
-
-    <div class="hint" id="hint"></div>
   </div>
 
-  <!-- =========================
-       БЛОК 6 — Modal
-       ========================= -->
-  <div class="backdrop" id="backdrop" role="dialog" aria-modal="true">
-    <div class="modal">
-      <div class="modalHead">
-        <strong id="modalHeader">Wine</strong>
-        <button class="close" id="closeBtn">Close</button>
-      </div>
-      <div class="modalBody">
-        <div class="modalImg"><img id="modalImg" alt="wine" /></div>
-        <div class="modalInfo">
-          <div>
-            <div class="modalTitle" id="mName"></div>
-            <div class="modalSub" id="mProducer"></div>
-          </div>
-
-          <div class="kv" id="kv"></div>
-
-          <div class="textblock" id="storyBlock" style="display:none">
-            <h4>Story</h4>
-            <p id="mStory"></p>
-          </div>
-
-          <div class="textblock" id="notesBlock" style="display:none">
-            <h4>Notes</h4>
-            <p id="mNotes"></p>
-          </div>
-
-          <div class="textblock" id="pairingBlock" style="display:none">
-            <h4>Pairing</h4>
-            <p id="mPairing"></p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- =========================
-       БЛОК 7 — JS: состояние / конфиги / загрузка
-       ========================= -->
   <script>
-    /*
-      ВАЖНО: мы работаем «шаг за шагом».
-      Этот index.html:
-      - читает ?r=peopletalk или ?r=novikov_bh
-      - подтягивает configs/{r}.json
-      - подтягивает CSV по языку (en/es) из config.csvUrl[lang]
-      - переключает язык без перезагрузки (history.replaceState + localStorage)
-      - применяет theme из config
-      - строит секции динамически (или по config.sectionsOrder, если добавишь)
-      - поддерживает deep-link ?r=...&w=<wine_id>
-    */
+    /************************************************************
+     * WineGallery v2 (multi-restaurant + multi-language)
+     * - Loads configs/{r}.json
+     * - Loads CSV from config.csvUrl[lang]
+     * - Renders sections and wines
+     * - Language switch WITHOUT page reload (re-fetch CSV)
+     * - Robust: missing logo/image doesn't white-screen
+     ************************************************************/
 
+    // -----------------------------
+    // Utilities
+    // -----------------------------
+    const qs = (sel) => document.querySelector(sel);
+    const el = (id) => document.getElementById(id);
+
+    function getParam(name){
+      const u = new URL(window.location.href);
+      return u.searchParams.get(name);
+    }
+    function setParam(name, value){
+      const u = new URL(window.location.href);
+      u.searchParams.set(name, value);
+      history.replaceState({}, "", u.toString());
+    }
+
+    function baseUrl(){
+      // Always resolve relative to the current folder (…/winegallery/)
+      return new URL(".", window.location.href);
+    }
+
+    function normalizeLogoUrl(url){
+      if(!url) return "";
+      // If config has "/assets/..." this breaks on project pages -> make it relative.
+      if(url.startsWith("/assets/")) return url.replace("/assets/", "assets/");
+      if(url.startsWith("/configs/")) return url.replace("/configs/", "configs/");
+      if(url.startsWith("/data/"))    return url.replace("/data/", "data/");
+      return url;
+    }
+
+    function showStatus(msg){
+      const box = el("statusBox");
+      box.textContent = msg;
+      box.classList.add("show");
+    }
+    function hideStatus(){
+      const box = el("statusBox");
+      box.textContent = "";
+      box.classList.remove("show");
+    }
+
+    function applyTheme(themeName){
+      // Theme presets (you can extend later)
+      const root = document.documentElement;
+
+      const themes = {
+        novikov_clean: {
+          "--bg":"#070807",
+          "--panel":"#101210",
+          "--text":"#F6F7F6",
+          "--muted":"rgba(246,247,246,.72)",
+          "--border":"rgba(255,255,255,.12)",
+          "--accent":"#1f8a4c",
+          "--accent2":"#0e5f34",
+          "--chip":"rgba(255,255,255,.08)",
+          "--chipText":"rgba(246,247,246,.92)"
+        },
+        peopletalk: {
+          "--bg":"#06080d",
+          "--panel":"#0f131d",
+          "--text":"#F4F7FF",
+          "--muted":"rgba(244,247,255,.72)",
+          "--border":"rgba(255,255,255,.12)",
+          "--accent":"#2b67ff",
+          "--accent2":"#1f49b8",
+          "--chip":"rgba(255,255,255,.08)",
+          "--chipText":"rgba(244,247,255,.92)"
+        }
+      };
+
+      const t = themes[themeName] || themes.novikov_clean;
+      Object.entries(t).forEach(([k,v]) => root.style.setProperty(k,v));
+    }
+
+    // Very small CSV parser (handles commas + quotes).
+    function parseCSV(text){
+      const rows = [];
+      let row = [];
+      let cur = "";
+      let inQuotes = false;
+
+      for (let i = 0; i < text.length; i++){
+        const ch = text[i];
+        const next = text[i+1];
+
+        if (ch === '"' && inQuotes && next === '"'){ cur += '"'; i++; continue; }
+        if (ch === '"'){ inQuotes = !inQuotes; continue; }
+
+        if (!inQuotes && ch === ","){ row.push(cur); cur=""; continue; }
+        if (!inQuotes && (ch === "\n" || ch === "\r")){
+          if (ch === "\r" && next === "\n") i++;
+          row.push(cur); cur="";
+          rows.push(row);
+          row = [];
+          continue;
+        }
+        cur += ch;
+      }
+      if (cur.length || row.length){
+        row.push(cur);
+        rows.push(row);
+      }
+
+      const header = (rows.shift() || []).map(h => (h||"").trim());
+      return rows
+        .filter(r => r.some(x => (x||"").trim() !== ""))
+        .map(r => {
+          const obj = {};
+          header.forEach((h, idx) => obj[h] = (r[idx] ?? "").trim());
+          return obj;
+        });
+    }
+
+    // -----------------------------
+    // App state
+    // -----------------------------
     const state = {
-      restaurantId: null,
-      lang: 'en',
+      r: "novikov_bh",
+      lang: "en",
       config: null,
       wines: [],
       filtered: [],
-      section: 'ALL',
-      query: ''
+      activeSection: "all",
+      sectionsOrdered: []
     };
 
-    function qs(sel){ return document.querySelector(sel); }
-    function el(id){ return document.getElementById(id); }
+    // -----------------------------
+    // Data loading
+    // -----------------------------
+    async function loadConfig(restaurantKey){
+      const cfgUrl = new URL(`configs/${restaurantKey}.json`, baseUrl()).toString();
+      const res = await fetch(cfgUrl, { cache: "no-store" });
+      if(!res.ok) throw new Error(`Config not found: ${cfgUrl} (${res.status})`);
+      const cfg = await res.json();
 
-    function getParams(){ return new URLSearchParams(window.location.search); }
-    function getParam(name){ return getParams().get(name); }
+      // Normalize logoUrl for GH Pages project-site
+      cfg.logoUrl = normalizeLogoUrl(cfg.logoUrl);
 
-    function setUrlParam(name, value){
-      const params = getParams();
-      if(value === null || value === undefined || value === '') params.delete(name);
-      else params.set(name, value);
-      const newUrl = `${window.location.pathname}?${params.toString()}`;
-      history.replaceState(null, '', newUrl);
+      return cfg;
     }
 
-    function safeStr(v){ return (v ?? '').toString().trim(); }
-    function lower(v){ return safeStr(v).toLowerCase(); }
-
-    function normalizePath(p){
-      // если в config было "/assets/..." — на GitHub Pages это часто ломается.
-      // приводим к относительному пути.
-      if(!p) return '';
-      return p.startsWith('/') ? p.slice(1) : p;
+    async function loadCSV(csvUrl){
+      const res = await fetch(csvUrl, { cache: "no-store" });
+      if(!res.ok) throw new Error(`CSV fetch failed (${res.status})`);
+      const txt = await res.text();
+      return parseCSV(txt);
     }
 
-    function showMsg(html, type){
-      const msg = el('msg');
-      msg.innerHTML = '';
-      if(!html) return;
-      const box = document.createElement('div');
-      box.className = type === 'error' ? 'error' : 'hint';
-      box.innerHTML = html;
-      msg.appendChild(box);
-    }
-
-    function money(v, currency){
-      const n = Number(v);
-      if(!Number.isFinite(n)) return '';
-      try{
-        return new Intl.NumberFormat('en-US', {style:'currency', currency: currency || 'USD', maximumFractionDigits:0}).format(n);
-      }catch{
-        return `${currency || '$'}${n}`;
-      }
-    }
-
-    function applyTheme(theme){
-      document.body.classList.remove('theme-novikov_clean','theme-peopletalk');
-      if(theme) document.body.classList.add(`theme-${theme}`);
-    }
-
-    function setBrand(config){
-      el('restaurantName').textContent = config?.name || 'Wine Gallery';
-      el('subtitle').textContent = `r=${state.restaurantId} • lang=${state.lang}`;
-      const logo = el('logo');
-      logo.src = normalizePath(config?.logoUrl || '');
-      logo.style.visibility = logo.src ? 'visible' : 'hidden';
-    }
-
-    async function loadConfig(restaurantId){
-      const url = `configs/${encodeURIComponent(restaurantId)}.json`;
-      const res = await fetch(url, {cache:'no-store'});
-      if(!res.ok) throw new Error(`Config not found: ${url} (HTTP ${res.status})`);
-      return await res.json();
-    }
-
-    function initLangUI(){
-      const seg = el('langSeg');
-      [...seg.querySelectorAll('button')].forEach(btn=>{
-        btn.classList.toggle('active', btn.dataset.lang === state.lang);
-        btn.onclick = async () => {
-          const next = btn.dataset.lang;
-          if(next === state.lang) return;
-          state.lang = next;
-          localStorage.setItem('wg_lang', next);
-          setUrlParam('lang', next); // без перезагрузки
-          // перезагружаем данные и перерисовываем
-          await loadDataAndRender();
-        };
-      });
-    }
-
-    function normalizeWineRow(r){
-      // CSV уже плоский и готовый под сайт.
-      // Колонки ожидаем такие:
-      // id, section, order, producer, name, vintage, country, region, grape, style,
-      // btg_price, bottle_price, story, notes, bottle_img, visible, is_available
-      // + (опционально) pairing
-      return {
-        id: safeStr(r.id),
-        section: safeStr(r.section),
-        order: Number(r.order) || 0,
-        producer: safeStr(r.producer),
-        name: safeStr(r.name),
-        vintage: safeStr(r.vintage),
-        country: safeStr(r.country),
-        region: safeStr(r.region),
-        grape: safeStr(r.grape),
-        style: safeStr(r.style),
-        btg_price: safeStr(r.btg_price),
-        bottle_price: safeStr(r.bottle_price),
-        story: safeStr(r.story),
-        notes: safeStr(r.notes),
-        bottle_img: safeStr(r.bottle_img),
-        pairing: safeStr(r.pairing),
-        visible: lower(r.visible) === 'yes',
-        is_available: lower(r.is_available) !== 'no' && lower(r.is_available) !== 'false'
-      };
-    }
-
-    async function fetchCsv(url){
-      const res = await fetch(url, {cache:'no-store'});
-      if(!res.ok) throw new Error(`CSV fetch failed (HTTP ${res.status})`);
-      const text = await res.text();
-      return new Promise((resolve, reject) => {
-        Papa.parse(text, {
-          header:true,
-          skipEmptyLines:true,
-          complete: (results) => resolve(results.data),
-          error: (err) => reject(err)
-        });
-      });
-    }
-
-    function validateWines(wines){
-      // простая валидация как в спринте 1
-      const ids = new Set();
-      const dup = [];
-      for(const w of wines){
-        if(!w.id) return {ok:false, msg:`Found empty id in CSV.`};
-        if(ids.has(w.id)) dup.push(w.id);
-        ids.add(w.id);
-        if(!Number.isFinite(w.order)) return {ok:false, msg:`Non-numeric order for id: ${w.id}`};
-      }
-      if(dup.length) return {ok:false, msg:`Duplicate ids: ${dup.slice(0,10).join(', ')}${dup.length>10?'…':''}`};
-      return {ok:true};
-    }
-
-    function getSectionsFromData(wines){
+    // -----------------------------
+    // Rendering
+    // -----------------------------
+    function computeSectionsFromData(wines){
+      // If config has sectionsOrder, use it. Else derive.
       const seen = new Set();
       const list = [];
       for(const w of wines){
-        if(!w.section) continue;
-        if(!seen.has(w.section)){
-          seen.add(w.section);
-          list.push(w.section);
+        const s = (w.section || "").trim();
+        if(!s) continue;
+        if(!seen.has(s)){
+          seen.add(s);
+          list.push(s);
         }
       }
       return list;
     }
 
-    function renderTabs(){
-      const tabs = el('tabs');
-      tabs.innerHTML = '';
+    function renderHeader(){
+      el("restaurantName").textContent = state.config?.name || "Wine Gallery";
+      el("chipRestaurant").textContent = `r: ${state.r}`;
+      el("chipLang").textContent = `lang: ${state.lang}`;
+      el("subtitle").textContent = "Updated from CSV";
 
-      const sections = (() => {
-        // Если позже добавишь в config.sectionsOrder — будем использовать его.
-        if(Array.isArray(state.config?.sectionsOrder) && state.config.sectionsOrder.length){
-          return state.config.sectionsOrder;
-        }
-        return getSectionsFromData(state.wines);
-      })();
+      // Logo (do not crash if missing)
+      const logo = el("logo");
+      const url = state.config?.logoUrl || "";
+      if(url){
+        logo.src = new URL(url, baseUrl()).toString();
+        logo.style.display = "block";
+        logo.onerror = () => { logo.style.display = "none"; };
+      } else {
+        logo.style.display = "none";
+      }
+
+      // Theme
+      applyTheme(state.config?.theme || "novikov_clean");
+
+      // selects
+      el("restaurantSelect").value = state.r;
+      el("langSelect").value = state.lang;
+    }
+
+    function renderSectionNav(){
+      const nav = el("sectionNav");
+      nav.innerHTML = "";
 
       const mk = (key, label) => {
-        const b = document.createElement('button');
-        b.className = 'tab' + (state.section===key?' active':'');
+        const b = document.createElement("button");
+        b.className = "pill" + (state.activeSection === key ? " active" : "");
         b.textContent = label;
         b.onclick = () => {
-          state.section = key;
-          applyFiltersAndRender();
+          state.activeSection = key;
+          filterAndRender();
         };
         return b;
       };
 
-      tabs.appendChild(mk('ALL','All'));
-      for(const s of sections){
-        tabs.appendChild(mk(s, s));
+      nav.appendChild(mk("all", "All"));
+
+      for(const s of state.sectionsOrdered){
+        nav.appendChild(mk(s, s));
       }
     }
 
-    function applyFiltersAndRender(){
-      const q = lower(state.query);
-      let items = state.wines.slice();
+    function formatPrice(v){
+      const n = Number(v);
+      if(!isFinite(n)) return v || "";
+      return String(n);
+    }
 
-      // visible
-      items = items.filter(w => w.visible);
-
-      // availability: пока просто показываем, но можно легко скрывать 86
-      // (в спринте 3 решим окончательно)
-
-      // section
-      if(state.section !== 'ALL') items = items.filter(w => w.section === state.section);
-
-      // search
-      if(q){
-        items = items.filter(w => {
-          const hay = `${w.name} ${w.producer} ${w.region} ${w.country} ${w.grape} ${w.style}`.toLowerCase();
-          return hay.includes(q);
-        });
-      }
-
-      // sort
-      items.sort((a,b)=> (a.order-b.order) || a.name.localeCompare(b.name));
-
-      state.filtered = items;
-      renderGrid();
-      renderTabs();
-
-      el('hint').textContent = `${items.length} wines`;
+    function safeImg(url){
+      if(!url) return "";
+      return url;
     }
 
     function renderGrid(){
-      const grid = el('grid');
-      grid.innerHTML='';
-      for(const w of state.filtered){
-        const card = document.createElement('div');
-        card.className='card';
-        card.onclick = ()=> openModal(w.id);
+      const grid = el("grid");
+      grid.innerHTML = "";
 
-        const imgUrl = w.bottle_img;
-        card.innerHTML = `
-          <div class="img">${imgUrl?`<img loading="lazy" src="${imgUrl}" alt="${w.name}" />`:''}</div>
-          <div class="body">
-            <div class="line1">
-              <div style="min-width:0">
-                <div class="name">${escapeHtml(w.name)}${w.vintage?` <span style="color:var(--muted); font-weight:700">${escapeHtml(w.vintage)}</span>`:''}</div>
-                <div class="producer">${escapeHtml(w.producer)}</div>
-              </div>
-              <div class="chip"><span class="price">${money(w.btg_price || w.bottle_price, state.config?.currency || 'USD')}</span></div>
-            </div>
-            <div style="display:flex; gap:8px; flex-wrap:wrap">
-              ${w.region?`<span class="chip">${escapeHtml(w.region)}</span>`:''}
-              ${w.grape?`<span class="chip">${escapeHtml(w.grape)}</span>`:''}
-              ${w.style?`<span class="chip">${escapeHtml(w.style)}</span>`:''}
-              ${w.is_available?'' : '<span class="chip" style="border-color:rgba(239,68,68,.4); color:#fecaca">86</span>'}
-            </div>
-          </div>
-        `;
+      const list = state.filtered;
+
+      for(const w of list){
+        const card = document.createElement("div");
+        card.className = "card";
+
+        // bottle image
+        const bottle = document.createElement("div");
+        bottle.className = "bottle";
+        const imgUrl = safeImg(w.bottle_img || w.primary_image_url || "");
+        if(imgUrl){
+          const img = document.createElement("img");
+          img.src = imgUrl;
+          img.alt = `${w.producer || ""} ${w.name || ""}`.trim();
+          img.onerror = () => { img.remove(); };
+          bottle.appendChild(img);
+        }
+        card.appendChild(bottle);
+
+        // meta
+        const meta = document.createElement("div");
+        meta.className = "meta";
+
+        const line1 = document.createElement("div");
+        line1.className = "line1";
+
+        const nameBlock = document.createElement("div");
+        nameBlock.className = "nameBlock";
+        const title = document.createElement("strong");
+        title.textContent = [w.producer, w.name].filter(Boolean).join(" — ") || w.id || "Wine";
+        const sub = document.createElement("span");
+        const parts = [];
+        if(w.vintage) parts.push(w.vintage);
+        if(w.country) parts.push(w.country);
+        if(w.region) parts.push(w.region);
+        if(w.grape) parts.push(w.grape);
+        sub.textContent = parts.join(" • ");
+        nameBlock.appendChild(title);
+        nameBlock.appendChild(sub);
+
+        const prices = document.createElement("div");
+        prices.className = "prices";
+        const btg = (w.btg_price || "").trim();
+        const btl = (w.bottle_price || "").trim();
+        // currency column removed in exports; currency comes from config/restaurants
+        const cur = (state.config?.currency || "").trim();
+        const big = document.createElement("div");
+        big.className = "big";
+        big.textContent = btl ? `${formatPrice(btl)}${cur ? " " + cur : ""}` : "";
+        const small = document.createElement("div");
+        small.textContent = btg ? `${formatPrice(btg)}${cur ? " " + cur : ""} / glass` : "";
+        prices.appendChild(big);
+        prices.appendChild(small);
+
+        line1.appendChild(nameBlock);
+        line1.appendChild(prices);
+        meta.appendChild(line1);
+
+        // tags
+        const tags = document.createElement("div");
+        tags.className = "tags";
+
+        if(w.section) {
+          const t = document.createElement("span");
+          t.className = "tag";
+          t.textContent = w.section;
+          tags.appendChild(t);
+        }
+        if(w.style){
+          const t = document.createElement("span");
+          t.className = "tag";
+          t.textContent = w.style;
+          tags.appendChild(t);
+        }
+
+        meta.appendChild(tags);
+
+        // story
+        if(w.story){
+          const d = document.createElement("div");
+          d.className = "desc";
+          d.textContent = w.story;
+          meta.appendChild(d);
+        }
+
+        // notes
+        const foot = document.createElement("div");
+        foot.className = "foot";
+        const left = document.createElement("div");
+        left.className = "muted";
+        left.textContent = w.notes ? `Notes: ${w.notes}` : "";
+        const right = document.createElement("div");
+        right.className = "muted";
+        const avail = (w.is_available || "").toLowerCase();
+        right.textContent = avail === "no" ? "Not available" : "";
+        foot.appendChild(left);
+        foot.appendChild(right);
+        meta.appendChild(foot);
+
+        card.appendChild(meta);
         grid.appendChild(card);
       }
     }
 
-    function escapeHtml(s){
-      return (s??'').toString()
-        .replaceAll('&','&amp;')
-        .replaceAll('<','&lt;')
-        .replaceAll('>','&gt;')
-        .replaceAll('"','&quot;')
-        .replaceAll("'",'&#039;');
+    function filterAndRender(){
+      const query = (el("searchInput").value || "").trim().toLowerCase();
+
+      let list = state.wines;
+
+      if(state.activeSection !== "all"){
+        list = list.filter(w => (w.section || "").trim() === state.activeSection);
+      }
+
+      if(query){
+        list = list.filter(w => {
+          const hay = [
+            w.id, w.section, w.producer, w.name, w.vintage, w.country, w.region, w.grape, w.style, w.story, w.notes
+          ].join(" ").toLowerCase();
+          return hay.includes(query);
+        });
+      }
+
+      // filter visible + available if present
+      list = list.filter(w => {
+        const v = (w.visible || "").toLowerCase();
+        const a = (w.is_available || "").toLowerCase();
+        const okVisible = !v || v === "yes";
+        const okAvail = !a || a === "yes";
+        return okVisible && okAvail;
+      });
+
+      // sort by section then by order numeric (fallback)
+      list.sort((a,b) => {
+        const sa = (a.section || "").toLowerCase();
+        const sb = (b.section || "").toLowerCase();
+        if(sa < sb) return -1;
+        if(sa > sb) return 1;
+        const oa = Number(a.order); const ob = Number(b.order);
+        if(isFinite(oa) && isFinite(ob)) return oa - ob;
+        return (a.id||"").localeCompare(b.id||"");
+      });
+
+      state.filtered = list;
+      renderSectionNav();
+      renderGrid();
     }
 
-    function openModal(id){
-      const w = state.wines.find(x=>x.id===id);
-      if(!w) return;
-
-      // deep-link
-      setUrlParam('w', id);
-
-      el('modalHeader').textContent = w.section || 'Wine';
-      el('mName').textContent = `${w.name}${w.vintage?` ${w.vintage}`:''}`;
-      el('mProducer').textContent = w.producer;
-      el('modalImg').src = w.bottle_img || '';
-
-      const kv = el('kv');
-      kv.innerHTML='';
-      const add = (k,v) => {
-        if(!v) return;
-        kv.insertAdjacentHTML('beforeend', `<b>${escapeHtml(k)}</b><span>${escapeHtml(v)}</span>`);
-      };
-
-      add('Country', w.country);
-      add('Region', w.region);
-      add('Grape', w.grape);
-      add('Style', w.style);
-
-      const currency = state.config?.currency || 'USD';
-      const prices = [];
-      if(w.btg_price) prices.push(`BTG: ${money(w.btg_price, currency)}`);
-      if(w.bottle_price) prices.push(`Bottle: ${money(w.bottle_price, currency)}`);
-      add('Price', prices.join(' • '));
-
-      const showText = (blockId, textId, value) => {
-        const b = el(blockId);
-        if(value){
-          b.style.display='block';
-          el(textId).textContent = value;
-        } else {
-          b.style.display='none';
-          el(textId).textContent='';
-        }
-      };
-
-      showText('storyBlock','mStory', w.story);
-      showText('notesBlock','mNotes', w.notes);
-      // pairing — только если колонка реально есть (PeopleTalk)
-      showText('pairingBlock','mPairing', w.pairing);
-
-      el('backdrop').classList.add('show');
-    }
-
-    function closeModal(){
-      el('backdrop').classList.remove('show');
-      setUrlParam('w','');
-    }
-
-    el('closeBtn').onclick = closeModal;
-    el('backdrop').onclick = (e)=>{ if(e.target===el('backdrop')) closeModal(); };
-    window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeModal(); });
-
-    el('q').addEventListener('input', (e)=>{
-      state.query = e.target.value || '';
-      applyFiltersAndRender();
-    });
-
-    async function loadDataAndRender(){
-      showMsg('Loading…');
-      initLangUI();
-
-      applyTheme(state.config?.theme);
-      setBrand(state.config);
-
-      const csvUrl = state.config?.csvUrl?.[state.lang];
-      if(!csvUrl) throw new Error(`csvUrl for lang="${state.lang}" is missing in config.`);
-
-      const raw = await fetchCsv(csvUrl);
-      const wines = raw.map(normalizeWineRow);
-      const v = validateWines(wines);
-      if(!v.ok) throw new Error(v.msg);
-
-      state.wines = wines;
-
-      showMsg('');
-      applyFiltersAndRender();
-
-      // Deep-link: ?w=...
-      const w = getParam('w');
-      if(w) openModal(w);
-    }
-
+    // -----------------------------
+    // Main flow
+    // -----------------------------
     async function boot(){
+      hideStatus();
+
+      // URL params
+      state.r = getParam("r") || "novikov_bh";
+      state.lang = getParam("lang") || "en";
+
       try{
-        // restaurant
-        const r = getParam('r') || localStorage.getItem('wg_r') || 'peopletalk';
-        state.restaurantId = r;
-        localStorage.setItem('wg_r', r);
-        setUrlParam('r', r);
+        // 1) config
+        state.config = await loadConfig(state.r);
 
-        // lang
-        const urlLang = getParam('lang');
-        const savedLang = localStorage.getItem('wg_lang');
-        state.lang = (urlLang || savedLang || 'en').toLowerCase();
-        if(state.lang !== 'en' && state.lang !== 'es') state.lang = 'en';
-        setUrlParam('lang', state.lang);
+        // set default if lang not enabled
+        const enabled = state.config.enabledLanguages || ["en"];
+        if(!enabled.includes(state.lang)){
+          state.lang = state.config.defaultLanguage || enabled[0] || "en";
+          setParam("lang", state.lang);
+        }
 
-        // config
-        state.config = await loadConfig(r);
+        // 2) theme + header
+        renderHeader();
 
-        // доп поля, которые удобно держать в config
-        // (если ты добавишь их позже — код уже готов):
-        // config.currency (мы берём валюту из restaurants.currency)
-        // config.sectionsOrder
+        // 3) CSV
+        const csvUrl = state.config.csvUrl?.[state.lang];
+        if(!csvUrl) throw new Error(`csvUrl for lang '${state.lang}' not found in config`);
 
-        await loadDataAndRender();
-      } catch(err){
+        const wines = await loadCSV(csvUrl);
+        state.wines = wines;
+
+        // 4) sections order
+        state.sectionsOrdered = Array.isArray(state.config.sectionsOrder) && state.config.sectionsOrder.length
+          ? state.config.sectionsOrder
+          : computeSectionsFromData(wines);
+
+        state.activeSection = "all";
+        filterAndRender();
+      }catch(err){
         console.error(err);
-        showMsg(`${escapeHtml(err.message || String(err))}<br><br>
-        Проверь:
-        <ul>
-          <li>Есть ли файл <b>configs/&lt;r&gt;.json</b> в репозитории</li>
-          <li>Правильные ли ссылки <b>csvUrl.en / csvUrl.es</b></li>
-          <li>Не начинается ли logoUrl с <b>"/"</b> (лучше <b>assets/...</b>)</li>
-        </ul>`, 'error');
+        showStatus(
+          "❌ Error loading Wine Gallery\\n\\n" +
+          String(err && err.message ? err.message : err) +
+          "\\n\\n" +
+          "Check:\\n" +
+          "• configs/{r}.json exists\\n" +
+          "• config.csvUrl[lang] works\\n" +
+          "• GitHub Pages base path (/winegallery/)\\n"
+        );
       }
     }
 
+    // -----------------------------
+    // UI handlers (no reload needed)
+    // -----------------------------
+    el("btnReload").addEventListener("click", () => boot());
+
+    el("searchInput").addEventListener("input", () => filterAndRender());
+
+    el("restaurantSelect").addEventListener("change", async (e) => {
+      const r = e.target.value;
+      state.r = r;
+      setParam("r", r);
+      // keep lang param; boot will fix if not enabled
+      await boot();
+    });
+
+    el("langSelect").addEventListener("change", async (e) => {
+      const lang = e.target.value;
+      state.lang = lang;
+      setParam("lang", lang);
+      // IMPORTANT: no full page reload, just re-boot (re-fetch CSV)
+      await boot();
+    });
+
+    // Start
     boot();
   </script>
 </body>

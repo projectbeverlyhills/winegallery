@@ -1,438 +1,1014 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>WineGallery</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <style>
-    :root {
-      --bg: #0b0d0f;
-      --card: #14181c;
-      --muted: #8b949e;
-      --accent: #2ea043;
-      --border: rgba(255,255,255,.08);
+    :root{
+      --bg1:#0b0f0e;
+      --bg2:#04110d;
+      --card:#0e1312cc;
+      --card2:#0f1514aa;
+      --stroke:rgba(255,255,255,0.10);
+      --stroke2:rgba(255,255,255,0.14);
+      --text:rgba(255,255,255,0.92);
+      --muted:rgba(255,255,255,0.62);
+      --muted2:rgba(255,255,255,0.50);
+      --chip:rgba(255,255,255,0.06);
+      --chipActive:rgba(156, 255, 206, 0.15);
+      --good:#74ffb6;
+      --shadow:0 12px 35px rgba(0,0,0,0.55);
+      --radius:18px;
+      --radius2:14px;
+      --pad:22px;
+      --gap:16px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
-
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, Inter, sans-serif;
-      background: radial-gradient(circle at top, #143023 0%, var(--bg) 55%);
-      color: #e6edf3;
+    html,body{
+      height:100%;
+      margin:0;
+      font-family:var(--font);
+      color:var(--text);
+      background: radial-gradient(1200px 800px at 20% 20%, rgba(91,255,170,0.08), transparent 60%),
+                  radial-gradient(900px 650px at 80% 30%, rgba(0,160,255,0.05), transparent 60%),
+                  radial-gradient(900px 700px at 55% 85%, rgba(255,255,255,0.03), transparent 65%),
+                  linear-gradient(120deg, var(--bg2), var(--bg1));
+      overflow-x:hidden;
     }
-
-    header {
+    .wrap{
+      max-width:1240px;
+      margin:0 auto;
+      padding:22px 18px 70px;
+    }
+    .topbar{
       position: sticky;
-      top: 0;
+      top: 10px;
       z-index: 10;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding:14px 16px;
+      margin-bottom:14px;
+      border:1px solid var(--stroke);
+      background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      border-radius: 22px;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.35);
       backdrop-filter: blur(12px);
-      background: rgba(10,12,14,.7);
-      border-bottom: 1px solid var(--border);
-      padding: 14px 18px;
     }
-
-    .topbar {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:210px;
     }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .brand img{
+      width:42px;
+      height:42px;
+      border-radius: 12px;
+      object-fit:contain;
+      background: rgba(255,255,255,0.06);
+      border:1px solid var(--stroke);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+    }
+    .brand .title{
+      display:flex;
+      flex-direction:column;
+      line-height:1.1;
+    }
+    .brand .title b{
+      font-size: 14px;
+      letter-spacing:0.2px;
+    }
+    .brand .title span{
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .controls{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .pill{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.04);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    select, input{
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--stroke);
+      color: var(--text);
+      outline:none;
+      border-radius: 12px;
+      padding: 7px 10px;
+      font-size: 12px;
+    }
+    select{
+      padding-right: 28px;
+    }
+    input{
       min-width: 220px;
     }
-
-    .logo img {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      object-fit: contain;
-      background: #000;
-    }
-
-    .controls {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    select, input {
-      background: #0f1317;
-      border: 1px solid var(--border);
-      color: #e6edf3;
-      padding: 6px 10px;
-      border-radius: 8px;
-    }
-
-    .status {
-      padding: 4px 10px;
-      border-radius: 999px;
+    .status{
       font-size: 12px;
-      background: #12291d;
-      color: var(--accent);
-    }
-
-    .sections {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin: 14px 0 0;
-    }
-
-    .chip {
-      padding: 6px 12px;
+      color: var(--muted);
+      padding: 7px 10px;
       border-radius: 999px;
-      border: 1px solid var(--border);
-      cursor: pointer;
-      font-size: 13px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,0.03);
+      display:flex;
+      align-items:center;
+      gap:8px;
     }
-
-    .chip.active {
-      background: #173a29;
-      border-color: var(--accent);
+    .dot{
+      width:8px;height:8px;border-radius: 999px;
+      background: rgba(255,255,255,0.35);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
     }
-
-    main {
-      padding: 22px;
-      max-width: 1200px;
-      margin: auto;
+    .dot.good{
+      background: var(--good);
+      box-shadow: 0 0 0 3px rgba(116,255,182,0.13);
     }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px,1fr));
-      gap: 16px;
+    .tabs{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin: 12px 0 12px;
     }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 14px;
-      display: flex;
-      gap: 12px;
-      cursor: pointer;
-      transition: transform .15s ease;
+    .chip{
+      cursor:pointer;
+      user-select:none;
+      padding:7px 12px;
+      border-radius: 999px;
+      border:1px solid var(--stroke);
+      background: var(--chip);
+      color: var(--muted);
+      font-size: 12px;
+      transition: 0.15s ease;
+      text-transform: none;
     }
-
-    .card:hover { transform: translateY(-2px); }
-
-    .img {
-      width: 70px;
-      height: 170px;
-      border-radius: 8px;
-      background: #0a0a0a;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .chip:hover{
+      border-color: var(--stroke2);
+      color: var(--text);
+    }
+    .chip.active{
+      background: var(--chipActive);
+      border-color: rgba(116,255,182,0.45);
+      color: rgba(220,255,240,0.95);
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 10px;
+    }
+    @media (max-width: 930px){
+      .grid{ grid-template-columns: 1fr; }
+      input{ min-width: 160px; }
+    }
+    .card{
+      position:relative;
+      border-radius: var(--radius);
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      box-shadow: var(--shadow);
+      padding: 16px 16px 14px;
+      overflow:hidden;
+    }
+    .card:hover{
+      border-color: var(--stroke2);
+    }
+    .row{
+      display:flex;
+      gap: 14px;
+      align-items:flex-start;
+    }
+    .bottle{
+      width: 86px;
+      height: 140px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.05);
+      object-fit: contain;
+      padding: 8px;
+      box-sizing:border-box;
+      flex: 0 0 auto;
+    }
+    .meta{
+      flex:1;
+      min-width:0;
+    }
+    .head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .name{
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing:0.2px;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .sub{
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .price{
+      text-align:right;
+      font-size: 14px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.92);
+      min-width: 74px;
+      line-height:1.1;
+    }
+    .price small{
+      display:block;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .tags{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top: 6px;
+      margin-bottom: 10px;
+    }
+    .tag{
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.76);
+    }
+    .desc{
+      font-size: 12px;
+      line-height: 1.35;
+      color: rgba(255,255,255,0.80);
+      margin-top: 8px;
+      max-height: 5.3em;
       overflow: hidden;
     }
-
-    .img img {
-      max-height: 100%;
-      max-width: 100%;
-      object-fit: contain;
-    }
-
-    .info {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .producer {
-      font-size: 12px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .04em;
-    }
-
-    .title {
-      font-weight: 600;
-    }
-
-    .tags {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .tag {
+    .notes{
       font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: #1b2229;
-      color: var(--muted);
+      color: var(--muted2);
+      margin-top: 10px;
     }
-
-    .notes {
-      font-size: 12px;
-      color: var(--muted);
+    .cardBtn{
+      position:absolute;
+      inset:0;
+      cursor:pointer;
+      background: transparent;
+      border:0;
     }
-
-    .price {
-      margin-top: auto;
-      font-weight: 600;
-    }
-
-    /* MODAL */
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.55);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-    }
-
-    .modal.open { display: flex; }
-
-    .modal-box {
-      background: var(--card);
-      border-radius: 18px;
-      max-width: 420px;
-      width: 90%;
+    .modalBack{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,0.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
       padding: 18px;
-      border: 1px solid var(--border);
+      z-index: 50;
     }
-
-    .modal-box img {
-      width: 100%;
-      max-height: 360px;
-      object-fit: contain;
+    .modal{
+      width: min(880px, 100%);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: linear-gradient(180deg, rgba(20,26,24,0.95), rgba(10,14,13,0.92));
+      box-shadow: 0 35px 90px rgba(0,0,0,0.7);
+      overflow:hidden;
     }
-
-    .close {
-      margin-top: 12px;
-      text-align: center;
-      cursor: pointer;
-      color: var(--muted);
+    .modalTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      color: rgba(255,255,255,0.85);
+      font-size: 13px;
+    }
+    .modalBody{
+      padding: 16px;
+      display:flex;
+      gap:16px;
+      align-items:flex-start;
+    }
+    .modalBody .bottle{
+      width: 128px;
+      height: 210px;
+      padding:10px;
+    }
+    .modalText{
+      flex:1;
+      min-width:0;
+    }
+    .modalText h2{
+      margin: 0 0 6px 0;
+      font-size: 18px;
+      letter-spacing:0.2px;
+    }
+    .modalText .sub{
+      margin-bottom: 10px;
+      white-space: normal;
+    }
+    .modalText .desc{
+      max-height: none;
+      overflow: visible;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .closeBtn{
+      cursor:pointer;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      padding: 7px 10px;
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.85);
+      font-size: 12px;
+    }
+    .closeBtn:hover{
+      border-color: rgba(255,255,255,0.22);
     }
   </style>
 </head>
-
 <body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <img id="logo" alt="logo" src="" />
+        <div class="title">
+          <b id="restaurantName">WineGallery</b>
+          <span>Updated from CSV</span>
+        </div>
+      </div>
 
-<header>
-  <div class="topbar">
-    <div class="logo">
-      <img id="logo" />
-      <div>
-        <div id="title">WineGallery</div>
-        <div class="status" id="status">Loading</div>
+      <div class="controls">
+        <div class="pill"><span>r:</span> <b id="pillRestaurant">-</b></div>
+        <div class="pill"><span>lang:</span> <b id="pillLang">-</b></div>
+
+        <select id="restaurantSelect" title="Restaurant"></select>
+        <select id="langSelect" title="Language"></select>
+
+        <input id="searchInput" placeholder="Search..." />
+        <div class="status" id="statusPill"><span class="dot" id="statusDot"></span> <span id="statusText">Idle</span></div>
       </div>
     </div>
 
-    <div class="controls">
-      <select id="restaurant"></select>
-      <select id="lang"></select>
-      <input id="search" placeholder="Search..." />
+    <div class="tabs" id="sectionTabs"></div>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <div class="modalBack" id="modalBack">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modalTop">
+        <div id="modalTopText">Wine</div>
+        <button class="closeBtn" id="closeModalBtn">Close</button>
+      </div>
+      <div class="modalBody">
+        <img class="bottle" id="modalBottle" alt="bottle" src="" />
+        <div class="modalText">
+          <h2 id="modalName"></h2>
+          <div class="sub" id="modalSub"></div>
+          <div class="tags" id="modalTags"></div>
+          <div class="desc" id="modalDesc"></div>
+          <div class="notes" id="modalNotes"></div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="sections" id="sections"></div>
-</header>
-
-<main>
-  <div class="grid" id="grid"></div>
-</main>
-
-<div class="modal" id="modal">
-  <div class="modal-box">
-    <img id="modalImg" />
-    <div id="modalText"></div>
-    <div class="close" onclick="closeModal()">Close</div>
-  </div>
-</div>
-
 <script>
-/* ===================== STATE ===================== */
-const cache = {};
-let state = {
-  r: null,
+/**
+ * =========================
+ * 1) State / helpers
+ * =========================
+ * - Здесь хранится текущее состояние (ресторан, язык, секция, данные).
+ * - И утилиты: нормализация путей, нормализация ключей секций, money(), safe().
+ */
+const $ = (id) => document.getElementById(id);
+
+const state = {
+  restaurantId: null,
   lang: null,
-  section: 'all',
+  config: null,
+  configsIndex: null,
   wines: [],
-  filtered: [],
-  activeWineId: null
+  sectionsEffective: [],
+  activeSection: 'all',
+  search: '',
+  isLoading: false,
+  status: 'Idle',
+  statusType: 'idle',
+  cache: {
+    configsIndex: null,
+    configByRestaurant: new Map(),
+    csvByUrl: new Map(),
+  },
+  modalWineId: null,
+  sectionLabels: {}, // key -> human label
 };
 
-/* ===================== HELPERS ===================== */
-const qs = new URLSearchParams(location.search);
-const debounce = (fn, t=250) => {
-  let id; return (...a)=>{ clearTimeout(id); id=setTimeout(()=>fn(...a),t); }
-};
-const normalize = s => (s||'').toLowerCase().trim();
-
-/* ===================== LOAD CONFIG INDEX ===================== */
-async function loadIndex() {
-  const res = await fetch('configs/index.json');
-  const j = await res.json();
-  const sel = document.getElementById('restaurant');
-  j.restaurants.forEach(r=>{
-    const o=document.createElement('option');
-    o.value=r.id; o.textContent=r.label;
-    sel.appendChild(o);
-  });
-  state.r = qs.get('r') || j.restaurants[0].id;
-  sel.value = state.r;
-  sel.onchange = ()=>updateURL({r:sel.value});
-  await loadConfig();
+function normalizeAssetPath(path) {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) return path;
+  if (path.startsWith('/')) return path;
+  return path;
 }
 
-/* ===================== LOAD CONFIG ===================== */
-async function loadConfig() {
-  const r = state.r;
-  const cfg = cache[r] ||= await (await fetch(`configs/${r}.json`)).json();
-
-  document.getElementById('logo').src = cfg.logoUrl;
-  document.getElementById('title').textContent = cfg.name;
-
-  const langSel = document.getElementById('lang');
-  langSel.innerHTML='';
-  cfg.enabledLanguages.forEach(l=>{
-    const o=document.createElement('option');
-    o.value=l; o.textContent=l.toUpperCase();
-    langSel.appendChild(o);
-  });
-  state.lang = qs.get('lang') || cfg.defaultLanguage;
-  langSel.value = state.lang;
-  langSel.onchange = ()=>updateURL({lang:langSel.value});
-
-  await loadCSV(cfg);
+/**
+ * normalizeSectionKey:
+ * - приводит любые варианты ("rosé", "Rose", "dessert wines", "dessert_wines") к одному ключу.
+ * - Это важно, чтобы sectionsOrder не ломал отображение из-за акцентов/пробелов.
+ */
+function normalizeSectionKey(input) {
+  const raw = String(input ?? '').trim();
+  if (!raw) return '';
+  const noDiacritics = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const lowered = noDiacritics.toLowerCase();
+  const cleaned = lowered.replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  return cleaned;
 }
 
-/* ===================== LOAD CSV ===================== */
-async function loadCSV(cfg) {
-  const key = `${state.r}_${state.lang}`;
-  if (!cache[key]) {
-    const res = await fetch(cfg.csvUrl[state.lang]);
-    const txt = await res.text();
-    const [h,...rows]=txt.split('\n').map(r=>r.split(','));
-    cache[key]=rows.map(r=>{
-      const o={}; h.forEach((k,i)=>o[k]=r[i]); return o;
+function safe(v) {
+  if (v === null || v === undefined) return '';
+  return String(v);
+}
+
+function money(v) {
+  const n = Number(v);
+  if (!isFinite(n)) return '';
+  return n.toString();
+}
+
+function setStatus(text, type='idle') {
+  state.status = text;
+  state.statusType = type;
+  $('statusText').textContent = text;
+  const dot = $('statusDot');
+  dot.classList.remove('good');
+  if (type === 'good') dot.classList.add('good');
+}
+
+/**
+ * =========================
+ * 2) URL params (deep-links)
+ * =========================
+ * - Читаем ?r=...&lang=...&section=...&w=...
+ * - Пишем обратно при кликах по секциям и открытии/закрытии модалки.
+ */
+function readUrlParams() {
+  const u = new URL(window.location.href);
+  const p = u.searchParams;
+  return {
+    r: p.get('r'),
+    lang: p.get('lang'),
+    section: normalizeSectionKey(p.get('section')),
+    w: p.get('w')
+  };
+}
+
+function writeUrlParams(next) {
+  const u = new URL(window.location.href);
+  const p = u.searchParams;
+
+  if (next.r !== undefined) {
+    if (next.r) p.set('r', next.r); else p.delete('r');
+  }
+  if (next.lang !== undefined) {
+    if (next.lang) p.set('lang', next.lang); else p.delete('lang');
+  }
+  if (next.section !== undefined) {
+    if (next.section && next.section !== 'all') p.set('section', next.section); else p.delete('section');
+  }
+  if (next.w !== undefined) {
+    if (next.w) p.set('w', next.w); else p.delete('w');
+  }
+
+  const newUrl = u.pathname + (p.toString() ? '?' + p.toString() : '');
+  history.replaceState(null, '', newUrl);
+}
+
+function syncUrl() {
+  writeUrlParams({
+    r: state.restaurantId,
+    lang: state.lang,
+    section: state.activeSection,
+    w: state.modalWineId
+  });
+}
+
+/**
+ * =========================
+ * 3) CSV parsing + mapping
+ * =========================
+ * - parseCSV: парсер CSV (простая реализация)
+ * - затем маппим строки в wines-объекты
+ * - ВАЖНО: добавляем sectionKey (нормализованный ключ секции)
+ */
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let cur = '';
+  let inQ = false;
+
+  for (let i=0; i<text.length; i++) {
+    const ch = text[i];
+    const next = text[i+1];
+
+    if (inQ) {
+      if (ch === '"' && next === '"') { cur += '"'; i++; }
+      else if (ch === '"') inQ = false;
+      else cur += ch;
+    } else {
+      if (ch === '"') inQ = true;
+      else if (ch === ',') { row.push(cur); cur=''; }
+      else if (ch === '\n') { row.push(cur); rows.push(row); row=[]; cur=''; }
+      else if (ch === '\r') { /* ignore */ }
+      else cur += ch;
+    }
+  }
+  if (cur.length || row.length) { row.push(cur); rows.push(row); }
+
+  return rows;
+}
+
+function csvToObjects(csvText) {
+  const rows = parseCSV(csvText);
+  if (!rows.length) return [];
+  const headers = rows[0].map(h => safe(h).trim());
+  const objects = [];
+
+  for (let i=1; i<rows.length; i++) {
+    const r = rows[i];
+    const obj = {};
+    for (let j=0; j<headers.length; j++) {
+      obj[headers[j]] = r[j] ?? '';
+    }
+    objects.push(obj);
+  }
+  return objects;
+}
+
+/**
+ * =========================
+ * 4) Data loading (configs + CSV) + caching
+ * =========================
+ * - Кэшируем configsIndex, config и CSV в памяти на время вкладки (сессии).
+ * - Никакого localStorage.
+ */
+async function fetchJson(url) {
+  const res = await fetch(url, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  return await res.json();
+}
+
+async function fetchText(url) {
+  const res = await fetch(url, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  return await res.text();
+}
+
+async function loadConfigsIndex() {
+  if (state.cache.configsIndex) return state.cache.configsIndex;
+  const idx = await fetchJson('configs/index.json');
+  state.cache.configsIndex = idx;
+  return idx;
+}
+
+async function loadRestaurantConfig(restaurantId) {
+  if (state.cache.configByRestaurant.has(restaurantId)) return state.cache.configByRestaurant.get(restaurantId);
+  const cfg = await fetchJson(`configs/${restaurantId}.json`);
+  state.cache.configByRestaurant.set(restaurantId, cfg);
+  return cfg;
+}
+
+async function loadCSV(csvUrl) {
+  if (state.cache.csvByUrl.has(csvUrl)) return state.cache.csvByUrl.get(csvUrl);
+  const text = await fetchText(csvUrl);
+  state.cache.csvByUrl.set(csvUrl, text);
+  return text;
+}
+
+/**
+ * =========================
+ * 5) Sections logic (Sprint 2.1)
+ * =========================
+ * - sectionsOrder из config — источник истины
+ * - секции, которых нет в sectionsOrder — скрываем (строго)
+ * - НО: сравнение идёт по нормализованным ключам sectionKey, чтобы не ловить "пустой экран"
+ */
+function computeSectionsEffective(wines, config) {
+  const labelsFromData = {};
+  const keysInData = new Set();
+
+  for (const w of wines) {
+    const k = w.sectionKey || normalizeSectionKey(w.section);
+    if (k) keysInData.add(k);
+    if (k && !labelsFromData[k]) labelsFromData[k] = w.section;
+  }
+
+  const labelsFromConfig = {};
+  const rawOrder = Array.isArray(config?.sectionsOrder) ? config.sectionsOrder : [];
+  const normalizedOrder = rawOrder
+    .map(x => {
+      const label = String(x ?? '').trim();
+      const key = normalizeSectionKey(label);
+      if (key && !labelsFromConfig[key]) labelsFromConfig[key] = label;
+      return key;
+    })
+    .filter(Boolean);
+
+  state.sectionLabels = { ...labelsFromData, ...labelsFromConfig };
+
+  if (normalizedOrder.length) {
+    const effective = normalizedOrder.filter(k => keysInData.has(k));
+    if (effective.length === 0 && keysInData.size > 0) {
+      console.warn('[WineGallery] sectionsOrder задан, но не совпал ни с одной секцией в CSV. Показываю fallback (All + секции из данных). Проверь названия секций.');
+      return Array.from(keysInData);
+    }
+    return effective;
+  }
+
+  return Array.from(keysInData);
+}
+
+function sectionAllowed(sectionKey) {
+  const order = state.sectionsEffective;
+  if (!order || order.length === 0) return true;
+  return order.includes(sectionKey);
+}
+
+function labelForSectionKey(k) {
+  return state.sectionLabels?.[k] || k;
+}
+
+/**
+ * =========================
+ * 6) Rendering
+ * =========================
+ */
+function renderSectionButtons() {
+  const tabs = $('sectionTabs');
+  tabs.innerHTML = '';
+
+  const addChip = (key, label, active) => {
+    const b = document.createElement('div');
+    b.className = 'chip' + (active ? ' active' : '');
+    b.textContent = label;
+    b.onclick = () => {
+      setActiveSection(key);
+    };
+    tabs.appendChild(b);
+  };
+
+  addChip('all', 'All', state.activeSection === 'all');
+
+  for (const secKey of state.sectionsEffective) {
+    addChip(secKey, labelForSectionKey(secKey), state.activeSection === secKey);
+  }
+}
+
+function renderGrid(list) {
+  const grid = $('grid');
+  grid.innerHTML = '';
+
+  for (const w of list) {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const row = document.createElement('div');
+    row.className = 'row';
+
+    const img = document.createElement('img');
+    img.className = 'bottle';
+    img.src = normalizeAssetPath(w.imageUrl || '');
+    img.alt = 'bottle';
+
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+
+    const head = document.createElement('div');
+    head.className = 'head';
+
+    const left = document.createElement('div');
+    left.style.minWidth = '0';
+
+    const name = document.createElement('div');
+    name.className = 'name';
+    name.textContent = w.title;
+
+    const sub = document.createElement('div');
+    sub.className = 'sub';
+    sub.textContent = w.sub;
+
+    left.appendChild(name);
+    left.appendChild(sub);
+
+    const price = document.createElement('div');
+    price.className = 'price';
+    price.innerHTML = safe(w.priceBottle) ? `${money(w.priceBottle)}` : '';
+    if (safe(w.priceGlass)) {
+      const sm = document.createElement('small');
+      sm.textContent = `${money(w.priceGlass)} / glass`;
+      price.appendChild(sm);
+    }
+
+    head.appendChild(left);
+    head.appendChild(price);
+
+    const tags = document.createElement('div');
+    tags.className = 'tags';
+
+    const tag1 = document.createElement('div');
+    tag1.className = 'tag';
+    tag1.textContent = labelForSectionKey(w.sectionKey);
+
+    const tag2 = document.createElement('div');
+    tag2.className = 'tag';
+    tag2.textContent = safe(w.style);
+
+    tags.appendChild(tag1);
+    if (safe(w.style)) tags.appendChild(tag2);
+
+    const desc = document.createElement('div');
+    desc.className = 'desc';
+    desc.textContent = safe(w.description);
+
+    const notes = document.createElement('div');
+    notes.className = 'notes';
+    notes.textContent = safe(w.notes) ? `Notes: ${w.notes}` : '';
+
+    meta.appendChild(head);
+    meta.appendChild(tags);
+    meta.appendChild(desc);
+    meta.appendChild(notes);
+
+    row.appendChild(img);
+    row.appendChild(meta);
+    card.appendChild(row);
+
+    const btn = document.createElement('button');
+    btn.className = 'cardBtn';
+    btn.onclick = () => openWineModal(w.id);
+    card.appendChild(btn);
+
+    grid.appendChild(card);
+  }
+}
+
+function filterAndRender() {
+  let list = state.wines.slice();
+
+  list = list.filter(w => sectionAllowed(w.sectionKey));
+
+  if (state.activeSection !== 'all') {
+    list = list.filter(w => w.sectionKey === state.activeSection);
+  }
+
+  const q = (state.search || '').trim().toLowerCase();
+  if (q) {
+    list = list.filter(w => {
+      const hay = `${w.title} ${w.sub} ${w.section} ${w.style} ${w.description} ${w.notes}`.toLowerCase();
+      return hay.includes(q);
     });
   }
 
-  state.wines = cache[key].map(x=>({
-    id: x.id || `${x.producer}_${x.name}`.replace(/\s+/g,'_'),
-    producer: x.producer,
-    title: x.name,
-    vintage: x.vintage,
-    section: normalize(x.section),
-    style: x.style,
-    notes: x.notes,
-    price: x.bottle_price || x.btg_price,
-    img: x.bottle_img
-  }));
+  renderSectionButtons();
+  renderGrid(list);
+}
 
-  renderSections(cfg.sectionsOrder || []);
+function setActiveSection(sectionKey) {
+  const key = sectionKey || 'all';
+  if (key !== 'all' && !state.sectionsEffective.includes(key)) {
+    state.activeSection = 'all';
+  } else {
+    state.activeSection = key;
+  }
+  state.search = $('searchInput').value || '';
+  state.modalWineId = null;
+  syncUrl();
+  closeModal(false);
   filterAndRender();
 }
 
-/* ===================== SECTIONS ===================== */
-function renderSections(order) {
-  const el=document.getElementById('sections');
-  el.innerHTML='';
-  ['all',...order.map(normalize)].forEach(s=>{
-    const c=document.createElement('div');
-    c.className='chip'+(state.section===s?' active':'');
-    c.textContent=s==='all'?'All':s;
-    c.onclick=()=>updateURL({section:s,w:null});
-    el.appendChild(c);
-  });
-}
-
-/* ===================== FILTER ===================== */
-function filterAndRender() {
-  const q = normalize(document.getElementById('search').value);
-  state.filtered = state.wines.filter(w=>{
-    if(state.section!=='all' && w.section!==state.section) return false;
-    if(q && !(`${w.producer} ${w.title} ${w.notes}`.toLowerCase().includes(q))) return false;
-    return true;
-  });
-  renderGrid();
-}
-
-/* ===================== GRID ===================== */
-function renderGrid() {
-  const g=document.getElementById('grid');
-  g.innerHTML='';
-  state.filtered.forEach(w=>{
-    const c=document.createElement('div');
-    c.className='card';
-    c.dataset.id=w.id;
-    c.onclick=()=>openWine(w);
-
-    c.innerHTML=`
-      <div class="img">${w.img?`<img src="${w.img}">`:'bottle'}</div>
-      <div class="info">
-        <div class="producer">${w.producer||''}</div>
-        <div class="title">${w.title} ${w.vintage||''}</div>
-        <div class="tags">
-          ${w.style?`<div class="tag">${w.style}</div>`:''}
-        </div>
-        <div class="notes">${w.notes||''}</div>
-        <div class="price">${w.price?`$${w.price}`:''}</div>
-      </div>`;
-    g.appendChild(c);
-  });
-
-  if (state.activeWineId) {
-    const el = document.querySelector(`[data-id="${state.activeWineId}"]`);
-    if (el) el.scrollIntoView({behavior:'smooth',block:'center'});
+/**
+ * =========================
+ * 7) Modal + deep-link ?w=
+ * =========================
+ */
+function openWineModal(wineId) {
+  const w = state.wines.find(x => x.id === wineId);
+  if (!w) {
+    setStatus('Wine not found', 'idle');
+    return;
   }
-}
 
-/* ===================== MODAL ===================== */
-function openWine(w) {
-  state.activeWineId = w.id;
-  document.getElementById('modalImg').src = w.img||'';
-  document.getElementById('modalText').textContent =
-    `${w.producer||''} — ${w.title} ${w.vintage||''}`;
-  document.getElementById('modal').classList.add('open');
-  updateURL({w:w.id});
-}
+  state.modalWineId = wineId;
 
-function closeModal() {
-  document.getElementById('modal').classList.remove('open');
-  state.activeWineId=null;
-  updateURL({w:null});
-}
+  $('modalTopText').textContent = labelForSectionKey(w.sectionKey);
+  $('modalBottle').src = normalizeAssetPath(w.imageUrl || '');
+  $('modalName').textContent = w.title;
+  $('modalSub').textContent = w.sub;
 
-/* ===================== URL ===================== */
-function updateURL(patch) {
-  const p=new URLSearchParams(location.search);
-  Object.entries(patch).forEach(([k,v])=>{
-    if(!v) p.delete(k); else p.set(k,v);
-  });
-  history.replaceState(null,'','?'+p.toString());
-  applyURL();
-}
+  const tags = $('modalTags');
+  tags.innerHTML = '';
+  const t1 = document.createElement('div');
+  t1.className = 'tag';
+  t1.textContent = labelForSectionKey(w.sectionKey);
+  tags.appendChild(t1);
 
-function applyURL() {
-  const p=new URLSearchParams(location.search);
-  state.section=p.get('section')||'all';
-  state.activeWineId=p.get('w');
+  if (safe(w.style)) {
+    const t2 = document.createElement('div');
+    t2.className = 'tag';
+    t2.textContent = w.style;
+    tags.appendChild(t2);
+  }
+
+  $('modalDesc').textContent = safe(w.description);
+  $('modalNotes').textContent = safe(w.notes) ? `Notes: ${w.notes}` : '';
+
+  $('modalBack').style.display = 'flex';
+
+  // если пришли по w=... — логично активировать секцию этого вина
+  if (state.activeSection === 'all' || state.activeSection !== w.sectionKey) {
+    if (state.sectionsEffective.includes(w.sectionKey)) {
+      state.activeSection = w.sectionKey;
+    }
+  }
+
+  syncUrl();
   filterAndRender();
-  if(state.activeWineId){
-    const w=state.wines.find(x=>x.id===state.activeWineId);
-    if(w) openWine(w);
+}
+
+function closeModal(sync=true) {
+  $('modalBack').style.display = 'none';
+  if (sync) {
+    state.modalWineId = null;
+    syncUrl();
   }
 }
 
-/* ===================== INIT ===================== */
-document.getElementById('search').oninput = debounce(filterAndRender);
-loadIndex().then(applyURL);
-document.getElementById('status').textContent='Ready';
+$('modalBack').addEventListener('click', (e) => {
+  if (e.target === $('modalBack')) closeModal(true);
+});
+$('closeModalBtn').addEventListener('click', () => closeModal(true));
+
+/**
+ * =========================
+ * 8) Search debounce (Sprint 2.3.2)
+ * =========================
+ */
+let searchTimer = null;
+function onSearchDebounced() {
+  if (searchTimer) clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    state.search = $('searchInput').value || '';
+    filterAndRender();
+  }, 250);
+}
+$('searchInput').addEventListener('input', onSearchDebounced);
+
+/**
+ * =========================
+ * 9) Boot / init
+ * =========================
+ */
+async function boot() {
+  try {
+    setStatus('Loading...', 'idle');
+
+    state.configsIndex = await loadConfigsIndex();
+
+    const url = readUrlParams();
+
+    const defaultRestaurant = state.configsIndex?.defaultRestaurant || state.configsIndex?.restaurants?.[0]?.id;
+    state.restaurantId = url.r || defaultRestaurant;
+
+    state.config = await loadRestaurantConfig(state.restaurantId);
+
+    const defaultLang = state.config.defaultLanguage || 'en';
+    state.lang = (url.lang && state.config.enabledLanguages?.includes(url.lang)) ? url.lang : defaultLang;
+
+    // UI selects
+    const rs = $('restaurantSelect');
+    rs.innerHTML = '';
+    for (const r of state.configsIndex.restaurants) {
+      const opt = document.createElement('option');
+      opt.value = r.id;
+      opt.textContent = r.label || r.id;
+      if (r.id === state.restaurantId) opt.selected = true;
+      rs.appendChild(opt);
+    }
+
+    const ls = $('langSelect');
+    ls.innerHTML = '';
+    for (const l of state.config.enabledLanguages || ['en']) {
+      const opt = document.createElement('option');
+      opt.value = l;
+      opt.textContent = l.toUpperCase();
+      if (l === state.lang) opt.selected = true;
+      ls.appendChild(opt);
+    }
+
+    $('pillRestaurant').textContent = state.restaurantId;
+    $('pillLang').textContent = state.lang;
+
+    $('restaurantName').textContent = state.config.name || state.restaurantId;
+    $('logo').src = normalizeAssetPath(state.config.logoUrl || '');
+
+    // Load CSV
+    const csvUrl = state.config.csvUrl?.[state.lang] || state.config.csvUrl?.en;
+    if (!csvUrl) throw new Error('No csvUrl for selected language');
+
+    const csvText = await loadCSV(csvUrl);
+    const raw = csvToObjects(csvText);
+
+    // Map raw → wines
+    state.wines = raw
+      .map(x => {
+        const section = String(x.section || x.Section || '').trim();
+        const sectionKey = normalizeSectionKey(section);
+        return {
+          id: String(x.id || x.ID || '').trim(),
+          title: String(x.title || x.name || '').trim(),
+          sub: String(x.sub || x.subtitle || '').trim(),
+          section,
+          sectionKey,
+          style: String(x.style || '').trim(),
+          description: String(x.description || x.desc || '').trim(),
+          notes: String(x.notes || '').trim(),
+          imageUrl: String(x.imageUrl || x.image || '').trim(),
+          priceBottle: String(x.priceBottle || x.price || '').trim(),
+          priceGlass: String(x.priceGlass || '').trim()
+        };
+      })
+      .filter(w => w.id && w.title);
+
+    // sectionsEffective из config + данных
+    state.sectionsEffective = computeSectionsEffective(state.wines, state.config);
+
+    // Active section from URL
+    const urlSection = url.section;
+    if (urlSection && urlSection !== 'all') {
+      if (state.sectionsEffective.includes(urlSection)) state.activeSection = urlSection;
+      else state.activeSection = 'all';
+    } else {
+      state.activeSection = 'all';
+    }
+
+    setStatus('Ready', 'good');
+    syncUrl();
+    filterAndRender();
+
+    // Deep-link wine
+    if (url.w) {
+      const w = state.wines.find(x => x.id === url.w);
+      if (w) {
+        openWineModal(w.id);
+      } else {
+        setStatus('Wine not found', 'idle');
+      }
+    }
+
+    // Select change handlers
+    rs.onchange = async () => {
+      state.cache.csvByUrl.clear(); // при смене ресторана не обязательно, но безопасно
+      writeUrlParams({ r: rs.value, w: null });
+      window.location.reload();
+    };
+
+    ls.onchange = () => {
+      writeUrlParams({ lang: ls.value, w: null });
+      window.location.reload();
+    };
+
+  } catch (err) {
+    console.error(err);
+    setStatus('Error: ' + err.message, 'idle');
+  }
+}
+
+boot();
 </script>
-
 </body>
 </html>

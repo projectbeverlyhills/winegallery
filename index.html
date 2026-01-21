@@ -3,296 +3,436 @@
 <head>
   <meta charset="UTF-8" />
   <title>WineGallery</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
+    :root {
+      --bg: #0b0d0f;
+      --card: #14181c;
+      --muted: #8b949e;
+      --accent: #2ea043;
+      --border: rgba(255,255,255,.08);
+    }
+
+    * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
-      background: radial-gradient(ellipse at top, #1b2a24, #050707);
-      color: #eaeaea;
+      font-family: -apple-system, BlinkMacSystemFont, Inter, sans-serif;
+      background: radial-gradient(circle at top, #143023 0%, var(--bg) 55%);
+      color: #e6edf3;
     }
 
     header {
-      padding: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(12px);
+      background: rgba(10,12,14,.7);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 18px;
+    }
+
+    .topbar {
       display: flex;
       gap: 12px;
       align-items: center;
       flex-wrap: wrap;
     }
 
-    .chip {
-      padding: 6px 14px;
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 220px;
+    }
+
+    .logo img {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      object-fit: contain;
+      background: #000;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    select, input {
+      background: #0f1317;
+      border: 1px solid var(--border);
+      color: #e6edf3;
+      padding: 6px 10px;
+      border-radius: 8px;
+    }
+
+    .status {
+      padding: 4px 10px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.08);
+      font-size: 12px;
+      background: #12291d;
+      color: var(--accent);
+    }
+
+    .sections {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 14px 0 0;
+    }
+
+    .chip {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
       cursor: pointer;
       font-size: 13px;
-      transition: 0.2s;
-      user-select: none;
     }
+
     .chip.active {
-      background: #2e5a4f;
+      background: #173a29;
+      border-color: var(--accent);
+    }
+
+    main {
+      padding: 22px;
+      max-width: 1200px;
+      margin: auto;
     }
 
     .grid {
-      padding: 20px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(320px,1fr));
       gap: 16px;
     }
 
     .card {
-      background: rgba(255,255,255,0.06);
+      background: var(--card);
+      border: 1px solid var(--border);
       border-radius: 16px;
       padding: 14px;
       display: flex;
-      gap: 14px;
-      scroll-margin-top: 140px;
+      gap: 12px;
+      cursor: pointer;
+      transition: transform .15s ease;
     }
 
-    .card img {
+    .card:hover { transform: translateY(-2px); }
+
+    .img {
       width: 70px;
-      height: 180px;
-      object-fit: contain;
+      height: 170px;
       border-radius: 8px;
-      background: rgba(255,255,255,0.05);
+      background: #0a0a0a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
     }
 
-    .meta h3 {
-      margin: 0 0 6px;
-      font-size: 16px;
+    .img img {
+      max-height: 100%;
+      max-width: 100%;
+      object-fit: contain;
+    }
+
+    .info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
 
     .producer {
-      font-size: 13px;
-      opacity: 0.7;
-      margin-bottom: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .title {
+      font-weight: 600;
     }
 
     .tags {
       display: flex;
       gap: 6px;
       flex-wrap: wrap;
-      margin-bottom: 6px;
     }
 
     .tag {
       font-size: 11px;
-      padding: 4px 8px;
-      background: rgba(255,255,255,0.08);
+      padding: 2px 8px;
       border-radius: 999px;
+      background: #1b2229;
+      color: var(--muted);
     }
 
     .notes {
       font-size: 12px;
-      opacity: 0.7;
+      color: var(--muted);
+    }
+
+    .price {
+      margin-top: auto;
+      font-weight: 600;
     }
 
     /* MODAL */
     .modal {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,.55);
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 1000;
+      z-index: 100;
     }
 
-    .modal.active {
-      display: flex;
-    }
+    .modal.open { display: flex; }
 
-    .modal-card {
-      background: #0d1513;
-      border-radius: 20px;
-      padding: 24px;
-      max-width: 520px;
+    .modal-box {
+      background: var(--card);
+      border-radius: 18px;
+      max-width: 420px;
       width: 90%;
+      padding: 18px;
+      border: 1px solid var(--border);
     }
 
-    .modal-close {
-      float: right;
+    .modal-box img {
+      width: 100%;
+      max-height: 360px;
+      object-fit: contain;
+    }
+
+    .close {
+      margin-top: 12px;
+      text-align: center;
       cursor: pointer;
-      opacity: 0.7;
+      color: var(--muted);
     }
   </style>
 </head>
+
 <body>
 
-<header id="sections"></header>
-<section class="grid" id="grid"></section>
+<header>
+  <div class="topbar">
+    <div class="logo">
+      <img id="logo" />
+      <div>
+        <div id="title">WineGallery</div>
+        <div class="status" id="status">Loading</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <select id="restaurant"></select>
+      <select id="lang"></select>
+      <input id="search" placeholder="Search..." />
+    </div>
+  </div>
+
+  <div class="sections" id="sections"></div>
+</header>
+
+<main>
+  <div class="grid" id="grid"></div>
+</main>
 
 <div class="modal" id="modal">
-  <div class="modal-card">
-    <div class="modal-close" onclick="closeModal()">✕</div>
-    <div id="modalContent"></div>
+  <div class="modal-box">
+    <img id="modalImg" />
+    <div id="modalText"></div>
+    <div class="close" onclick="closeModal()">Close</div>
   </div>
 </div>
 
 <script>
-/* ==========================
-   GLOBAL STATE
-========================== */
-let DATA = [];
-let ACTIVE_SECTION = "All";
-let SECTIONS_ORDER = [];
-let CURRENT_WINE = null;
+/* ===================== STATE ===================== */
+const cache = {};
+let state = {
+  r: null,
+  lang: null,
+  section: 'all',
+  wines: [],
+  filtered: [],
+  activeWineId: null
+};
 
-/* ==========================
-   UTILS
-========================== */
-function qs() {
-  return new URLSearchParams(window.location.search);
-}
+/* ===================== HELPERS ===================== */
+const qs = new URLSearchParams(location.search);
+const debounce = (fn, t=250) => {
+  let id; return (...a)=>{ clearTimeout(id); id=setTimeout(()=>fn(...a),t); }
+};
+const normalize = s => (s||'').toLowerCase().trim();
 
-function setParam(key, val) {
-  const p = qs();
-  if (val === null) p.delete(key);
-  else p.set(key, val);
-  history.replaceState({}, "", "?" + p.toString());
-}
-
-function debounce(fn, ms) {
-  let t;
-  return (...a) => {
-    clearTimeout(t);
-    t = setTimeout(() => fn(...a), ms);
-  };
-}
-
-/* ==========================
-   INIT
-========================== */
-init();
-
-async function init() {
-  const index = await fetch("configs/index.json").then(r => r.json());
-  const rid = qs().get("r") || index.restaurants[0].id;
-  const restaurant = index.restaurants.find(r => r.id === rid);
-  const config = await fetch(restaurant.config).then(r => r.json());
-
-  SECTIONS_ORDER = config.sectionsOrder || [];
-  const lang = qs().get("lang") || config.defaultLanguage;
-  const csvUrl = config.csvUrl[lang];
-
-  DATA = await fetch(csvUrl)
-    .then(r => r.text())
-    .then(parseCSV);
-
-  buildSections();
-  render();
-
-  const w = qs().get("w");
-  if (w) openWineById(w);
-}
-
-/* ==========================
-   CSV
-========================== */
-function parseCSV(text) {
-  const [h, ...rows] = text.trim().split("\n");
-  const headers = h.split(",");
-  return rows.map(r => {
-    const obj = {};
-    r.split(",").forEach((v, i) => obj[headers[i]] = v);
-    return obj;
+/* ===================== LOAD CONFIG INDEX ===================== */
+async function loadIndex() {
+  const res = await fetch('configs/index.json');
+  const j = await res.json();
+  const sel = document.getElementById('restaurant');
+  j.restaurants.forEach(r=>{
+    const o=document.createElement('option');
+    o.value=r.id; o.textContent=r.label;
+    sel.appendChild(o);
   });
+  state.r = qs.get('r') || j.restaurants[0].id;
+  sel.value = state.r;
+  sel.onchange = ()=>updateURL({r:sel.value});
+  await loadConfig();
 }
 
-/* ==========================
-   SECTIONS
-========================== */
-function buildSections() {
-  const wrap = document.getElementById("sections");
-  wrap.innerHTML = "";
+/* ===================== LOAD CONFIG ===================== */
+async function loadConfig() {
+  const r = state.r;
+  const cfg = cache[r] ||= await (await fetch(`configs/${r}.json`)).json();
 
-  const all = ["All", ...SECTIONS_ORDER];
+  document.getElementById('logo').src = cfg.logoUrl;
+  document.getElementById('title').textContent = cfg.name;
 
-  all.forEach(s => {
-    const c = document.createElement("div");
-    c.className = "chip" + (s === "All" ? " active" : "");
-    c.textContent = s;
-    c.onclick = () => {
-      document.querySelectorAll(".chip").forEach(x => x.classList.remove("active"));
-      c.classList.add("active");
-      ACTIVE_SECTION = s;
-      setParam("section", s === "All" ? null : s);
-      render();
-    };
-    wrap.appendChild(c);
+  const langSel = document.getElementById('lang');
+  langSel.innerHTML='';
+  cfg.enabledLanguages.forEach(l=>{
+    const o=document.createElement('option');
+    o.value=l; o.textContent=l.toUpperCase();
+    langSel.appendChild(o);
   });
+  state.lang = qs.get('lang') || cfg.defaultLanguage;
+  langSel.value = state.lang;
+  langSel.onchange = ()=>updateURL({lang:langSel.value});
+
+  await loadCSV(cfg);
 }
 
-/* ==========================
-   RENDER
-========================== */
-function render() {
-  const grid = document.getElementById("grid");
-  grid.innerHTML = "";
-
-  let list = DATA;
-  if (ACTIVE_SECTION !== "All") {
-    list = DATA.filter(w => w.section === ACTIVE_SECTION);
+/* ===================== LOAD CSV ===================== */
+async function loadCSV(cfg) {
+  const key = `${state.r}_${state.lang}`;
+  if (!cache[key]) {
+    const res = await fetch(cfg.csvUrl[state.lang]);
+    const txt = await res.text();
+    const [h,...rows]=txt.split('\n').map(r=>r.split(','));
+    cache[key]=rows.map(r=>{
+      const o={}; h.forEach((k,i)=>o[k]=r[i]); return o;
+    });
   }
 
-  list.forEach(w => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.id = "wine-" + w.id;
-    card.onclick = () => openWine(w);
+  state.wines = cache[key].map(x=>({
+    id: x.id || `${x.producer}_${x.name}`.replace(/\s+/g,'_'),
+    producer: x.producer,
+    title: x.name,
+    vintage: x.vintage,
+    section: normalize(x.section),
+    style: x.style,
+    notes: x.notes,
+    price: x.bottle_price || x.btg_price,
+    img: x.bottle_img
+  }));
 
-    card.innerHTML = `
-      <img src="${w.bottle_img || ""}" />
-      <div class="meta">
-        <h3>${w.name}</h3>
-        <div class="producer">${w.producer || ""}</div>
+  renderSections(cfg.sectionsOrder || []);
+  filterAndRender();
+}
+
+/* ===================== SECTIONS ===================== */
+function renderSections(order) {
+  const el=document.getElementById('sections');
+  el.innerHTML='';
+  ['all',...order.map(normalize)].forEach(s=>{
+    const c=document.createElement('div');
+    c.className='chip'+(state.section===s?' active':'');
+    c.textContent=s==='all'?'All':s;
+    c.onclick=()=>updateURL({section:s,w:null});
+    el.appendChild(c);
+  });
+}
+
+/* ===================== FILTER ===================== */
+function filterAndRender() {
+  const q = normalize(document.getElementById('search').value);
+  state.filtered = state.wines.filter(w=>{
+    if(state.section!=='all' && w.section!==state.section) return false;
+    if(q && !(`${w.producer} ${w.title} ${w.notes}`.toLowerCase().includes(q))) return false;
+    return true;
+  });
+  renderGrid();
+}
+
+/* ===================== GRID ===================== */
+function renderGrid() {
+  const g=document.getElementById('grid');
+  g.innerHTML='';
+  state.filtered.forEach(w=>{
+    const c=document.createElement('div');
+    c.className='card';
+    c.dataset.id=w.id;
+    c.onclick=()=>openWine(w);
+
+    c.innerHTML=`
+      <div class="img">${w.img?`<img src="${w.img}">`:'bottle'}</div>
+      <div class="info">
+        <div class="producer">${w.producer||''}</div>
+        <div class="title">${w.title} ${w.vintage||''}</div>
         <div class="tags">
-          <span class="tag">${w.section}</span>
-          <span class="tag">${w.style}</span>
+          ${w.style?`<div class="tag">${w.style}</div>`:''}
         </div>
-        <div class="notes">${w.notes || ""}</div>
-      </div>
-    `;
-    grid.appendChild(card);
+        <div class="notes">${w.notes||''}</div>
+        <div class="price">${w.price?`$${w.price}`:''}</div>
+      </div>`;
+    g.appendChild(c);
   });
-}
 
-/* ==========================
-   MODAL + DEEP LINK
-========================== */
-function openWine(w) {
-  CURRENT_WINE = w;
-  setParam("w", w.id);
-  document.getElementById("modalContent").innerHTML = `
-    <h2>${w.name}</h2>
-    <p>${w.producer}</p>
-    <p>${w.notes || ""}</p>
-  `;
-  document.getElementById("modal").classList.add("active");
-
-  requestAnimationFrame(() => {
-    const el = document.getElementById("wine-" + w.id);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
-  });
-}
-
-function openWineById(id) {
-  const w = DATA.find(x => x.id === id);
-  if (!w) return;
-  if (w.section && !SECTIONS_ORDER.includes(w.section)) {
-    ACTIVE_SECTION = "All";
-  } else {
-    ACTIVE_SECTION = w.section || "All";
+  if (state.activeWineId) {
+    const el = document.querySelector(`[data-id="${state.activeWineId}"]`);
+    if (el) el.scrollIntoView({behavior:'smooth',block:'center'});
   }
-  render();
-  openWine(w);
+}
+
+/* ===================== MODAL ===================== */
+function openWine(w) {
+  state.activeWineId = w.id;
+  document.getElementById('modalImg').src = w.img||'';
+  document.getElementById('modalText').textContent =
+    `${w.producer||''} — ${w.title} ${w.vintage||''}`;
+  document.getElementById('modal').classList.add('open');
+  updateURL({w:w.id});
 }
 
 function closeModal() {
-  document.getElementById("modal").classList.remove("active");
-  setParam("w", null);
+  document.getElementById('modal').classList.remove('open');
+  state.activeWineId=null;
+  updateURL({w:null});
 }
+
+/* ===================== URL ===================== */
+function updateURL(patch) {
+  const p=new URLSearchParams(location.search);
+  Object.entries(patch).forEach(([k,v])=>{
+    if(!v) p.delete(k); else p.set(k,v);
+  });
+  history.replaceState(null,'','?'+p.toString());
+  applyURL();
+}
+
+function applyURL() {
+  const p=new URLSearchParams(location.search);
+  state.section=p.get('section')||'all';
+  state.activeWineId=p.get('w');
+  filterAndRender();
+  if(state.activeWineId){
+    const w=state.wines.find(x=>x.id===state.activeWineId);
+    if(w) openWine(w);
+  }
+}
+
+/* ===================== INIT ===================== */
+document.getElementById('search').oninput = debounce(filterAndRender);
+loadIndex().then(applyURL);
+document.getElementById('status').textContent='Ready';
 </script>
+
 </body>
 </html>

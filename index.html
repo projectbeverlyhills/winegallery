@@ -1,1014 +1,298 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8" />
   <title>WineGallery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
-    :root{
-      --bg1:#0b0f0e;
-      --bg2:#04110d;
-      --card:#0e1312cc;
-      --card2:#0f1514aa;
-      --stroke:rgba(255,255,255,0.10);
-      --stroke2:rgba(255,255,255,0.14);
-      --text:rgba(255,255,255,0.92);
-      --muted:rgba(255,255,255,0.62);
-      --muted2:rgba(255,255,255,0.50);
-      --chip:rgba(255,255,255,0.06);
-      --chipActive:rgba(156, 255, 206, 0.15);
-      --good:#74ffb6;
-      --shadow:0 12px 35px rgba(0,0,0,0.55);
-      --radius:18px;
-      --radius2:14px;
-      --pad:22px;
-      --gap:16px;
-      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+      background: radial-gradient(ellipse at top, #1b2a24, #050707);
+      color: #eaeaea;
     }
-    html,body{
-      height:100%;
-      margin:0;
-      font-family:var(--font);
-      color:var(--text);
-      background: radial-gradient(1200px 800px at 20% 20%, rgba(91,255,170,0.08), transparent 60%),
-                  radial-gradient(900px 650px at 80% 30%, rgba(0,160,255,0.05), transparent 60%),
-                  radial-gradient(900px 700px at 55% 85%, rgba(255,255,255,0.03), transparent 65%),
-                  linear-gradient(120deg, var(--bg2), var(--bg1));
-      overflow-x:hidden;
+
+    header {
+      padding: 20px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
     }
-    .wrap{
-      max-width:1240px;
-      margin:0 auto;
-      padding:22px 18px 70px;
+
+    .chip {
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      cursor: pointer;
+      font-size: 13px;
+      transition: 0.2s;
+      user-select: none;
     }
-    .topbar{
-      position: sticky;
-      top: 10px;
-      z-index: 10;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:14px;
-      padding:14px 16px;
-      margin-bottom:14px;
-      border:1px solid var(--stroke);
-      background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
-      border-radius: 22px;
-      box-shadow: 0 18px 45px rgba(0,0,0,0.35);
-      backdrop-filter: blur(12px);
+    .chip.active {
+      background: #2e5a4f;
     }
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      min-width:210px;
+
+    .grid {
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
     }
-    .brand img{
-      width:42px;
-      height:42px;
-      border-radius: 12px;
-      object-fit:contain;
+
+    .card {
       background: rgba(255,255,255,0.06);
-      border:1px solid var(--stroke);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
-    }
-    .brand .title{
-      display:flex;
-      flex-direction:column;
-      line-height:1.1;
-    }
-    .brand .title b{
-      font-size: 14px;
-      letter-spacing:0.2px;
-    }
-    .brand .title span{
-      font-size: 12px;
-      color: var(--muted);
-    }
-    .controls{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-    .pill{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      padding:7px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,0.04);
-      font-size: 12px;
-      color: var(--muted);
-    }
-    select, input{
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--stroke);
-      color: var(--text);
-      outline:none;
-      border-radius: 12px;
-      padding: 7px 10px;
-      font-size: 12px;
-    }
-    select{
-      padding-right: 28px;
-    }
-    input{
-      min-width: 220px;
-    }
-    .status{
-      font-size: 12px;
-      color: var(--muted);
-      padding: 7px 10px;
-      border-radius: 999px;
-      border:1px solid var(--stroke);
-      background: rgba(255,255,255,0.03);
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-    .dot{
-      width:8px;height:8px;border-radius: 999px;
-      background: rgba(255,255,255,0.35);
-      box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
-    }
-    .dot.good{
-      background: var(--good);
-      box-shadow: 0 0 0 3px rgba(116,255,182,0.13);
-    }
-    .tabs{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin: 12px 0 12px;
-    }
-    .chip{
-      cursor:pointer;
-      user-select:none;
-      padding:7px 12px;
-      border-radius: 999px;
-      border:1px solid var(--stroke);
-      background: var(--chip);
-      color: var(--muted);
-      font-size: 12px;
-      transition: 0.15s ease;
-      text-transform: none;
-    }
-    .chip:hover{
-      border-color: var(--stroke2);
-      color: var(--text);
-    }
-    .chip.active{
-      background: var(--chipActive);
-      border-color: rgba(116,255,182,0.45);
-      color: rgba(220,255,240,0.95);
-    }
-    .grid{
-      display:grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px;
-      margin-top: 10px;
-    }
-    @media (max-width: 930px){
-      .grid{ grid-template-columns: 1fr; }
-      input{ min-width: 160px; }
-    }
-    .card{
-      position:relative;
-      border-radius: var(--radius);
-      border:1px solid var(--stroke);
-      background: linear-gradient(180deg, var(--card), var(--card2));
-      box-shadow: var(--shadow);
-      padding: 16px 16px 14px;
-      overflow:hidden;
-    }
-    .card:hover{
-      border-color: var(--stroke2);
-    }
-    .row{
-      display:flex;
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
       gap: 14px;
-      align-items:flex-start;
+      scroll-margin-top: 140px;
     }
-    .bottle{
-      width: 86px;
-      height: 140px;
-      border-radius: 14px;
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,0.05);
+
+    .card img {
+      width: 70px;
+      height: 180px;
       object-fit: contain;
-      padding: 8px;
-      box-sizing:border-box;
-      flex: 0 0 auto;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
     }
-    .meta{
-      flex:1;
-      min-width:0;
+
+    .meta h3 {
+      margin: 0 0 6px;
+      font-size: 16px;
     }
-    .head{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:10px;
+
+    .producer {
+      font-size: 13px;
+      opacity: 0.7;
+      margin-bottom: 6px;
     }
-    .name{
-      font-weight: 700;
-      font-size: 14px;
-      letter-spacing:0.2px;
-      margin-bottom: 4px;
-      white-space: nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
+
+    .tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
     }
-    .sub{
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 8px;
-      white-space: nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
-    }
-    .price{
-      text-align:right;
-      font-size: 14px;
-      font-weight: 700;
-      color: rgba(255,255,255,0.92);
-      min-width: 74px;
-      line-height:1.1;
-    }
-    .price small{
-      display:block;
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 600;
-      margin-top: 2px;
-    }
-    .tags{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-top: 6px;
-      margin-bottom: 10px;
-    }
-    .tag{
+
+    .tag {
       font-size: 11px;
       padding: 4px 8px;
+      background: rgba(255,255,255,0.08);
       border-radius: 999px;
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,0.04);
-      color: rgba(255,255,255,0.76);
     }
-    .desc{
+
+    .notes {
       font-size: 12px;
-      line-height: 1.35;
-      color: rgba(255,255,255,0.80);
-      margin-top: 8px;
-      max-height: 5.3em;
-      overflow: hidden;
+      opacity: 0.7;
     }
-    .notes{
-      font-size: 11px;
-      color: var(--muted2);
-      margin-top: 10px;
+
+    /* MODAL */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
     }
-    .cardBtn{
-      position:absolute;
-      inset:0;
-      cursor:pointer;
-      background: transparent;
-      border:0;
+
+    .modal.active {
+      display: flex;
     }
-    .modalBack{
-      position:fixed;
-      inset:0;
-      background: rgba(0,0,0,0.55);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding: 18px;
-      z-index: 50;
-    }
-    .modal{
-      width: min(880px, 100%);
+
+    .modal-card {
+      background: #0d1513;
       border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.15);
-      background: linear-gradient(180deg, rgba(20,26,24,0.95), rgba(10,14,13,0.92));
-      box-shadow: 0 35px 90px rgba(0,0,0,0.7);
-      overflow:hidden;
+      padding: 24px;
+      max-width: 520px;
+      width: 90%;
     }
-    .modalTop{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding: 14px 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.10);
-      color: rgba(255,255,255,0.85);
-      font-size: 13px;
-    }
-    .modalBody{
-      padding: 16px;
-      display:flex;
-      gap:16px;
-      align-items:flex-start;
-    }
-    .modalBody .bottle{
-      width: 128px;
-      height: 210px;
-      padding:10px;
-    }
-    .modalText{
-      flex:1;
-      min-width:0;
-    }
-    .modalText h2{
-      margin: 0 0 6px 0;
-      font-size: 18px;
-      letter-spacing:0.2px;
-    }
-    .modalText .sub{
-      margin-bottom: 10px;
-      white-space: normal;
-    }
-    .modalText .desc{
-      max-height: none;
-      overflow: visible;
-      font-size: 13px;
-      line-height: 1.45;
-    }
-    .closeBtn{
-      cursor:pointer;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.14);
-      padding: 7px 10px;
-      background: rgba(255,255,255,0.06);
-      color: rgba(255,255,255,0.85);
-      font-size: 12px;
-    }
-    .closeBtn:hover{
-      border-color: rgba(255,255,255,0.22);
+
+    .modal-close {
+      float: right;
+      cursor: pointer;
+      opacity: 0.7;
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="topbar">
-      <div class="brand">
-        <img id="logo" alt="logo" src="" />
-        <div class="title">
-          <b id="restaurantName">WineGallery</b>
-          <span>Updated from CSV</span>
-        </div>
-      </div>
 
-      <div class="controls">
-        <div class="pill"><span>r:</span> <b id="pillRestaurant">-</b></div>
-        <div class="pill"><span>lang:</span> <b id="pillLang">-</b></div>
+<header id="sections"></header>
+<section class="grid" id="grid"></section>
 
-        <select id="restaurantSelect" title="Restaurant"></select>
-        <select id="langSelect" title="Language"></select>
-
-        <input id="searchInput" placeholder="Search..." />
-        <div class="status" id="statusPill"><span class="dot" id="statusDot"></span> <span id="statusText">Idle</span></div>
-      </div>
-    </div>
-
-    <div class="tabs" id="sectionTabs"></div>
-    <div class="grid" id="grid"></div>
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <div class="modal-close" onclick="closeModal()">✕</div>
+    <div id="modalContent"></div>
   </div>
-
-  <div class="modalBack" id="modalBack">
-    <div class="modal" role="dialog" aria-modal="true">
-      <div class="modalTop">
-        <div id="modalTopText">Wine</div>
-        <button class="closeBtn" id="closeModalBtn">Close</button>
-      </div>
-      <div class="modalBody">
-        <img class="bottle" id="modalBottle" alt="bottle" src="" />
-        <div class="modalText">
-          <h2 id="modalName"></h2>
-          <div class="sub" id="modalSub"></div>
-          <div class="tags" id="modalTags"></div>
-          <div class="desc" id="modalDesc"></div>
-          <div class="notes" id="modalNotes"></div>
-        </div>
-      </div>
-    </div>
-  </div>
+</div>
 
 <script>
-/**
- * =========================
- * 1) State / helpers
- * =========================
- * - Здесь хранится текущее состояние (ресторан, язык, секция, данные).
- * - И утилиты: нормализация путей, нормализация ключей секций, money(), safe().
- */
-const $ = (id) => document.getElementById(id);
+/* ==========================
+   GLOBAL STATE
+========================== */
+let DATA = [];
+let ACTIVE_SECTION = "All";
+let SECTIONS_ORDER = [];
+let CURRENT_WINE = null;
 
-const state = {
-  restaurantId: null,
-  lang: null,
-  config: null,
-  configsIndex: null,
-  wines: [],
-  sectionsEffective: [],
-  activeSection: 'all',
-  search: '',
-  isLoading: false,
-  status: 'Idle',
-  statusType: 'idle',
-  cache: {
-    configsIndex: null,
-    configByRestaurant: new Map(),
-    csvByUrl: new Map(),
-  },
-  modalWineId: null,
-  sectionLabels: {}, // key -> human label
-};
-
-function normalizeAssetPath(path) {
-  if (!path) return '';
-  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) return path;
-  if (path.startsWith('/')) return path;
-  return path;
+/* ==========================
+   UTILS
+========================== */
+function qs() {
+  return new URLSearchParams(window.location.search);
 }
 
-/**
- * normalizeSectionKey:
- * - приводит любые варианты ("rosé", "Rose", "dessert wines", "dessert_wines") к одному ключу.
- * - Это важно, чтобы sectionsOrder не ломал отображение из-за акцентов/пробелов.
- */
-function normalizeSectionKey(input) {
-  const raw = String(input ?? '').trim();
-  if (!raw) return '';
-  const noDiacritics = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  const lowered = noDiacritics.toLowerCase();
-  const cleaned = lowered.replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
-  return cleaned;
+function setParam(key, val) {
+  const p = qs();
+  if (val === null) p.delete(key);
+  else p.set(key, val);
+  history.replaceState({}, "", "?" + p.toString());
 }
 
-function safe(v) {
-  if (v === null || v === undefined) return '';
-  return String(v);
-}
-
-function money(v) {
-  const n = Number(v);
-  if (!isFinite(n)) return '';
-  return n.toString();
-}
-
-function setStatus(text, type='idle') {
-  state.status = text;
-  state.statusType = type;
-  $('statusText').textContent = text;
-  const dot = $('statusDot');
-  dot.classList.remove('good');
-  if (type === 'good') dot.classList.add('good');
-}
-
-/**
- * =========================
- * 2) URL params (deep-links)
- * =========================
- * - Читаем ?r=...&lang=...&section=...&w=...
- * - Пишем обратно при кликах по секциям и открытии/закрытии модалки.
- */
-function readUrlParams() {
-  const u = new URL(window.location.href);
-  const p = u.searchParams;
-  return {
-    r: p.get('r'),
-    lang: p.get('lang'),
-    section: normalizeSectionKey(p.get('section')),
-    w: p.get('w')
+function debounce(fn, ms) {
+  let t;
+  return (...a) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...a), ms);
   };
 }
 
-function writeUrlParams(next) {
-  const u = new URL(window.location.href);
-  const p = u.searchParams;
+/* ==========================
+   INIT
+========================== */
+init();
 
-  if (next.r !== undefined) {
-    if (next.r) p.set('r', next.r); else p.delete('r');
-  }
-  if (next.lang !== undefined) {
-    if (next.lang) p.set('lang', next.lang); else p.delete('lang');
-  }
-  if (next.section !== undefined) {
-    if (next.section && next.section !== 'all') p.set('section', next.section); else p.delete('section');
-  }
-  if (next.w !== undefined) {
-    if (next.w) p.set('w', next.w); else p.delete('w');
-  }
+async function init() {
+  const index = await fetch("configs/index.json").then(r => r.json());
+  const rid = qs().get("r") || index.restaurants[0].id;
+  const restaurant = index.restaurants.find(r => r.id === rid);
+  const config = await fetch(restaurant.config).then(r => r.json());
 
-  const newUrl = u.pathname + (p.toString() ? '?' + p.toString() : '');
-  history.replaceState(null, '', newUrl);
+  SECTIONS_ORDER = config.sectionsOrder || [];
+  const lang = qs().get("lang") || config.defaultLanguage;
+  const csvUrl = config.csvUrl[lang];
+
+  DATA = await fetch(csvUrl)
+    .then(r => r.text())
+    .then(parseCSV);
+
+  buildSections();
+  render();
+
+  const w = qs().get("w");
+  if (w) openWineById(w);
 }
 
-function syncUrl() {
-  writeUrlParams({
-    r: state.restaurantId,
-    lang: state.lang,
-    section: state.activeSection,
-    w: state.modalWineId
+/* ==========================
+   CSV
+========================== */
+function parseCSV(text) {
+  const [h, ...rows] = text.trim().split("\n");
+  const headers = h.split(",");
+  return rows.map(r => {
+    const obj = {};
+    r.split(",").forEach((v, i) => obj[headers[i]] = v);
+    return obj;
   });
 }
 
-/**
- * =========================
- * 3) CSV parsing + mapping
- * =========================
- * - parseCSV: парсер CSV (простая реализация)
- * - затем маппим строки в wines-объекты
- * - ВАЖНО: добавляем sectionKey (нормализованный ключ секции)
- */
-function parseCSV(text) {
-  const rows = [];
-  let row = [];
-  let cur = '';
-  let inQ = false;
+/* ==========================
+   SECTIONS
+========================== */
+function buildSections() {
+  const wrap = document.getElementById("sections");
+  wrap.innerHTML = "";
 
-  for (let i=0; i<text.length; i++) {
-    const ch = text[i];
-    const next = text[i+1];
+  const all = ["All", ...SECTIONS_ORDER];
 
-    if (inQ) {
-      if (ch === '"' && next === '"') { cur += '"'; i++; }
-      else if (ch === '"') inQ = false;
-      else cur += ch;
-    } else {
-      if (ch === '"') inQ = true;
-      else if (ch === ',') { row.push(cur); cur=''; }
-      else if (ch === '\n') { row.push(cur); rows.push(row); row=[]; cur=''; }
-      else if (ch === '\r') { /* ignore */ }
-      else cur += ch;
-    }
-  }
-  if (cur.length || row.length) { row.push(cur); rows.push(row); }
-
-  return rows;
-}
-
-function csvToObjects(csvText) {
-  const rows = parseCSV(csvText);
-  if (!rows.length) return [];
-  const headers = rows[0].map(h => safe(h).trim());
-  const objects = [];
-
-  for (let i=1; i<rows.length; i++) {
-    const r = rows[i];
-    const obj = {};
-    for (let j=0; j<headers.length; j++) {
-      obj[headers[j]] = r[j] ?? '';
-    }
-    objects.push(obj);
-  }
-  return objects;
-}
-
-/**
- * =========================
- * 4) Data loading (configs + CSV) + caching
- * =========================
- * - Кэшируем configsIndex, config и CSV в памяти на время вкладки (сессии).
- * - Никакого localStorage.
- */
-async function fetchJson(url) {
-  const res = await fetch(url, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-  return await res.json();
-}
-
-async function fetchText(url) {
-  const res = await fetch(url, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-  return await res.text();
-}
-
-async function loadConfigsIndex() {
-  if (state.cache.configsIndex) return state.cache.configsIndex;
-  const idx = await fetchJson('configs/index.json');
-  state.cache.configsIndex = idx;
-  return idx;
-}
-
-async function loadRestaurantConfig(restaurantId) {
-  if (state.cache.configByRestaurant.has(restaurantId)) return state.cache.configByRestaurant.get(restaurantId);
-  const cfg = await fetchJson(`configs/${restaurantId}.json`);
-  state.cache.configByRestaurant.set(restaurantId, cfg);
-  return cfg;
-}
-
-async function loadCSV(csvUrl) {
-  if (state.cache.csvByUrl.has(csvUrl)) return state.cache.csvByUrl.get(csvUrl);
-  const text = await fetchText(csvUrl);
-  state.cache.csvByUrl.set(csvUrl, text);
-  return text;
-}
-
-/**
- * =========================
- * 5) Sections logic (Sprint 2.1)
- * =========================
- * - sectionsOrder из config — источник истины
- * - секции, которых нет в sectionsOrder — скрываем (строго)
- * - НО: сравнение идёт по нормализованным ключам sectionKey, чтобы не ловить "пустой экран"
- */
-function computeSectionsEffective(wines, config) {
-  const labelsFromData = {};
-  const keysInData = new Set();
-
-  for (const w of wines) {
-    const k = w.sectionKey || normalizeSectionKey(w.section);
-    if (k) keysInData.add(k);
-    if (k && !labelsFromData[k]) labelsFromData[k] = w.section;
-  }
-
-  const labelsFromConfig = {};
-  const rawOrder = Array.isArray(config?.sectionsOrder) ? config.sectionsOrder : [];
-  const normalizedOrder = rawOrder
-    .map(x => {
-      const label = String(x ?? '').trim();
-      const key = normalizeSectionKey(label);
-      if (key && !labelsFromConfig[key]) labelsFromConfig[key] = label;
-      return key;
-    })
-    .filter(Boolean);
-
-  state.sectionLabels = { ...labelsFromData, ...labelsFromConfig };
-
-  if (normalizedOrder.length) {
-    const effective = normalizedOrder.filter(k => keysInData.has(k));
-    if (effective.length === 0 && keysInData.size > 0) {
-      console.warn('[WineGallery] sectionsOrder задан, но не совпал ни с одной секцией в CSV. Показываю fallback (All + секции из данных). Проверь названия секций.');
-      return Array.from(keysInData);
-    }
-    return effective;
-  }
-
-  return Array.from(keysInData);
-}
-
-function sectionAllowed(sectionKey) {
-  const order = state.sectionsEffective;
-  if (!order || order.length === 0) return true;
-  return order.includes(sectionKey);
-}
-
-function labelForSectionKey(k) {
-  return state.sectionLabels?.[k] || k;
-}
-
-/**
- * =========================
- * 6) Rendering
- * =========================
- */
-function renderSectionButtons() {
-  const tabs = $('sectionTabs');
-  tabs.innerHTML = '';
-
-  const addChip = (key, label, active) => {
-    const b = document.createElement('div');
-    b.className = 'chip' + (active ? ' active' : '');
-    b.textContent = label;
-    b.onclick = () => {
-      setActiveSection(key);
+  all.forEach(s => {
+    const c = document.createElement("div");
+    c.className = "chip" + (s === "All" ? " active" : "");
+    c.textContent = s;
+    c.onclick = () => {
+      document.querySelectorAll(".chip").forEach(x => x.classList.remove("active"));
+      c.classList.add("active");
+      ACTIVE_SECTION = s;
+      setParam("section", s === "All" ? null : s);
+      render();
     };
-    tabs.appendChild(b);
-  };
-
-  addChip('all', 'All', state.activeSection === 'all');
-
-  for (const secKey of state.sectionsEffective) {
-    addChip(secKey, labelForSectionKey(secKey), state.activeSection === secKey);
-  }
+    wrap.appendChild(c);
+  });
 }
 
-function renderGrid(list) {
-  const grid = $('grid');
-  grid.innerHTML = '';
+/* ==========================
+   RENDER
+========================== */
+function render() {
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
 
-  for (const w of list) {
-    const card = document.createElement('div');
-    card.className = 'card';
+  let list = DATA;
+  if (ACTIVE_SECTION !== "All") {
+    list = DATA.filter(w => w.section === ACTIVE_SECTION);
+  }
 
-    const row = document.createElement('div');
-    row.className = 'row';
+  list.forEach(w => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.id = "wine-" + w.id;
+    card.onclick = () => openWine(w);
 
-    const img = document.createElement('img');
-    img.className = 'bottle';
-    img.src = normalizeAssetPath(w.imageUrl || '');
-    img.alt = 'bottle';
-
-    const meta = document.createElement('div');
-    meta.className = 'meta';
-
-    const head = document.createElement('div');
-    head.className = 'head';
-
-    const left = document.createElement('div');
-    left.style.minWidth = '0';
-
-    const name = document.createElement('div');
-    name.className = 'name';
-    name.textContent = w.title;
-
-    const sub = document.createElement('div');
-    sub.className = 'sub';
-    sub.textContent = w.sub;
-
-    left.appendChild(name);
-    left.appendChild(sub);
-
-    const price = document.createElement('div');
-    price.className = 'price';
-    price.innerHTML = safe(w.priceBottle) ? `${money(w.priceBottle)}` : '';
-    if (safe(w.priceGlass)) {
-      const sm = document.createElement('small');
-      sm.textContent = `${money(w.priceGlass)} / glass`;
-      price.appendChild(sm);
-    }
-
-    head.appendChild(left);
-    head.appendChild(price);
-
-    const tags = document.createElement('div');
-    tags.className = 'tags';
-
-    const tag1 = document.createElement('div');
-    tag1.className = 'tag';
-    tag1.textContent = labelForSectionKey(w.sectionKey);
-
-    const tag2 = document.createElement('div');
-    tag2.className = 'tag';
-    tag2.textContent = safe(w.style);
-
-    tags.appendChild(tag1);
-    if (safe(w.style)) tags.appendChild(tag2);
-
-    const desc = document.createElement('div');
-    desc.className = 'desc';
-    desc.textContent = safe(w.description);
-
-    const notes = document.createElement('div');
-    notes.className = 'notes';
-    notes.textContent = safe(w.notes) ? `Notes: ${w.notes}` : '';
-
-    meta.appendChild(head);
-    meta.appendChild(tags);
-    meta.appendChild(desc);
-    meta.appendChild(notes);
-
-    row.appendChild(img);
-    row.appendChild(meta);
-    card.appendChild(row);
-
-    const btn = document.createElement('button');
-    btn.className = 'cardBtn';
-    btn.onclick = () => openWineModal(w.id);
-    card.appendChild(btn);
-
+    card.innerHTML = `
+      <img src="${w.bottle_img || ""}" />
+      <div class="meta">
+        <h3>${w.name}</h3>
+        <div class="producer">${w.producer || ""}</div>
+        <div class="tags">
+          <span class="tag">${w.section}</span>
+          <span class="tag">${w.style}</span>
+        </div>
+        <div class="notes">${w.notes || ""}</div>
+      </div>
+    `;
     grid.appendChild(card);
-  }
+  });
 }
 
-function filterAndRender() {
-  let list = state.wines.slice();
+/* ==========================
+   MODAL + DEEP LINK
+========================== */
+function openWine(w) {
+  CURRENT_WINE = w;
+  setParam("w", w.id);
+  document.getElementById("modalContent").innerHTML = `
+    <h2>${w.name}</h2>
+    <p>${w.producer}</p>
+    <p>${w.notes || ""}</p>
+  `;
+  document.getElementById("modal").classList.add("active");
 
-  list = list.filter(w => sectionAllowed(w.sectionKey));
-
-  if (state.activeSection !== 'all') {
-    list = list.filter(w => w.sectionKey === state.activeSection);
-  }
-
-  const q = (state.search || '').trim().toLowerCase();
-  if (q) {
-    list = list.filter(w => {
-      const hay = `${w.title} ${w.sub} ${w.section} ${w.style} ${w.description} ${w.notes}`.toLowerCase();
-      return hay.includes(q);
-    });
-  }
-
-  renderSectionButtons();
-  renderGrid(list);
+  requestAnimationFrame(() => {
+    const el = document.getElementById("wine-" + w.id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
 }
 
-function setActiveSection(sectionKey) {
-  const key = sectionKey || 'all';
-  if (key !== 'all' && !state.sectionsEffective.includes(key)) {
-    state.activeSection = 'all';
+function openWineById(id) {
+  const w = DATA.find(x => x.id === id);
+  if (!w) return;
+  if (w.section && !SECTIONS_ORDER.includes(w.section)) {
+    ACTIVE_SECTION = "All";
   } else {
-    state.activeSection = key;
+    ACTIVE_SECTION = w.section || "All";
   }
-  state.search = $('searchInput').value || '';
-  state.modalWineId = null;
-  syncUrl();
-  closeModal(false);
-  filterAndRender();
+  render();
+  openWine(w);
 }
 
-/**
- * =========================
- * 7) Modal + deep-link ?w=
- * =========================
- */
-function openWineModal(wineId) {
-  const w = state.wines.find(x => x.id === wineId);
-  if (!w) {
-    setStatus('Wine not found', 'idle');
-    return;
-  }
-
-  state.modalWineId = wineId;
-
-  $('modalTopText').textContent = labelForSectionKey(w.sectionKey);
-  $('modalBottle').src = normalizeAssetPath(w.imageUrl || '');
-  $('modalName').textContent = w.title;
-  $('modalSub').textContent = w.sub;
-
-  const tags = $('modalTags');
-  tags.innerHTML = '';
-  const t1 = document.createElement('div');
-  t1.className = 'tag';
-  t1.textContent = labelForSectionKey(w.sectionKey);
-  tags.appendChild(t1);
-
-  if (safe(w.style)) {
-    const t2 = document.createElement('div');
-    t2.className = 'tag';
-    t2.textContent = w.style;
-    tags.appendChild(t2);
-  }
-
-  $('modalDesc').textContent = safe(w.description);
-  $('modalNotes').textContent = safe(w.notes) ? `Notes: ${w.notes}` : '';
-
-  $('modalBack').style.display = 'flex';
-
-  // если пришли по w=... — логично активировать секцию этого вина
-  if (state.activeSection === 'all' || state.activeSection !== w.sectionKey) {
-    if (state.sectionsEffective.includes(w.sectionKey)) {
-      state.activeSection = w.sectionKey;
-    }
-  }
-
-  syncUrl();
-  filterAndRender();
+function closeModal() {
+  document.getElementById("modal").classList.remove("active");
+  setParam("w", null);
 }
-
-function closeModal(sync=true) {
-  $('modalBack').style.display = 'none';
-  if (sync) {
-    state.modalWineId = null;
-    syncUrl();
-  }
-}
-
-$('modalBack').addEventListener('click', (e) => {
-  if (e.target === $('modalBack')) closeModal(true);
-});
-$('closeModalBtn').addEventListener('click', () => closeModal(true));
-
-/**
- * =========================
- * 8) Search debounce (Sprint 2.3.2)
- * =========================
- */
-let searchTimer = null;
-function onSearchDebounced() {
-  if (searchTimer) clearTimeout(searchTimer);
-  searchTimer = setTimeout(() => {
-    state.search = $('searchInput').value || '';
-    filterAndRender();
-  }, 250);
-}
-$('searchInput').addEventListener('input', onSearchDebounced);
-
-/**
- * =========================
- * 9) Boot / init
- * =========================
- */
-async function boot() {
-  try {
-    setStatus('Loading...', 'idle');
-
-    state.configsIndex = await loadConfigsIndex();
-
-    const url = readUrlParams();
-
-    const defaultRestaurant = state.configsIndex?.defaultRestaurant || state.configsIndex?.restaurants?.[0]?.id;
-    state.restaurantId = url.r || defaultRestaurant;
-
-    state.config = await loadRestaurantConfig(state.restaurantId);
-
-    const defaultLang = state.config.defaultLanguage || 'en';
-    state.lang = (url.lang && state.config.enabledLanguages?.includes(url.lang)) ? url.lang : defaultLang;
-
-    // UI selects
-    const rs = $('restaurantSelect');
-    rs.innerHTML = '';
-    for (const r of state.configsIndex.restaurants) {
-      const opt = document.createElement('option');
-      opt.value = r.id;
-      opt.textContent = r.label || r.id;
-      if (r.id === state.restaurantId) opt.selected = true;
-      rs.appendChild(opt);
-    }
-
-    const ls = $('langSelect');
-    ls.innerHTML = '';
-    for (const l of state.config.enabledLanguages || ['en']) {
-      const opt = document.createElement('option');
-      opt.value = l;
-      opt.textContent = l.toUpperCase();
-      if (l === state.lang) opt.selected = true;
-      ls.appendChild(opt);
-    }
-
-    $('pillRestaurant').textContent = state.restaurantId;
-    $('pillLang').textContent = state.lang;
-
-    $('restaurantName').textContent = state.config.name || state.restaurantId;
-    $('logo').src = normalizeAssetPath(state.config.logoUrl || '');
-
-    // Load CSV
-    const csvUrl = state.config.csvUrl?.[state.lang] || state.config.csvUrl?.en;
-    if (!csvUrl) throw new Error('No csvUrl for selected language');
-
-    const csvText = await loadCSV(csvUrl);
-    const raw = csvToObjects(csvText);
-
-    // Map raw → wines
-    state.wines = raw
-      .map(x => {
-        const section = String(x.section || x.Section || '').trim();
-        const sectionKey = normalizeSectionKey(section);
-        return {
-          id: String(x.id || x.ID || '').trim(),
-          title: String(x.title || x.name || '').trim(),
-          sub: String(x.sub || x.subtitle || '').trim(),
-          section,
-          sectionKey,
-          style: String(x.style || '').trim(),
-          description: String(x.description || x.desc || '').trim(),
-          notes: String(x.notes || '').trim(),
-          imageUrl: String(x.imageUrl || x.image || '').trim(),
-          priceBottle: String(x.priceBottle || x.price || '').trim(),
-          priceGlass: String(x.priceGlass || '').trim()
-        };
-      })
-      .filter(w => w.id && w.title);
-
-    // sectionsEffective из config + данных
-    state.sectionsEffective = computeSectionsEffective(state.wines, state.config);
-
-    // Active section from URL
-    const urlSection = url.section;
-    if (urlSection && urlSection !== 'all') {
-      if (state.sectionsEffective.includes(urlSection)) state.activeSection = urlSection;
-      else state.activeSection = 'all';
-    } else {
-      state.activeSection = 'all';
-    }
-
-    setStatus('Ready', 'good');
-    syncUrl();
-    filterAndRender();
-
-    // Deep-link wine
-    if (url.w) {
-      const w = state.wines.find(x => x.id === url.w);
-      if (w) {
-        openWineModal(w.id);
-      } else {
-        setStatus('Wine not found', 'idle');
-      }
-    }
-
-    // Select change handlers
-    rs.onchange = async () => {
-      state.cache.csvByUrl.clear(); // при смене ресторана не обязательно, но безопасно
-      writeUrlParams({ r: rs.value, w: null });
-      window.location.reload();
-    };
-
-    ls.onchange = () => {
-      writeUrlParams({ lang: ls.value, w: null });
-      window.location.reload();
-    };
-
-  } catch (err) {
-    console.error(err);
-    setStatus('Error: ' + err.message, 'idle');
-  }
-}
-
-boot();
 </script>
 </body>
 </html>

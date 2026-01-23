@@ -66,6 +66,11 @@ Control sections order and provide convenient deep-links for manager / sommelier
   - Open modal and update URL with `w=<wine_id>`.
 - On modal close:
   - Remove `w` from the URL.
+**Status:** ✅ Done
+
+- Opens wine modal when `?w=<wine_id>` is present on load
+- Updates URL with `w` when a wine card is opened
+- Removes `w` from URL on modal close
 
 ---
 

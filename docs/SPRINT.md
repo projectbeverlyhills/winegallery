@@ -84,8 +84,17 @@ Control sections order and provide convenient deep-links for manager / sommelier
 **Description / DoD:**
 - Cache loaded config and CSV data in memory.
 - Do NOT refetch data on section changes if restaurant/language did not change.
+**Status:** ✅ Done
+
+- Config and CSV are cached in memory for the session
+- Section changes do not trigger re-fetch if r/lang are unchanged
+
 
 ### Subtask 2.3.2 — Debounce search input (200–300 ms)
 **Description / DoD:**
 - Apply debounce to search input.
 - Reduce unnecessary re-renders while keeping UI responsive.
+**Status:** ✅ Done
+
+- Search input is debounced (250ms)
+- Reduces unnecessary re-renders while staying responsive on mobile

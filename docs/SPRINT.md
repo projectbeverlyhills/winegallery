@@ -51,6 +51,12 @@ Control sections order and provide convenient deep-links for manager / sommelier
   - Read `section` from URL and activate it.
 - On section click:
   - Update URL with the active section key.
+  **Status:** ✅ Done
+
+- Applies active section from URL on initial load
+- Updates URL when section is changed via UI
+- Removes `section` param when "All" is selected
+
 
 ### Subtask 2.2.2 — Support `?w=<wine_id>` (modal behavior)
 **Description / DoD:**

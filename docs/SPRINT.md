@@ -28,6 +28,7 @@ Control sections order and provide convenient deep-links for manager / sommelier
   - `configs/peopletalk.json`
   - `configs/novikov_bh.json`
 - Define the desired section order explicitly in config.
+**Status:** ✅ Done
 
 ### Subtask 2.1.2 — Use `sectionsOrder` as the source of truth
 **Description / DoD:**
@@ -36,6 +37,16 @@ Control sections order and provide convenient deep-links for manager / sommelier
   - Follow the exact order from config.
 - If `sectionsOrder` is missing:
   - Fallback to data-derived order (temporary behavior).
+**Status:** ✅ Done
+
+### Subtask 2.1.3 — Language-specific sections order (`sectionsOrderByLang`)
+**Description / DoD:**
+- Support `sectionsOrderByLang[lang]` in config for restaurants where section labels differ per language.
+- Fallback chain:
+  1) `sectionsOrderByLang[lang]` (if present and non-empty)
+  2) `sectionsOrder`
+  3) data-derived sections (only if config produced no matches)
+**Status:** ✅ Done
 
 ---
 
@@ -51,12 +62,11 @@ Control sections order and provide convenient deep-links for manager / sommelier
   - Read `section` from URL and activate it.
 - On section click:
   - Update URL with the active section key.
-  **Status:** ✅ Done
+**Status:** ✅ Done
 
 - Applies active section from URL on initial load
 - Updates URL when section is changed via UI
 - Removes `section` param when "All" is selected
-
 
 ### Subtask 2.2.2 — Support `?w=<wine_id>` (modal behavior)
 **Description / DoD:**
@@ -89,7 +99,6 @@ Control sections order and provide convenient deep-links for manager / sommelier
 - Config and CSV are cached in memory for the session
 - Section changes do not trigger re-fetch if r/lang are unchanged
 
-
 ### Subtask 2.3.2 — Debounce search input (200–300 ms)
 **Description / DoD:**
 - Apply debounce to search input.
@@ -98,3 +107,30 @@ Control sections order and provide convenient deep-links for manager / sommelier
 
 - Search input is debounced (250ms)
 - Reduces unnecessary re-renders while staying responsive on mobile
+
+---
+
+## Task 2.4 — Data mapping correctness (CSV → UI fields)
+### Description / DoD
+- All UI fields must be mapped from CSV headers explicitly.
+- Prevent silent “empty UI” bugs caused by mismatched column names.
+
+### Subtask 2.4.1 — Fix bottle image mapping
+**Description / DoD:**
+- Map CSV column `bottle_img` → internal field `imageUrl`.
+- Bottle images must render in cards and modal.
+**Status:** ✅ Done
+
+### Subtask 2.4.2 — Normalize booleans and avoid “no wines after filters”
+**Description / DoD:**
+- `visible` / `is_available` must be normalized to real booleans.
+- Must accept "yes/no", "true/false", "1/0", and handle non-breaking spaces.
+**Status:** ✅ Done
+
+### Subtask 2.4.3 — QA sanity checks (console)
+**Description / DoD:**
+- Confirm in console that:
+  - `state.wines.length > 0`
+  - first wine has mapped keys: `id,title,section,sectionKey,imageUrl,priceGlass,priceBottle,visible,available`
+  - `state.sectionsEffective` matches expected tabs for current `lang`
+**Status:** ✅ Done

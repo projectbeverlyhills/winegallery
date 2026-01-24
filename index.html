@@ -570,6 +570,15 @@ function csvToObjects(csvText) {
   }
   return objects;
 }
+function toBool(v) {
+  const s = String(v ?? '')
+    .replace(/\u00A0/g, ' ') // защита от Google Sheets
+    .trim()
+    .toLowerCase();
+
+  if (s === '') return true; // пусто = считаем "да"
+  return ['1', 'true', 'yes', 'y', 'on'].includes(s);
+}
 
 /**
  * =========================
@@ -619,7 +628,8 @@ async function loadCSV(csvUrl) {
  * - секции, которых нет в sectionsOrder — скрываем (строго)
  * - НО: сравнение идёт по нормализованным ключам sectionKey, чтобы не ловить "пустой экран"
  */
-function computeSectionsEffective(wines, config) {
+function computeSectionsEffective(wines, config, lang) {
+
   const labelsFromData = {};
   const keysInData = new Set();
 
@@ -630,7 +640,12 @@ function computeSectionsEffective(wines, config) {
   }
 
   const labelsFromConfig = {};
-  const rawOrder = Array.isArray(config?.sectionsOrder) ? config.sectionsOrder : [];
+  const rawOrderCandidate =
+  (config?.sectionsOrderByLang && lang && config.sectionsOrderByLang[lang]) ??
+  config?.sectionsOrder;
+
+const rawOrder = Array.isArray(rawOrderCandidate) ? rawOrderCandidate : [];
+
   const normalizedOrder = rawOrder
     .map(x => {
       const label = String(x ?? '').trim();
@@ -818,7 +833,7 @@ function setActiveSection(sectionKey) {
  * 7) Modal + deep-link ?w=
  * =========================
  */
-function openWineModal(wineId) {
+function openWineModal(wineId, pushHistory = true) {
   const w = state.wines.find(x => x.id === wineId);
   if (!w) {
     setStatus('Wine not found', 'idle');
@@ -858,7 +873,8 @@ function openWineModal(wineId) {
     }
   }
 
-  syncUrl('push');
+  if (pushHistory) syncUrl('push');
+else syncUrl('replace');
   filterAndRender();
 }
 
@@ -949,30 +965,90 @@ async function boot() {
 
     const csvText = await loadCSV(csvUrl);
     const raw = csvToObjects(csvText);
+    // --- Sprint 2 QA: quick diagnostics (safe logs) ---
+console.log('[WineGallery] restaurant:', state.restaurantId, 'lang:', state.lang);
+console.log('[WineGallery] csvUrl:', csvUrl);
+console.log('[WineGallery] raw rows:', raw.length);
+if (raw[0]) console.log('[WineGallery] raw headers:', Object.keys(raw[0]));
 
-    // Map raw → wines
-    state.wines = raw
-      .map(x => {
-        const section = String(x.section || x.Section || '').trim();
-        const sectionKey = normalizeSectionKey(section);
-        return {
-          id: String(x.id || x.ID || '').trim(),
-          title: String(x.title || x.name || '').trim(),
-          sub: String(x.sub || x.subtitle || '').trim(),
-          section,
-          sectionKey,
-          style: String(x.style || '').trim(),
-          description: String(x.description || x.desc || '').trim(),
-          notes: String(x.notes || '').trim(),
-          imageUrl: String(x.imageUrl || x.image || '').trim(),
-          priceBottle: String(x.priceBottle || x.price || '').trim(),
-          priceGlass: String(x.priceGlass || '').trim()
-        };
-      })
-      .filter(w => w.id && w.title);
+
+function toBool(v) {
+  const s = String(v ?? '').trim().toLowerCase();
+  if (!s) return true;                 // пусто считаем "да" (чтобы не скрыть случайно)
+  return ['1','true','yes','y','on'].includes(s);
+}
+
+function toNum(v) {
+  const n = Number(String(v ?? '').replace(',', '.').trim());
+  return isFinite(n) ? n : null;
+}
+
+function buildTitle(x) {
+  const producer = String(x.producer ?? '').trim();
+  const name = String(x.name ?? '').trim();
+  const vintage = String(x.vintage ?? '').trim();
+
+  // Пример: "Gaja Barbaresco 2019"
+  const base = [producer, name].filter(Boolean).join(' ');
+  return [base, vintage].filter(Boolean).join(' ');
+}
+
+function buildSub(x) {
+  // Можно менять как хочешь. Сейчас: Country • Region • Grape
+  const country = String(x.country ?? '').trim();
+  const region = String(x.region ?? '').trim();
+  const grape = String(x.grape ?? '').trim();
+  return [country, region, grape].filter(Boolean).join(' • ');
+}
+
+// Map raw → wines (строго под твои CSV-колонки)
+state.wines = raw
+  .map(x => {
+    const section = String(x.section ?? '').trim();
+    const sectionKey = normalizeSectionKey(section);
+
+    const visible = toBool(x.visible);
+    const available = toBool(x.is_available);
+
+    return {
+      // IDs
+      id: String(x.id ?? '').trim(),
+
+      // UI text
+      title: buildTitle(x),
+      sub: buildSub(x),
+
+      // grouping
+      section,
+      sectionKey,
+
+      // wine meta
+      style: String(x.style ?? '').trim(),
+      description: String(x.story ?? '').trim(),   // story → description
+      notes: String(x.notes ?? '').trim(),
+
+      // images + prices
+      imageUrl: String(x.bottle_img ?? '').trim(), // bottle_img → imageUrl
+      priceGlass: x.btg_price ?? '',               // btg_price → priceGlass
+      priceBottle: x.bottle_price ?? '',           // bottle_price → priceBottle
+
+      // extra (на будущее)
+      order: toNum(x.order),
+      raw: x,
+
+      // flags
+      visible,
+      available,
+    };
+  })
+  // фильтры чтобы не показывать мусор
+  .filter(w => w.id && w.title)
+  // скрыть невидимые / недоступные
+  .filter(w => w.visible && w.available);
+
 
     // sectionsEffective из config + данных
-    state.sectionsEffective = computeSectionsEffective(state.wines, state.config);
+    state.sectionsEffective = computeSectionsEffective(state.wines, state.config, state.lang);
 
     // Active section from URL
     const urlSection = url.section;
@@ -1013,7 +1089,31 @@ async function boot() {
     console.error(err);
     setStatus('Error: ' + err.message, 'idle');
   }
+  // --- Sprint 2 QA: mapping sanity check ---
+const sample = state.wines[0];
+if (!sample) {
+  console.warn('[WineGallery] No wines after mapping/filters. Check visible/is_available and required fields.');
+} else {
+  const required = ['id','title','section','sectionKey','style','description','notes','imageUrl','priceBottle','priceGlass'];
+  const missing = required.filter(k => !(k in sample));
+  if (missing.length) console.warn('[WineGallery] Missing keys in mapped wine:', missing);
+
+  // check values (not just keys)
+  const emptyImportant = [];
+  if (!String(sample.id || '').trim()) emptyImportant.push('id');
+  if (!String(sample.title || '').trim()) emptyImportant.push('title');
+  if (!String(sample.sectionKey || '').trim()) emptyImportant.push('sectionKey');
+
+  // image url should often exist (not always), so warn only if MANY are empty
+  const noImgCount = state.wines.filter(w => !String(w.imageUrl || '').trim()).length;
+  const imgRatio = state.wines.length ? (noImgCount / state.wines.length) : 0;
+
+  if (emptyImportant.length) console.warn('[WineGallery] Important fields empty in sample:', emptyImportant, sample);
+  if (imgRatio > 0.5) console.warn('[WineGallery] More than half wines have empty imageUrl. Check CSV column bottle_img and mapping.');
 }
+}
+
+
 window.addEventListener('popstate', () => {
   const url = readUrlParams();
 
@@ -1027,7 +1127,7 @@ window.addEventListener('popstate', () => {
 
   // wine modal from URL
   if (url.w) {
-    if (state.modalWineId !== url.w) openWineModal(url.w);
+    if (state.modalWineId !== url.w) openWineModal(url.w, false);
   } else {
     if (state.modalWineId) closeModal(false); // false = не трогаем URL, он уже изменён браузером
     state.modalWineId = null;

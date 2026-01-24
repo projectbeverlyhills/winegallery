@@ -6,6 +6,10 @@
   "defaultLanguage": "en",
   "enabledLanguages": ["en", "es"],
   "sectionsOrder": ["Sparkling","Champagne","White","Rosé","Red","Dessert wines"],
+  "sectionsOrderByLang": {
+  "en": ["Sparkling", "Champagne", "White", "Rosé", "Red", "Dessert wines"],
+  "es": ["Espumosos", "Champagne", "Blancos", "Rosados", "Tintos", "Vinos de Postre"]
+},
   "csvUrl": {
     "en": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=938845198&single=true&output=csv",
     "es": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=379411074&single=true&output=csv"

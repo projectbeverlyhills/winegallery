@@ -55,3 +55,19 @@
 - Deep-links are reliable and shareable.
 - CSV → UI mapping is explicit and protected against silent failures.
 - Project is ready for Sprint 3 without technical debt from Sprint 2.
+
+## 2026-01-27 — Sprint 3 (partial)
+
+### Done
+- 3.1 Search: haystack (name/producer/region/grape) + debounce + clear button.
+- 3.2 86-mode: `hide86` config support; when visible, unavailable wines show "86" in price area and card dimming.
+- 3.3 Language switch without full reload: reload CSV per language, recompute sections, sync URL + popstate.
+- 3.4 Deep-link MVP: `?w=` opens modal on load; modal open/close updates URL.
+
+### Partial
+- 3.5 UI unification: compact cards + notes rendered as up to 3 chips (from `notes` field).
+
+### Not done yet
+- 3.6 Accessibility & keyboard support.
+- 3.7 Image placeholders + lazy loading.
+

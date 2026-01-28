@@ -5,6 +5,7 @@
   "logoUrl": "assets/novikov-logo.png",
   "defaultLanguage": "en",
   "enabledLanguages": ["en", "es"],
+  "hide86": false,
   "sectionsOrder": ["Sparkling","Champagne","White","Rosé","Red","Dessert wines"],
   "sectionsOrderByLang": {
   "en": ["Sparkling", "Champagne", "White", "Rosé", "Red", "Dessert wines"],

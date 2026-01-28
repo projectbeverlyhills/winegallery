@@ -134,3 +134,223 @@ Control sections order and provide convenient deep-links for manager / sommelier
   - first wine has mapped keys: `id,title,section,sectionKey,imageUrl,priceGlass,priceBottle,visible,available`
   - `state.sectionsEffective` matches expected tabs for current `lang`
 **Status:** ✅ Done
+---
+
+# Sprint 3 — Product Features & UX
+
+## Description
+This sprint focuses on turning the Wine Gallery from a “nice-looking menu”
+into a real, sellable product with strong UX and operational features.
+
+The sprint improves:
+- search quality and speed,
+- availability (86) management,
+- language switching without page reload,
+- deep-links to specific wines,
+- visual consistency, mobile UX, and accessibility.
+
+The functionality must work identically for both restaurants.
+
+## Goal
+Make the Wine Gallery fast, controllable, shareable, and comfortable to use
+for guests, managers, and sommeliers.
+
+---
+
+## Definition of Done (DoD)
+
+A user can:
+- quickly find a wine using search,
+- hide or mark wines as unavailable (86),
+- switch language without a full page reload,
+- open a wine via a direct link,
+- comfortably use the menu on mobile devices,
+- navigate the UI with keyboard and screen readers.
+
+---
+
+## Task 3.1 — Search by key wine fields
+
+### Description / DoD
+- Search must work without noticeable lag.
+- Search must include at least:
+  - wine name,
+  - producer,
+  - region,
+  - grape.
+- Behavior must be identical for both restaurants.
+- Search operates only within the currently selected language.
+
+---
+
+### Subtask 3.1.1 — Build search index (haystack)
+
+**Description / DoD:**
+- Build a single searchable string (haystack) per wine.
+- Combine relevant fields (name, producer, region, grape).
+- Normalize values (case-insensitive, trimmed).
+- Search implementation uses `includes()`.
+
+**Implementation order:** Phase 1
+
+---
+
+### Subtask 3.1.2 — Search debounce and clear behavior
+
+**Description / DoD:**
+- Debounce search input (200–300 ms).
+- Provide clear/reset behavior.
+- Ensure correct UX on mobile devices.
+
+**Implementation order:** Phase 2
+
+---
+
+## Task 3.2 — Availability (is_available) and “86” mode
+
+### Description / DoD
+- Availability of wines is controlled via `is_available`.
+- Behavior is configurable:
+  - hide unavailable wines, or
+  - show them with an “86” badge.
+
+---
+
+### Subtask 3.2.1 — `hide86` config option and badge
+
+**Description / DoD:**
+- Add `hide86: true | false` to restaurant config.
+- If `hide86 = true`:
+  - wines with `is_available = false` are hidden.
+- If `hide86 = false`:
+  - wines remain visible and show an “86” badge.
+- Option is global per restaurant.
+
+**Implementation order:** Phase 3
+
+---
+
+## Task 3.3 — Language switch without full page reload
+
+### Description / DoD
+- Language switching must not trigger `window.location.reload()`.
+- UI updates dynamically.
+- URL is updated accordingly.
+
+---
+
+### Subtask 3.3.1 — Sync language with URL and UI
+
+**Description / DoD:**
+- Update `?lang=` in URL when language changes.
+- Reload CSV data for the selected language only.
+- Recompute sections and wine cards.
+- Fallback correctly to `defaultLanguage`.
+
+**Implementation order:** Phase 4
+
+---
+
+## Task 3.4 — Deep-link to a specific wine
+
+### Description / DoD
+- Support URLs like `?r=restaurant&lang=en&w=wine_id`.
+- Opening the link opens the correct wine.
+
+---
+
+### Subtask 3.4.1 — Modal-based MVP solution
+
+**Description / DoD:**
+- Use modal as the MVP solution.
+- If `w` is present in URL:
+  - open the wine modal on load.
+- When modal opens:
+  - update URL with `w`.
+- When modal closes:
+  - remove `w` from URL.
+
+**Implementation order:** Phase 5
+
+---
+
+## Task 3.5 — Card layout and typography unification
+
+### Description / DoD
+- Wine cards follow a single visual standard.
+- Clear hierarchy:
+  - title,
+  - producer,
+  - region,
+  - prices.
+- Consistent spacing and alignment.
+
+---
+
+### Subtask 3.5.1 — Compact cards and notes as chips
+
+**Description / DoD:**
+- Reduce card height.
+- Make “story” more compact.
+- Render `notes_profile` as up to 3 visual chips.
+
+**Implementation order:** Phase 6
+
+---
+
+### Subtask 3.5.2 — Mobile layout improvements
+
+**Description / DoD:**
+- Single-column layout on mobile.
+- Larger tap targets.
+- Comfortable scrolling and interaction.
+
+**Implementation order:** Phase 7
+
+---
+
+## Task 3.6 — Accessibility and keyboard support
+
+### Description / DoD
+- Improve accessibility for keyboard and screen readers.
+
+---
+
+### Subtask 3.6.1 — Focus and tab navigation
+
+**Description / DoD:**
+- `Esc` closes the modal.
+- Correct focus handling.
+- Logical tab order for buttons and selects.
+- Visible and clear focus outline.
+- Proper `aria-label`s where needed.
+
+**Implementation order:** Phase 8
+
+---
+
+## Task 3.7 — Images and placeholders
+
+### Description / DoD
+- Wine cards must not break if bottle image is missing or broken.
+
+---
+
+### Subtask 3.7.1 — Placeholder image
+
+**Description / DoD:**
+- Add local placeholder image:
+  - `assets/placeholder-bottle.png` or `.svg`.
+- Use placeholder when `bottle_img` is missing or invalid.
+
+**Implementation order:** Phase 9
+
+---
+
+### Subtask 3.7.2 — Lazy-loading images
+
+**Description / DoD:**
+- Use `loading="lazy"` for bottle images.
+- Ensure graceful fallback behavior.
+
+**Implementation order:** Phase 10

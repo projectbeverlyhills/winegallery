@@ -112,6 +112,21 @@
       padding: 7px 10px;
       font-size: 12px;
     }
+    .iconBtn{
+      cursor:pointer;
+      border-radius: 12px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      padding: 6px 10px;
+      font-size: 16px;
+      line-height: 1;
+      display: none; /* по умолчанию скрыта */
+      }
+    .iconBtn:hover{
+  border-color: var(--stroke2);
+    }
+
     select{
       padding-right: 28px;
     }
@@ -174,7 +189,64 @@
     @media (max-width: 930px){
       .grid{ grid-template-columns: 1fr; }
       input{ min-width: 160px; }
+
+      /* card becomes more compact + tap friendly */
+      .card{
+        padding: 14px 14px 12px;
+      }
+
+      .row{
+        gap: 12px;
+      }
+
+      .bottle{
+        width: 74px;
+        height: 122px;
+        padding: 7px;
+      }
+
+      .name{
+        font-size: 14px;
+      }
+
+      .sub{
+        font-size: 12px;
+        margin-bottom: 6px;
+      }
+
+      /* prices smaller to avoid collisions */
+      .price{
+        font-size: 13px;
+        min-width: 64px;
+      }
+      .price small{
+        font-size: 11px;
+      }
+
+      /* make chips line wrap nicely */
+      .tags{
+        gap:6px;
+        margin-bottom: 8px;
+      }
+      .tag{
+        font-size: 10.5px;
+        padding: 4px 7px;
+      }
+
+      /* description slightly shorter on mobile */
+      .desc{
+        max-height: 4.05em;
+      }
+
+      /* notes chips wrap better */
+      .notes{
+        display:flex;
+        gap:6px;
+        flex-wrap:wrap;
+        margin-top: 8px;
+      }
     }
+
     .card{
       position:relative;
       border-radius: var(--radius);
@@ -265,14 +337,21 @@
       line-height: 1.35;
       color: rgba(255,255,255,0.80);
       margin-top: 8px;
-      max-height: 5.3em;
+      max-height: 4.05em;
       overflow: hidden;
     }
     .notes{
-      font-size: 11px;
-      color: var(--muted2);
       margin-top: 10px;
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      align-items:center;
     }
+    .notes .tag{
+      background: rgba(255,255,255,0.03);
+      color: rgba(255,255,255,0.70);
+    }
+
     .cardBtn{
       position:absolute;
       inset:0;
@@ -337,18 +416,39 @@
       font-size: 13px;
       line-height: 1.45;
     }
-    .closeBtn{
-      cursor:pointer;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.14);
-      padding: 7px 10px;
-      background: rgba(255,255,255,0.06);
-      color: rgba(255,255,255,0.85);
-      font-size: 12px;
-    }
-    .closeBtn:hover{
-      border-color: rgba(255,255,255,0.22);
-    }
+   .closeBtn{
+    cursor:pointer;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.14);
+    padding: 7px 10px;
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.85);
+    font-size: 12px;
+    min-height: 36px;
+  }
+.closeBtn:hover{
+  border-color: rgba(255,255,255,0.22);
+}
+
+/* 86 badge (card) */
+.badge86{
+  position:absolute;
+  top: 12px;
+  right: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255, 90, 90, 0.16);
+  color: rgba(255,255,255,0.92);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+}
+
+.card.is86{
+  opacity: 0.78;
+}
+
   </style>
 </head>
 <body>
@@ -370,6 +470,7 @@
         <select id="langSelect" title="Language"></select>
 
         <input id="searchInput" placeholder="Search..." />
+        <button id="clearSearchBtn" class="iconBtn" type="button" title="Clear search" aria-label="Clear search">×</button>
         <div class="status" id="statusPill"><span class="dot" id="statusDot"></span> <span id="statusText">Idle</span></div>
       </div>
     </div>
@@ -579,6 +680,22 @@ function toBool(v) {
   if (s === '') return true; // пусто = считаем "да"
   return ['1', 'true', 'yes', 'y', 'on'].includes(s);
 }
+function buildSearchHaystack(parts) {
+  return parts
+    .map(v => String(v ?? '').replace(/\u00A0/g, ' ').trim().toLowerCase())
+    .filter(Boolean)
+    .join(' ');
+}
+
+function parseNotesChips(s) {
+  return String(s || '')
+    .split(/[|,;]/g)     // поддержка | , ;
+    .map(x => x.trim().replace(/_/g, ' '))
+    .filter(Boolean)
+    .slice(0, 3);
+}
+
+
 
 /**
  * =========================
@@ -712,6 +829,7 @@ function renderGrid(list) {
   for (const w of list) {
     const card = document.createElement('div');
     card.className = 'card';
+    if (!w.available) card.classList.add('is86');
 
     const row = document.createElement('div');
     row.className = 'row';
@@ -743,12 +861,24 @@ function renderGrid(list) {
 
     const price = document.createElement('div');
     price.className = 'price';
-    price.innerHTML = safe(w.priceBottle) ? `${money(w.priceBottle)}` : '';
-    if (safe(w.priceGlass)) {
-      const sm = document.createElement('small');
-      sm.textContent = `${money(w.priceGlass)} / glass`;
-      price.appendChild(sm);
+
+    if (!w.available) {
+      // ❌ вина нет → вместо цены показываем 86
+      price.textContent = '86';
+      price.style.opacity = '0.85';
+      price.style.fontWeight = '800';
+    } else {
+      // ✅ обычная цена
+      if (safe(w.priceBottle)) {
+        price.textContent = money(w.priceBottle);
+      }
+      if (safe(w.priceGlass)) {
+        const sm = document.createElement('small');
+        sm.textContent = `${money(w.priceGlass)} / glass`;
+        price.appendChild(sm);
+      }
     }
+
 
     head.appendChild(left);
     head.appendChild(price);
@@ -773,7 +903,20 @@ function renderGrid(list) {
 
     const notes = document.createElement('div');
     notes.className = 'notes';
-    notes.textContent = safe(w.notes) ? `Notes: ${w.notes}` : '';
+
+    const chips = parseNotesChips(w.notes);
+    if (chips.length) {
+      notes.textContent = ''; // контейнер будет пустым, chips покажем ниже
+      for (const c of chips) {
+        const t = document.createElement('div');
+        t.className = 'tag';
+        t.textContent = c;
+        notes.appendChild(t);
+      }
+    } else {
+      notes.textContent = '';
+    }
+
 
     meta.appendChild(head);
     meta.appendChild(tags);
@@ -795,6 +938,10 @@ function renderGrid(list) {
 
 function filterAndRender() {
   let list = state.wines.slice();
+  if (state.config?.hide86) {
+  list = list.filter(w => w.available);
+}
+
 
   list = list.filter(w => sectionAllowed(w.sectionKey));
 
@@ -804,10 +951,10 @@ function filterAndRender() {
 
   const q = (state.search || '').trim().toLowerCase();
   if (q) {
-    list = list.filter(w => {
-      const hay = `${w.title} ${w.sub} ${w.section} ${w.style} ${w.description} ${w.notes}`.toLowerCase();
-      return hay.includes(q);
-    });
+  list = list.filter(w => {
+    const hay = w.searchHaystack || '';
+    return hay.includes(q);
+  });
   }
 
   renderSectionButtons();
@@ -842,7 +989,9 @@ function openWineModal(wineId, pushHistory = true) {
 
   state.modalWineId = wineId;
 
-  $('modalTopText').textContent = labelForSectionKey(w.sectionKey);
+  const top = $('modalTopText');
+  top.textContent = labelForSectionKey(w.sectionKey) + (w.available ? '' : ' • 86');
+
   $('modalBottle').src = normalizeAssetPath(w.imageUrl || '');
   $('modalName').textContent = w.title;
   $('modalSub').textContent = w.sub;
@@ -862,7 +1011,24 @@ function openWineModal(wineId, pushHistory = true) {
   }
 
   $('modalDesc').textContent = safe(w.description);
-  $('modalNotes').textContent = safe(w.notes) ? `Notes: ${w.notes}` : '';
+    const mn = $('modalNotes');
+    mn.innerHTML = '';
+
+    const chips = parseNotesChips(w.notes);
+
+    if (!chips.length) {
+      mn.style.display = 'none';
+    } else {
+      mn.style.display = 'flex';
+    }
+    
+    for (const c of chips) {
+      const t = document.createElement('div');
+      t.className = 'tag';
+      t.textContent = c;
+      mn.appendChild(t);
+    }
+
 
   $('modalBack').style.display = 'flex';
 
@@ -902,7 +1068,9 @@ $('closeModalBtn').addEventListener('click', () => closeModal(true));
  * =========================
  */
 let searchTimer = null;
+
 function onSearchDebounced() {
+  syncClearButton();
   if (searchTimer) clearTimeout(searchTimer);
   searchTimer = setTimeout(() => {
     state.search = $('searchInput').value || '';
@@ -910,6 +1078,172 @@ function onSearchDebounced() {
   }, 250);
 }
 $('searchInput').addEventListener('input', onSearchDebounced);
+
+function syncClearButton() {
+  const has = !!String($('searchInput').value || '').trim();
+  $('clearSearchBtn').style.display = has ? 'inline-flex' : 'none';
+}
+
+function clearSearch() {
+  if (searchTimer) clearTimeout(searchTimer);   // не ждём debounce
+  $('searchInput').value = '';
+  state.search = '';
+  syncClearButton();
+  filterAndRender();
+  $('searchInput').focus();
+}
+
+$('clearSearchBtn').addEventListener('click', clearSearch);
+
+// чтобы кнопка появлялась/исчезала
+$('searchInput').addEventListener('input', () => {
+  syncClearButton();
+});
+
+function getCsvUrlForLang(lang) {
+  return state.config?.csvUrl?.[lang] || state.config?.csvUrl?.en || null;
+}
+
+// Sprint 3.3: Language switch without full reload
+async function setLanguage(nextLang, opts = {}) {
+  const { fromPopstate = false } = opts;
+
+  // 1) validate + no-op
+  if (!nextLang) return;
+  if (nextLang === state.lang) return;
+  if (!state.config?.enabledLanguages?.includes(nextLang)) {
+    console.warn('[WineGallery] Language not enabled:', nextLang);
+    return;
+  }
+
+  try {
+    setStatus('Loading language...', 'idle');
+
+    // 2) update state
+    state.lang = nextLang;
+
+    // 3) update UI (selects/pills)
+    const ls = $('langSelect');
+    if (ls) ls.value = nextLang;
+
+    $('pillLang').textContent = nextLang;
+
+    // 4) close modal + remove w param
+    state.modalWineId = null;
+    closeModal(false); // закрыть, не трогая URL внутри closeModal()
+    writeUrlParams({ w: null }, 'replace');
+
+    // сбрасываем поиск при смене языка (чтобы не было "пусто" из-за старого запроса)
+    if ($('searchInput')) $('searchInput').value = '';
+    state.search = '';
+    syncClearButton();
+
+
+    // 5) URL обновим в конце, после пересчёта секций/activeSection
+
+    // 6) load CSV for new lang
+    const csvUrl = getCsvUrlForLang(nextLang);
+    if (!csvUrl) throw new Error('No csvUrl for selected language');
+
+    const csvText = await loadCSV(csvUrl);
+    const raw = csvToObjects(csvText);
+
+    // 7) local helpers (same logic as in boot, без выноса/рефакторинга)
+    function toNum(v) {
+      const n = Number(String(v ?? '').replace(',', '.').trim());
+      return isFinite(n) ? n : null;
+    }
+    function buildTitle(x) {
+      const producer = String(x.producer ?? '').trim();
+      const name = String(x.name ?? '').trim();
+      const vintage = String(x.vintage ?? '').trim();
+      const base = [producer, name].filter(Boolean).join(' ');
+      return [base, vintage].filter(Boolean).join(' ');
+    }
+    function buildSub(x) {
+      const country = String(x.country ?? '').trim();
+      const region = String(x.region ?? '').trim();
+      const grape = String(x.grape ?? '').trim();
+      return [country, region, grape].filter(Boolean).join(' • ');
+    }
+
+    // 8) map raw -> wines (как у тебя сейчас)
+    state.wines = raw
+      .map(x => {
+        const section = String(x.section ?? '').trim();
+        const sectionKeyRaw = String(x.section_key ?? '').trim();
+        const sectionKey = normalizeSectionKey(sectionKeyRaw || section);
+
+
+        const visible = toBool(x.visible);
+        const available = toBool(x.is_available);
+
+        const producer = String(x.producer ?? '').trim();
+        const region = String(x.region ?? '').trim();
+        const grape = String(x.grape ?? '').trim();
+
+        const hay = buildSearchHaystack([
+          buildTitle(x),
+          producer,
+          region,
+          grape
+        ]);
+
+        return {
+          id: String(x.id ?? '').trim(),
+          title: buildTitle(x),
+          sub: buildSub(x),
+
+          section,
+          sectionKey,
+
+          producer,
+          region,
+          grape,
+          searchHaystack: hay,
+
+          style: String(x.style ?? '').trim(),
+          description: String(x.story ?? '').trim(),
+          notes: String(x.notes ?? '').trim(),
+
+          imageUrl: String(x.bottle_img ?? '').trim(),
+          priceGlass: x.btg_price ?? '',
+          priceBottle: x.bottle_price ?? '',
+
+          order: toNum(x.order),
+          raw: x,
+
+          visible,
+          available,
+        };
+      })
+      .filter(w => w.id && w.title)
+      .filter(w => w.visible)
+
+    // 9) recompute sections for this language
+    state.sectionsEffective = computeSectionsEffective(state.wines, state.config, state.lang);
+
+    // 10) keep current section if it still exists, else fallback to 'all'
+    const current = state.activeSection || 'all';
+    if (current !== 'all' && !state.sectionsEffective.includes(current)) {
+      state.activeSection = 'all';
+      // обновим URL section тоже (чтобы не было "мертвой" секции)
+      if (!fromPopstate) writeUrlParams({ section: 'all' }, 'replace');
+    }
+    // 11) финальная синхронизация URL (важно: после возможного fallback section)
+    if (!fromPopstate) {
+      syncUrl('replace'); // запишет r/lang/section и удалит w (у тебя w уже null)
+    }
+
+    // 12) re-render
+    setStatus('Ready', 'good');
+    filterAndRender();
+
+  } catch (err) {
+    console.error(err);
+    setStatus('Error: ' + err.message, 'idle');
+  }
+}
 
 /**
  * =========================
@@ -971,13 +1305,6 @@ console.log('[WineGallery] csvUrl:', csvUrl);
 console.log('[WineGallery] raw rows:', raw.length);
 if (raw[0]) console.log('[WineGallery] raw headers:', Object.keys(raw[0]));
 
-
-function toBool(v) {
-  const s = String(v ?? '').trim().toLowerCase();
-  if (!s) return true;                 // пусто считаем "да" (чтобы не скрыть случайно)
-  return ['1','true','yes','y','on'].includes(s);
-}
-
 function toNum(v) {
   const n = Number(String(v ?? '').replace(',', '.').trim());
   return isFinite(n) ? n : null;
@@ -994,7 +1321,7 @@ function buildTitle(x) {
 }
 
 function buildSub(x) {
-  // Можно менять как хочешь. Сейчас: Country • Region • Grape
+  // Можно менять как угодно. Сейчас: Country • Region • Grape
   const country = String(x.country ?? '').trim();
   const region = String(x.region ?? '').trim();
   const grape = String(x.grape ?? '').trim();
@@ -1005,10 +1332,23 @@ function buildSub(x) {
 state.wines = raw
   .map(x => {
     const section = String(x.section ?? '').trim();
-    const sectionKey = normalizeSectionKey(section);
+    const sectionKeyRaw = String(x.section_key ?? '').trim();
+    const sectionKey = normalizeSectionKey(sectionKeyRaw || section);
+
 
     const visible = toBool(x.visible);
     const available = toBool(x.is_available);
+   
+    const producer = String(x.producer ?? '').trim();
+    const region = String(x.region ?? '').trim();
+    const grape = String(x.grape ?? '').trim();
+
+    const searchHaystack = buildSearchHaystack([
+    buildTitle(x),   // уже включает producer + name + vintage
+    producer,
+    region,
+    grape
+    ]);
 
     return {
       // IDs
@@ -1021,6 +1361,12 @@ state.wines = raw
       // grouping
       section,
       sectionKey,
+
+      // ✅ fields for search (Sprint 3.1)
+      producer,
+      region,
+      grape,
+      searchHaystack,
 
       // wine meta
       style: String(x.style ?? '').trim(),
@@ -1041,11 +1387,11 @@ state.wines = raw
       available,
     };
   })
+
   // фильтры чтобы не показывать мусор
   .filter(w => w.id && w.title)
   // скрыть невидимые / недоступные
-  .filter(w => w.visible && w.available);
-
+  .filter(w => w.visible)
 
     // sectionsEffective из config + данных
     state.sectionsEffective = computeSectionsEffective(state.wines, state.config, state.lang);
@@ -1067,7 +1413,7 @@ state.wines = raw
     if (url.w) {
       const w = state.wines.find(x => x.id === url.w);
       if (w) {
-        openWineModal(w.id);
+        openWineModal(w.id, false); // false = replace, не push
       } else {
         setStatus('Wine not found', 'idle');
       }
@@ -1080,10 +1426,10 @@ state.wines = raw
       window.location.reload();
     };
 
-    ls.onchange = () => {
-      writeUrlParams({ lang: ls.value, w: null });
-      window.location.reload();
+    ls.onchange = async () => {
+      await setLanguage(ls.value);
     };
+
 
   } catch (err) {
     console.error(err);
@@ -1116,6 +1462,13 @@ if (!sample) {
 
 window.addEventListener('popstate', () => {
   const url = readUrlParams();
+  // lang from URL (Sprint 3.3)
+  if (url.lang && url.lang !== state.lang) {
+  // смена языка без перезагрузки
+    setLanguage(url.lang, { fromPopstate: true });
+    return; // setLanguage сам перерисует
+  }
+
 
   // section from URL
   const nextSection = url.section || 'all';
@@ -1133,6 +1486,8 @@ window.addEventListener('popstate', () => {
     state.modalWineId = null;
   }
 
+  syncClearButton();
+  
   filterAndRender();
 });
 

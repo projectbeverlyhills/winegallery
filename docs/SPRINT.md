@@ -192,6 +192,7 @@ A user can:
 - Search implementation uses `includes()`.
 
 **Implementation order:** Phase 1
+**Status:** ✅ Done
 
 ---
 
@@ -203,6 +204,7 @@ A user can:
 - Ensure correct UX on mobile devices.
 
 **Implementation order:** Phase 2
+**Status:** ✅ Done
 
 ---
 
@@ -227,6 +229,7 @@ A user can:
 - Option is global per restaurant.
 
 **Implementation order:** Phase 3
+**Status:** ✅ Done
 
 ---
 
@@ -248,6 +251,7 @@ A user can:
 - Fallback correctly to `defaultLanguage`.
 
 **Implementation order:** Phase 4
+**Status:** ✅ Done
 
 ---
 
@@ -271,6 +275,7 @@ A user can:
   - remove `w` from URL.
 
 **Implementation order:** Phase 5
+**Status:** ✅ Done
 
 ---
 
@@ -292,9 +297,10 @@ A user can:
 **Description / DoD:**
 - Reduce card height.
 - Make “story” more compact.
-- Render `notes_profile` as up to 3 visual chips.
+- Render wine tasting notes (`notes` field) as up to 3 visual chips.
 
 **Implementation order:** Phase 6
+**Status:** ✅ Done
 
 ---
 
@@ -306,6 +312,7 @@ A user can:
 - Comfortable scrolling and interaction.
 
 **Implementation order:** Phase 7
+**Status:** ✅ Done
 
 ---
 
@@ -326,6 +333,18 @@ A user can:
 - Proper `aria-label`s where needed.
 
 **Implementation order:** Phase 8
+**Status:** ✅ Done
+
+Subtask 3.6.2 — Section tabs semantics (buttons)
+Description / DoD:
+ • Section tabs are rendered as <button> elements (not <div>).
+ • Active state uses aria-pressed="true".
+Status: ✅ Done
+
+Subtask 3.6.3 — Live status for screen readers
+Description / DoD:
+ • Status pill uses role="status" and aria-live="polite" so SR announces loading/ready/error states.
+Status: ✅ Done
 
 ---
 
@@ -344,6 +363,7 @@ A user can:
 - Use placeholder when `bottle_img` is missing or invalid.
 
 **Implementation order:** Phase 9
+**Status:** ✅ Done
 
 ---
 
@@ -354,3 +374,4 @@ A user can:
 - Ensure graceful fallback behavior.
 
 **Implementation order:** Phase 10
+**Status:** ✅ Done

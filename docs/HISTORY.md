@@ -56,18 +56,54 @@
 - CSV → UI mapping is explicit and protected against silent failures.
 - Project is ready for Sprint 3 without technical debt from Sprint 2.
 
-## 2026-01-27 — Sprint 3 (partial)
+## 2026-01-28 — Sprint 3 (completed)
 
-### Done
-- 3.1 Search: haystack (name/producer/region/grape) + debounce + clear button.
-- 3.2 86-mode: `hide86` config support; when visible, unavailable wines show "86" in price area and card dimming.
-- 3.3 Language switch without full reload: reload CSV per language, recompute sections, sync URL + popstate.
-- 3.4 Deep-link MVP: `?w=` opens modal on load; modal open/close updates URL.
+### Product features & UX
+- Implemented fast, language-aware search:
+  - unified search haystack (name / producer / region / grape),
+  - debounced input (250 ms),
+  - clear/reset behavior with proper mobile UX.
+- Added availability (86) management:
+  - global hide86 config option per restaurant,
+  - unavailable wines either hidden or shown as “86” directly in price area,
+  - visual dimming for unavailable items.
 
-### Partial
-- 3.5 UI unification: compact cards + notes rendered as up to 3 chips (from `notes` field).
+### Language & navigation
+- Implemented language switch without full page reload:
+  - reloads CSV per selected language only,
+  - recomputes sections and active state,
+  - keeps URL in sync (?lang=) including popstate handling.
+- Completed deep-link MVP for wines:
+  - ?w=<wine_id> opens modal on load,
+  - modal open/close updates URL state,
+  - section auto-adjusts when opening a wine.
 
-### Not done yet
-- 3.6 Accessibility & keyboard support.
-- 3.7 Image placeholders + lazy loading.
+### UI & mobile experience
+- Unified wine card layout and typography:
+  - compact card design,
+  - clear hierarchy (title / sub / prices),
+  - tasting notes rendered as up to 3 visual chips from notes field.
+- Improved mobile UX:
+  - single-column layout,
+  - larger tap targets,
+  - better wrapping and spacing for chips and text.
 
+### Accessibility
+- Added keyboard and accessibility support:
+  - Esc closes modal only when open,
+  - focus trap inside modal (Tab / Shift+Tab),
+  - logical tab order for controls,
+  - visible focus outline,
+  - proper aria-labels for interactive elements,
+  - section tabs use semantic buttons + pressed state,
+  - status pill announces loading/ready via aria-live.
+
+### Images & robustness
+- Added bottle image placeholder:
+  - UI remains stable if bottle_img is missing or broken.
+- Enabled native lazy-loading (loading="lazy") for bottle images to improve performance on large menus.
+
+### Result
+- Sprint 3 completed successfully.
+- Wine Gallery is now a production-ready, fast, accessible, and shareable product.
+- UX is consistent across restaurants, languages, desktop, and mobile.

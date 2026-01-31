@@ -474,3 +474,105 @@
 
 - Поле `hide86` добавлено в оба конфига с начальным значением `false`
 - Логика фильтрации и отображения "Out of stock" уже была реализована в Sprint 3
+
+---
+
+# Sprint 5 — PeopleTalk pairing + профиль notes (иконки/чипы)
+
+## Description
+Этот спринт фокусируется на функциях, которые «продают»:
+food pairing и понятные tasting notes,
+чтобы карточки и модалка вина
+были интуитивными и визуально читаемыми.
+Реализация ориентирована на PeopleTalk
+и отличается от Novikov на уровне UI и логики.
+
+## Goal
+Функции, которые «продают»:
+pairing и понятные notes.
+
+---
+
+## Definition of Done (DoD)
+
+- Pairing отображается только для PeopleTalk.
+- В Novikov pairing полностью скрыт.
+- Notes отображаются как 3 визуальных токена.
+- Токены имеют человекочитаемые названия (en/es).
+- Используется MVP-реализация иконок.
+- Модалка вина поддерживает deep-links.
+
+---
+
+## Task 5.1 — Pairing только для PeopleTalk
+
+### Description / DoD
+- Показывать блок pairing в карточке/модалке
+  только при `r=peopletalk`.
+
+### Subtask 5.1.1 — UI для pairing (место и стиль)
+
+**Description / DoD:**
+- Определить, где показывать pairing:
+  карточка или модалка.
+- В Novikov pairing скрыт полностью.
+
+**Status:** ✅ Done
+
+- Pairing отображается только в модалке для PeopleTalk
+- В Novikov pairing полностью скрыт
+
+---
+
+## Task 5.2 — Notes profile: 3 ощущения (tokens)
+
+### Description / DoD
+- Парсить `notes_profile` вида
+  `citrus|green_apple|stone_fruit`.
+- Рендерить notes как 3 чипа / иконки.
+
+### Subtask 5.2.1 — Словарь токенов → человекочитаемые названия (en/es)
+
+**Description / DoD:**
+- Маппинг токенов в человекочитаемые названия.
+- Пример:
+  `green_apple → Green apple / Manzana verde`.
+- Язык зависит от текущего языка UI.
+
+**Status:** ✅ Done
+
+- Реализован словарь токенов TOKEN_DICTIONARY с 25+ токенами и их переводами
+- Названия токенов отображаются в зависимости от языка UI (en/es)
+
+---
+
+### Subtask 5.2.2 — Иконки/эмодзи или мини-svg (MVP)
+
+**Description / DoD:**
+- MVP:
+  эмодзи или простые svg из assets.
+- Реализация допускает дальнейшее улучшение.
+
+**Status:** ✅ Done
+
+- Используются эмоджи для каждого токена (MVP)
+- Архитектура позволяет заменить эмоджи на SVG без изменения логики
+
+---
+
+## Task 5.3 — Модалка (детали вина)
+
+### Description / DoD
+- Открытие карточки вина с подробной информацией.
+- Deep-link интеграция из Sprint 2.
+
+### Subtask 5.3.1 — Содержимое модалки (поля + layout)
+
+**Description / DoD:**
+- Producer, name, vintage, region, grape, story, notes, pairing.
+
+**Status:** ✅ Done
+
+- Модалка отображает все ею характеристики
+- Pairing отображается только для PeopleTalk
+

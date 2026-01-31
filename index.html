@@ -416,6 +416,15 @@
       overflow: visible;
       font-size: 13px;
       line-height: 1.45;
+      margin-bottom: 10px;
+    }
+    .modalText .pairing{
+      font-size: 12px;
+      color: rgba(255,255,255,0.75);
+      font-weight: 500;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.1);
     }
     .closeBtn{
       cursor:pointer;
@@ -491,6 +500,7 @@
           <div class="tags" id="modalTags"></div>
           <div class="desc" id="modalDesc"></div>
           <div class="notes" id="modalNotes"></div>
+          <div class="pairing" id="modalPairing" style="display:none;"></div>
         </div>
       </div>
     </div>
@@ -698,6 +708,71 @@ function parseNotesChips(s) {
     .map(x => x.trim().replace(/_/g, ' '))
     .filter(Boolean)
     .slice(0, 3);
+}
+
+// Словарь токенов для notes с переводами en/es и эмодзи (MVP для иконок)
+const TOKEN_DICTIONARY = {
+  // Citrus & Fruit
+  'citrus': { en: 'Citrus', es: 'Cítricos', emoji: '🍋' },
+  'green apple': { en: 'Green apple', es: 'Manzana verde', emoji: '🟢' },
+  'stone fruit': { en: 'Stone fruit', es: 'Fruta de hueso', emoji: '🍑' },
+  'red berry': { en: 'Red berry', es: 'Baya roja', emoji: '🍒' },
+  'dark berry': { en: 'Dark berry', es: 'Baya oscura', emoji: '🫐' },
+  'tropical': { en: 'Tropical', es: 'Tropical', emoji: '🥭' },
+  'passion fruit': { en: 'Passion fruit', es: 'Fruta de la pasión', emoji: '🟠' },
+  'black fruit': { en: 'Black fruit', es: 'Fruta negra', emoji: '⚫' },
+  
+  // Floral & Herbal
+  'floral': { en: 'Floral', es: 'Floral', emoji: '🌸' },
+  'white flower': { en: 'White flower', es: 'Flor blanca', emoji: '🌼' },
+  'green herbal': { en: 'Herbal', es: 'Herbal', emoji: '🌿' },
+  'fresh herbal crisp': { en: 'Fresh herbal', es: 'Herbal fresco', emoji: '🌿' },
+  
+  // Spice & Wood
+  'spice': { en: 'Spice', es: 'Especias', emoji: '🌶️' },
+  'oak': { en: 'Oak', es: 'Roble', emoji: '🪵' },
+  'wood': { en: 'Wood', es: 'Madera', emoji: '🪵' },
+  'mineral': { en: 'Mineral', es: 'Mineral', emoji: '🪨' },
+  
+  // Taste Profile
+  'mineral pure precise': { en: 'Mineral & Pure', es: 'Mineral y Puro', emoji: '💎' },
+  'dry almond mineral': { en: 'Dry almond', es: 'Almendra seca', emoji: '🌰' },
+  'iconic rich luxurious': { en: 'Iconic & Rich', es: 'Icónico y Rico', emoji: '👑' },
+  'powerful complex prestigious': { en: 'Powerful & Complex', es: 'Potente y Complejo', emoji: '⚡' },
+  'structured berry refined': { en: 'Berry & Refined', es: 'Baya y Refinado', emoji: '✨' },
+  'buttery rich smooth': { en: 'Buttery & Rich', es: 'Mantecoso y Rico', emoji: '🧈' },
+  'zesty tropical bright': { en: 'Zesty & Tropical', es: 'Zesty y Tropical', emoji: '☀️' },
+  'clean smooth refreshing': { en: 'Clean & Smooth', es: 'Limpio y Suave', emoji: '💧' },
+  'silky tannin honey': { en: 'Silky & Honey', es: 'Sedoso y Miel', emoji: '🍯' },
+};
+
+function getTokenDisplay(tokenStr, lang = 'en') {
+  const normalized = tokenStr.toLowerCase().trim();
+  
+  // Точный поиск
+  if (TOKEN_DICTIONARY[normalized]) {
+    const token = TOKEN_DICTIONARY[normalized];
+    return {
+      label: token[lang] || token.en,
+      emoji: token.emoji
+    };
+  }
+  
+  // Частичный поиск (если токен содержит несколько слов)
+  for (const [key, data] of Object.entries(TOKEN_DICTIONARY)) {
+    if (normalized.includes(key.split(' ')[0])) {
+      return {
+        label: data[lang] || data.en,
+        emoji: data.emoji
+      };
+    }
+  }
+  
+  // Fallback - просто вернуть оригинальный текст
+  return {
+    label: tokenStr,
+    emoji: '🍷'
+  };
 }
 
 /**
@@ -917,7 +992,8 @@ function renderGrid(list) {
       for (const c of chips) {
         const t = document.createElement('div');
         t.className = 'tag';
-        t.textContent = c;
+        const tokenData = getTokenDisplay(c, state.lang);
+        t.textContent = `${tokenData.emoji} ${tokenData.label}`;
         notes.appendChild(t);
       }
     } else {
@@ -1066,6 +1142,15 @@ function openWineModal(wineId, pushHistory = true) {
 
   $('modalDesc').textContent = safe(w.description);
 
+  // Pairing только для PeopleTalk (Task 5.1)
+  const pairingEl = $('modalPairing');
+  if (state.restaurantId === 'peopletalk' && safe(w.pairing)) {
+    pairingEl.textContent = `🍽️ Pairing: ${w.pairing}`;
+    pairingEl.style.display = 'block';
+  } else {
+    pairingEl.style.display = 'none';
+  }
+
   const mn = $('modalNotes');
   mn.innerHTML = '';
   const chips = parseNotesChips(w.notes);
@@ -1076,7 +1161,8 @@ function openWineModal(wineId, pushHistory = true) {
   for (const c of chips) {
     const t = document.createElement('div');
     t.className = 'tag';
-    t.textContent = c;
+    const tokenData = getTokenDisplay(c, state.lang);
+    t.textContent = `${tokenData.emoji} ${tokenData.label}`;
     mn.appendChild(t);
   }
 
@@ -1285,6 +1371,7 @@ async function setLanguage(nextLang, opts = {}) {
           style: String(x.style ?? '').trim(),
           description: String(x.story ?? '').trim(),
           notes: String(x.notes ?? '').trim(),
+          pairing: String(x.pairing ?? '').trim(),
 
           imageUrl: String(x.bottle_img ?? '').trim(),
           priceGlass: x.btg_price ?? '',
@@ -1431,6 +1518,7 @@ async function boot() {
           style: String(x.style ?? '').trim(),
           description: String(x.story ?? '').trim(),
           notes: String(x.notes ?? '').trim(),
+          pairing: String(x.pairing ?? '').trim(),
 
           imageUrl: String(x.bottle_img ?? '').trim(),
           priceGlass: x.btg_price ?? '',

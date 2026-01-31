@@ -393,6 +393,24 @@
       margin-bottom: 10px;
       white-space: normal;
     }
+    .modalText .price{
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: 0.3px;
+      line-height: 1.5;
+    }
+    .modalText .price > div{
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .modalText .price small{
+      display: block;
+      font-size: 12px;
+      font-weight: 400;
+      margin-top: 2px;
+      opacity: 0.6;
+    }
     .modalText .desc{
       max-height: none;
       overflow: visible;
@@ -436,14 +454,10 @@
         <img id="logo" alt="logo" src="" />
         <div class="title">
           <b id="restaurantName">WineGallery</b>
-          <span>Updated from CSV</span>
         </div>
       </div>
 
       <div class="controls">
-        <div class="pill"><span>r:</span> <b id="pillRestaurant">-</b></div>
-        <div class="pill"><span>lang:</span> <b id="pillLang">-</b></div>
-
         <select id="restaurantSelect" title="Restaurant" aria-label="Restaurant"></select>
         <select id="langSelect" title="Language" aria-label="Language"></select>
         <input id="searchInput" placeholder="Search..." aria-label="Search wines" />
@@ -473,6 +487,7 @@
         <div class="modalText">
           <h2 id="modalName"></h2>
           <div class="sub" id="modalSub"></div>
+          <div class="price" id="modalPrice"></div>
           <div class="tags" id="modalTags"></div>
           <div class="desc" id="modalDesc"></div>
           <div class="notes" id="modalNotes"></div>
@@ -541,7 +556,17 @@ function safe(v) {
 function money(v) {
   const n = Number(v);
   if (!isFinite(n)) return '';
-  return n.toString();
+  const currency = state.config?.currency || 'USD';
+  try {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(n);
+  } catch (e) {
+    return `$${n}`;
+  }
 }
 
 function setStatus(text, type='idle') {
@@ -745,6 +770,14 @@ function computeSectionsEffective(wines, config, lang) {
     .filter(Boolean);
 
   state.sectionLabels = { ...labelsFromData, ...labelsFromConfig };
+
+  // Применить переопределение названий секций для конкретного языка
+  if (config?.sectionLabelsOverride?.[lang]) {
+    const override = config.sectionLabelsOverride[lang];
+    state.sectionLabels = { ...state.sectionLabels, ...override };
+  }
+
+  console.log('[DEBUG] computeSectionsEffective lang=%o, keysInData=%o, normalizedOrder=%o, labelsFromConfig=%o', lang, Array.from(keysInData), normalizedOrder, labelsFromConfig);
 
   if (normalizedOrder.length) {
     const effective = normalizedOrder.filter(k => keysInData.has(k));
@@ -977,6 +1010,46 @@ function openWineModal(wineId, pushHistory = true) {
   $('modalName').textContent = w.title;
   $('modalSub').textContent = w.sub;
 
+  const modalPrice = $('modalPrice');
+  modalPrice.innerHTML = '';
+  
+  if (!w.available) {
+    modalPrice.textContent = 'Out of stock';
+    modalPrice.style.opacity = '0.85';
+    modalPrice.style.fontWeight = '800';
+  } else {
+    modalPrice.style.opacity = '1';
+    modalPrice.style.fontWeight = 'normal';
+    
+    if (safe(w.priceBottle)) {
+      const bottleText = document.createElement('div');
+      bottleText.textContent = `${money(w.priceBottle)} / bottle`;
+      modalPrice.appendChild(bottleText);
+      
+      const bottleVolume = document.createElement('small');
+      bottleVolume.textContent = '750 ml';
+      bottleVolume.style.display = 'block';
+      bottleVolume.style.opacity = '0.6';
+      bottleVolume.style.fontSize = '12px';
+      bottleVolume.style.marginTop = '2px';
+      modalPrice.appendChild(bottleVolume);
+    }
+    if (safe(w.priceGlass)) {
+      const glassText = document.createElement('div');
+      glassText.textContent = `${money(w.priceGlass)} / glass`;
+      glassText.style.marginTop = '8px';
+      modalPrice.appendChild(glassText);
+      
+      const glassVolume = document.createElement('small');
+      glassVolume.textContent = '150 ml / 5 oz';
+      glassVolume.style.display = 'block';
+      glassVolume.style.opacity = '0.6';
+      glassVolume.style.fontSize = '12px';
+      glassVolume.style.marginTop = '2px';
+      modalPrice.appendChild(glassVolume);
+    }
+  }
+
   const tags = $('modalTags');
   tags.innerHTML = '';
   const t1 = document.createElement('div');
@@ -1012,12 +1085,6 @@ function openWineModal(wineId, pushHistory = true) {
   setTimeout(() => {
     $('closeModalBtn').focus();
   }, 0);
-
-  if (state.activeSection === 'all' || state.activeSection !== w.sectionKey) {
-    if (state.sectionsEffective.includes(w.sectionKey)) {
-      state.activeSection = w.sectionKey;
-    }
-  }
 
   if (pushHistory) syncUrl('push');
   else syncUrl('replace');
@@ -1149,7 +1216,6 @@ async function setLanguage(nextLang, opts = {}) {
 
     const ls = $('langSelect');
     if (ls) ls.value = nextLang;
-    $('pillLang').textContent = nextLang;
 
     state.modalWineId = null;
     closeModal(false);
@@ -1294,9 +1360,6 @@ async function boot() {
       if (l === state.lang) opt.selected = true;
       ls.appendChild(opt);
     }
-
-    $('pillRestaurant').textContent = state.restaurantId;
-    $('pillLang').textContent = state.lang;
 
     $('restaurantName').textContent = state.config.name || state.restaurantId;
     $('logo').src = normalizeAssetPath(state.config.logoUrl || '');

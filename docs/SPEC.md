@@ -1,27 +1,29 @@
-# Wine Gallery — Project Specification
+# Wine Gallery — Спецификация проекта
 
-## Purpose
-This project is a web-based Wine Gallery.
+## Назначение
+Этот проект — веб-ориентированная галерея вин (Wine Gallery).
 
-## General Rules
-- Do NOT rewrite existing code unless explicitly asked.
-- Do NOT rename files or folders.
-- Do NOT change project structure without permission.
-- Changes must be minimal and targeted.
+## Общие правила
+- НЕ переписывать существующий код, если об этом прямо не просят.
+- НЕ переименовывать файлы или папки.
+- НЕ менять структуру проекта без разрешения.
+- Все изменения должны быть минимальными и точечными.
 
-## Code Rules
-- index.html is the main entry file.
-- Existing folders (assets, configs, data) must remain intact.
-- New files are added only when necessary.
-- No refactoring unless requested.
+## Правила работы с кодом
+- index.html является главным входным файлом.
+- Существующие папки (assets, configs, data) должны оставаться без изменений.
+- Новые файлы добавляются только при необходимости.
+- Никакого рефакторинга, если он не запрошен явно.
 
-## Data Rules (CSV → App mapping)
-- CSV is the single source of truth for wine data.
-- The app MUST map CSV columns into the internal wine object used by UI rendering.
-- Any mismatch between CSV header names and code field names must be solved via mapping (not by renaming CSV columns).
+## Правила работы с данными (CSV → App mapping)
+- CSV является единственным источником истины для данных о винах.
+- Приложение ОБЯЗАНО маппить CSV-колонки во внутренний объект вина,
+  который используется для рендера UI.
+- Любые несоответствия между именами колонок CSV и полями в коде
+  должны решаться через mapping (а не через переименование CSV-колонок).
 
-### Required internal fields (used by UI)
-Each mapped wine object should provide:
+### Обязательные внутренние поля (используются UI)
+Каждый замапленный объект вина должен содержать:
 - id
 - title
 - sub
@@ -36,33 +38,37 @@ Each mapped wine object should provide:
 - visible (boolean)
 - available (boolean)
 
-### Current CSV columns (Novikov / PeopleTalk baseline)
-Expected CSV headers include (may be extended):
+### Текущие CSV-колонки (базовая схема Novikov / PeopleTalk)
+Ожидаемые заголовки CSV включают (могут быть расширены):
 - id, section, order, producer, name, vintage, country, region, grape, style,
   btg_price, bottle_price, story, notes, bottle_img, visible, is_available
 
-Mapping rules (baseline):
+Правила маппинга (базовые):
 - bottle_img → imageUrl
 - btg_price → priceGlass
 - bottle_price → priceBottle
 - story → description
 
-Booleans:
-- visible / is_available must be normalized (e.g. "yes"/"no", "true"/"false", "1"/"0", empty).
+Булевые значения:
+- visible / is_available должны быть нормализованы
+  (например: "yes"/"no", "true"/"false", "1"/"0", пустое значение).
 
-## Sections Rules (Source of truth)
-- Sections are controlled by config, not by CSV order.
-- `sectionsOrder` defines the canonical set and order of tabs.
-- `sectionsOrderByLang[lang]` may override order/labels per language.
-- Strict behavior: sections not present in config are hidden.
-- Matching uses normalized keys (`sectionKey`) to avoid issues with accents/spaces/case.
+## Правила работы с секциями (Источник истины)
+- Секции управляются конфигом, а не порядком строк в CSV.
+- `sectionsOrder` определяет канонический набор и порядок вкладок.
+- `sectionsOrderByLang[lang]` может переопределять порядок и/или названия
+  секций для конкретного языка.
+- Строгое поведение: секции, отсутствующие в конфиге, скрываются.
+- Сопоставление происходит по нормализованным ключам (`sectionKey`),
+  чтобы избежать проблем с акцентами / пробелами / регистром.
 
-Fallback chain:
-1) sectionsOrderByLang[lang] (if exists and non-empty)
-2) sectionsOrder (if exists and non-empty)
-3) fallback to sections discovered from data (only if config produces no matches)
+Цепочка fallback:
+1) sectionsOrderByLang[lang] (если существует и не пуст)
+2) sectionsOrder (если существует и не пуст)
+3) fallback к секциям, найденным в данных
+   (только если конфиг не дал ни одного совпадения)
 
-## Workflow Rules
-- Work step by step.
-- Follow SPEC.md and SPRINT.md strictly.
-- If something is unclear — ask before changing.
+## Правила рабочего процесса
+- Работать пошагово.
+- Строго следовать SPEC.md и SPRINT.md.
+- Если что-то неясно — сначала задать вопрос, а уже потом менять.

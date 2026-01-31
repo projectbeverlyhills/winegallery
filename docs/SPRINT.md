@@ -1,377 +1,476 @@
-# Sprint 2 — Sections Management, Deep-links, Performance
+# Sprint 2 — Управление секциями, deep-links, производительность
 
 ## Description
-This sprint focuses on making the Wine Gallery predictable, controllable, and shareable.
+Этот спринт направлен на то, чтобы сделать Wine Gallery предсказуемым,
+управляемым и удобным для шаринга.
 
-The main goals are:
-- Deterministic control of sections order (independent from CSV row order).
-- URL-based deep-links for sections and individual wines, so managers and sommeliers can share exact views.
-- Improved performance and UX by reducing unnecessary network requests and UI re-renders.
+Основные цели:
+- детерминированный контроль порядка секций (независимо от порядка строк в CSV);
+- URL-based deep-links для секций и отдельных вин, чтобы менеджеры и сомелье могли делиться точными представлениями;
+- улучшение производительности и UX за счёт сокращения лишних сетевых запросов и перерисовок UI.
 
-This sprint introduces configuration-driven behavior as the source of truth
-and prepares the system for more advanced UX in future sprints.
+В этом спринте вводится поведение, управляемое конфигурацией,
+как единый source of truth,
+и закладывается основа для более сложного UX в следующих спринтах.
 
 ## Goal
-Control sections order and provide convenient deep-links for manager / sommelier usage.
+Контроль порядка секций и удобные deep-links
+для использования менеджерами и сомелье.
 
 ---
 
-## Task 2.1 — Sections order driven only by data (config / sections table)
+## Task 2.1 — Порядок секций, управляемый только данными (config / sections table)
 
 ### Description / DoD
-- Sections order must be stable and predictable.
-- Rendering must NOT depend on CSV row order.
+- Порядок секций должен быть стабильным и предсказуемым.
+- Рендеринг НЕ должен зависеть от порядка строк в CSV.
 
-### Subtask 2.1.1 — Add `sectionsOrder` to configs (both restaurants)
+### Subtask 2.1.1 — Добавить `sectionsOrder` в конфиги (оба ресторана)
 **Description / DoD:**
-- Add `sectionsOrder` field to:
+- Добавить поле `sectionsOrder` в:
   - `configs/peopletalk.json`
   - `configs/novikov_bh.json`
-- Define the desired section order explicitly in config.
+- Явно определить желаемый порядок секций в конфиге.
 **Status:** ✅ Done
 
-### Subtask 2.1.2 — Use `sectionsOrder` as the source of truth
+### Subtask 2.1.2 — Использовать `sectionsOrder` как source of truth
 **Description / DoD:**
-- If `sectionsOrder` is present:
-  - Render ONLY sections listed in `sectionsOrder`.
-  - Follow the exact order from config.
-- If `sectionsOrder` is missing:
-  - Fallback to data-derived order (temporary behavior).
+- Если `sectionsOrder` присутствует:
+  - рендерить ТОЛЬКО секции, перечисленные в `sectionsOrder`;
+  - строго соблюдать порядок из конфига.
+- Если `sectionsOrder` отсутствует:
+  - fallback на порядок, полученный из данных (временное поведение).
 **Status:** ✅ Done
 
-### Subtask 2.1.3 — Language-specific sections order (`sectionsOrderByLang`)
+### Subtask 2.1.3 — Языко-зависимый порядок секций (`sectionsOrderByLang`)
 **Description / DoD:**
-- Support `sectionsOrderByLang[lang]` in config for restaurants where section labels differ per language.
-- Fallback chain:
-  1) `sectionsOrderByLang[lang]` (if present and non-empty)
+- Поддержать `sectionsOrderByLang[lang]` в конфиге для ресторанов,
+  где названия секций различаются по языкам.
+- Цепочка fallback:
+  1) `sectionsOrderByLang[lang]` (если есть и не пусто)
   2) `sectionsOrder`
-  3) data-derived sections (only if config produced no matches)
+  3) секции, полученные из данных (только если конфиг не дал совпадений)
 **Status:** ✅ Done
 
 ---
 
-## Task 2.2 — Deep-links and URL behavior
+## Task 2.2 — Deep-links и поведение URL
 
 ### Description / DoD
-- URLs must open the correct restaurant, language, section, and wine.
-- URL must reflect the current UI state.
+- URL должен открывать корректный ресторан, язык, секцию и вино.
+- URL должен отражать текущее состояние UI.
 
-### Subtask 2.2.1 — Support `?section=<key>`
+### Subtask 2.2.1 — Поддержка `?section=<key>`
 **Description / DoD:**
-- On initial load:
-  - Read `section` from URL and activate it.
-- On section click:
-  - Update URL with the active section key.
+- При первичной загрузке:
+  - считать `section` из URL и активировать её.
+- При клике на секцию:
+  - обновлять URL с ключом активной секции.
 **Status:** ✅ Done
 
-- Applies active section from URL on initial load
-- Updates URL when section is changed via UI
-- Removes `section` param when "All" is selected
+- Активная секция применяется из URL при загрузке
+- URL обновляется при смене секции через UI
+- Параметр `section` удаляется при выборе “All”
 
-### Subtask 2.2.2 — Support `?w=<wine_id>` (modal behavior)
+### Subtask 2.2.2 — Поддержка `?w=<wine_id>` (логика модалки)
 **Description / DoD:**
-- If `w` is present in URL on load:
-  - Open the wine modal for the given `wine_id`.
-- On wine card click:
-  - Open modal and update URL with `w=<wine_id>`.
-- On modal close:
-  - Remove `w` from the URL.
+- Если `w` присутствует в URL при загрузке:
+  - открыть модалку соответствующего вина.
+- При клике на карточку вина:
+  - открыть модалку и обновить URL с `w=<wine_id>`.
+- При закрытии модалки:
+  - удалить `w` из URL.
 **Status:** ✅ Done
 
-- Opens wine modal when `?w=<wine_id>` is present on load
-- Updates URL with `w` when a wine card is opened
-- Removes `w` from URL on modal close
+- Модалка открывается при наличии `?w=<wine_id>` при загрузке
+- URL обновляется при открытии модалки
+- `w` удаляется из URL при закрытии
 
 ---
 
-## Task 2.3 — Performance and UX improvements
+## Task 2.3 — Улучшения производительности и UX
 
 ### Description / DoD
-- Reduce unnecessary network requests.
-- Improve perceived responsiveness, especially on mobile devices.
+- Сократить лишние сетевые запросы.
+- Улучшить субъективную отзывчивость, особенно на мобильных устройствах.
 
-### Subtask 2.3.1 — Cache config and CSV for session lifetime
+### Subtask 2.3.1 — Кэширование config и CSV на время сессии
 **Description / DoD:**
-- Cache loaded config and CSV data in memory.
-- Do NOT refetch data on section changes if restaurant/language did not change.
+- Кэшировать загруженные config и CSV в памяти.
+- НЕ делать повторный fetch при смене секции,
+  если ресторан и язык не изменились.
 **Status:** ✅ Done
 
-- Config and CSV are cached in memory for the session
-- Section changes do not trigger re-fetch if r/lang are unchanged
+- Config и CSV кэшируются в памяти на время сессии
+- Смена секций не вызывает повторный fetch при неизменных r/lang
 
-### Subtask 2.3.2 — Debounce search input (200–300 ms)
+### Subtask 2.3.2 — Debounce поискового инпута (200–300 мс)
 **Description / DoD:**
-- Apply debounce to search input.
-- Reduce unnecessary re-renders while keeping UI responsive.
+- Добавить debounce к поисковому инпуту.
+- Снизить количество лишних перерисовок,
+  сохраняя отзывчивость UI.
 **Status:** ✅ Done
 
-- Search input is debounced (250ms)
-- Reduces unnecessary re-renders while staying responsive on mobile
+- Поиск задебаунсен (250 мс)
+- Снижается количество лишних ререндеров, особенно на мобильных
 
 ---
 
-## Task 2.4 — Data mapping correctness (CSV → UI fields)
+## Task 2.4 — Корректность маппинга данных (CSV → UI)
+
 ### Description / DoD
-- All UI fields must be mapped from CSV headers explicitly.
-- Prevent silent “empty UI” bugs caused by mismatched column names.
+- Все UI-поля должны явно маппиться из заголовков CSV.
+- Исключить «тихие» баги пустого UI из-за несовпадения имён колонок.
 
-### Subtask 2.4.1 — Fix bottle image mapping
+### Subtask 2.4.1 — Исправить маппинг изображения бутылки
 **Description / DoD:**
-- Map CSV column `bottle_img` → internal field `imageUrl`.
-- Bottle images must render in cards and modal.
+- Замаппить колонку CSV `bottle_img` → внутреннее поле `imageUrl`.
+- Изображения бутылок должны отображаться в карточках и модалке.
 **Status:** ✅ Done
 
-### Subtask 2.4.2 — Normalize booleans and avoid “no wines after filters”
+### Subtask 2.4.2 — Нормализация boolean и предотвращение “нет вин после фильтров”
 **Description / DoD:**
-- `visible` / `is_available` must be normalized to real booleans.
-- Must accept "yes/no", "true/false", "1/0", and handle non-breaking spaces.
+- `visible` / `is_available` должны нормализовываться в реальные boolean.
+- Поддержка "yes/no", "true/false", "1/0" и non-breaking spaces.
 **Status:** ✅ Done
 
-### Subtask 2.4.3 — QA sanity checks (console)
+### Subtask 2.4.3 — QA sanity-проверки (console)
 **Description / DoD:**
-- Confirm in console that:
+- Проверить в консоли:
   - `state.wines.length > 0`
-  - first wine has mapped keys: `id,title,section,sectionKey,imageUrl,priceGlass,priceBottle,visible,available`
-  - `state.sectionsEffective` matches expected tabs for current `lang`
+  - у первого вина есть ключи:
+    `id, title, section, sectionKey, imageUrl, priceGlass, priceBottle, visible, available`
+  - `state.sectionsEffective` соответствует ожидаемым табам для текущего `lang`
 **Status:** ✅ Done
+
 ---
 
-# Sprint 3 — Product Features & UX
+# Sprint 3 — Продуктовые функции и UX
 
 ## Description
-This sprint focuses on turning the Wine Gallery from a “nice-looking menu”
-into a real, sellable product with strong UX and operational features.
+Этот спринт направлен на превращение Wine Gallery
+из «красивого меню»
+в реальный, продаваемый продукт
+с сильным UX и операционными возможностями.
 
-The sprint improves:
-- search quality and speed,
-- availability (86) management,
-- language switching without page reload,
-- deep-links to specific wines,
-- visual consistency, mobile UX, and accessibility.
+Спринт улучшает:
+- качество и скорость поиска;
+- управление availability (86);
+- переключение языка без перезагрузки страницы;
+- deep-links на конкретные вина;
+- визуальную консистентность, мобильный UX и доступность.
 
-The functionality must work identically for both restaurants.
+Функциональность должна работать идентично для обоих ресторанов.
 
 ## Goal
-Make the Wine Gallery fast, controllable, shareable, and comfortable to use
-for guests, managers, and sommeliers.
+Сделать Wine Gallery быстрым, управляемым, удобным для шаринга
+и комфортным в использовании
+для гостей, менеджеров и сомелье.
 
 ---
 
 ## Definition of Done (DoD)
 
-A user can:
-- quickly find a wine using search,
-- hide or mark wines as unavailable (86),
-- switch language without a full page reload,
-- open a wine via a direct link,
-- comfortably use the menu on mobile devices,
-- navigate the UI with keyboard and screen readers.
+Пользователь может:
+- быстро найти вино через поиск;
+- скрыть или пометить unavailable-вина (86);
+- переключить язык без полной перезагрузки страницы;
+- открыть вино по прямой ссылке;
+- комфортно пользоваться меню на мобильных устройствах;
+- навигировать UI с клавиатуры и screen readers.
 
 ---
 
-## Task 3.1 — Search by key wine fields
+## Task 3.1 — Поиск по ключевым полям вина
 
 ### Description / DoD
-- Search must work without noticeable lag.
-- Search must include at least:
-  - wine name,
-  - producer,
-  - region,
-  - grape.
-- Behavior must be identical for both restaurants.
-- Search operates only within the currently selected language.
+- Поиск работает без заметных лагов.
+- Поиск включает как минимум:
+  - название вина,
+  - производителя,
+  - регион,
+  - сорт винограда.
+- Поведение идентично для обоих ресторанов.
+- Поиск работает только в рамках выбранного языка.
 
----
-
-### Subtask 3.1.1 — Build search index (haystack)
+### Subtask 3.1.1 — Построение поискового индекса (haystack)
 
 **Description / DoD:**
-- Build a single searchable string (haystack) per wine.
-- Combine relevant fields (name, producer, region, grape).
-- Normalize values (case-insensitive, trimmed).
-- Search implementation uses `includes()`.
+- Сформировать одну поисковую строку (haystack) на каждое вино.
+- Объединить ключевые поля (name, producer, region, grape).
+- Нормализовать значения (без учёта регистра, trim).
+- Реализация поиска через `includes()`.
 
-**Implementation order:** Phase 1
+**Implementation order:** Phase 1  
 **Status:** ✅ Done
 
 ---
 
-### Subtask 3.1.2 — Search debounce and clear behavior
+### Subtask 3.1.2 — Debounce поиска и очистка
 
 **Description / DoD:**
-- Debounce search input (200–300 ms).
-- Provide clear/reset behavior.
-- Ensure correct UX on mobile devices.
+- Debounce поискового инпута (200–300 мс).
+- Реализовать clear / reset поведение.
+- Обеспечить корректный UX на мобильных устройствах.
 
-**Implementation order:** Phase 2
+**Implementation order:** Phase 2  
 **Status:** ✅ Done
 
 ---
 
-## Task 3.2 — Availability (is_available) and “86” mode
+## Task 3.2 — Availability (is_available) и режим “86”
 
 ### Description / DoD
-- Availability of wines is controlled via `is_available`.
-- Behavior is configurable:
-  - hide unavailable wines, or
-  - show them with an “86” badge.
+- Доступность вин контролируется через `is_available`.
+- Поведение конфигурируемо:
+  - скрывать unavailable-вина,
+  - либо показывать их с бейджем “86”.
 
----
-
-### Subtask 3.2.1 — `hide86` config option and badge
+### Subtask 3.2.1 — Опция `hide86` в конфиге и бейдж
 
 **Description / DoD:**
-- Add `hide86: true | false` to restaurant config.
-- If `hide86 = true`:
-  - wines with `is_available = false` are hidden.
-- If `hide86 = false`:
-  - wines remain visible and show an “86” badge.
-- Option is global per restaurant.
+- Добавить `hide86: true | false` в конфиг ресторана.
+- Если `hide86 = true`:
+  - вина с `is_available = false` скрываются.
+- Если `hide86 = false`:
+  - вина остаются видимыми и помечаются бейджем “86”.
+- Опция глобальна для ресторана.
 
-**Implementation order:** Phase 3
+**Implementation order:** Phase 3  
 **Status:** ✅ Done
 
 ---
 
-## Task 3.3 — Language switch without full page reload
+## Task 3.3 — Переключение языка без полной перезагрузки
 
 ### Description / DoD
-- Language switching must not trigger `window.location.reload()`.
-- UI updates dynamically.
-- URL is updated accordingly.
+- Переключение языка не должно вызывать `window.location.reload()`.
+- UI обновляется динамически.
+- URL синхронизируется с состоянием.
 
----
-
-### Subtask 3.3.1 — Sync language with URL and UI
+### Subtask 3.3.1 — Синхронизация языка с URL и UI
 
 **Description / DoD:**
-- Update `?lang=` in URL when language changes.
-- Reload CSV data for the selected language only.
-- Recompute sections and wine cards.
-- Fallback correctly to `defaultLanguage`.
+- Обновлять `?lang=` в URL при смене языка.
+- Перезагружать CSV данные только для выбранного языка.
+- Пересчитывать секции и карточки вин.
+- Корректно fallback-иться на `defaultLanguage`.
 
-**Implementation order:** Phase 4
+**Implementation order:** Phase 4  
 **Status:** ✅ Done
 
 ---
 
-## Task 3.4 — Deep-link to a specific wine
+## Task 3.4 — Deep-link на конкретное вино
 
 ### Description / DoD
-- Support URLs like `?r=restaurant&lang=en&w=wine_id`.
-- Opening the link opens the correct wine.
+- Поддержка URL вида `?r=restaurant&lang=en&w=wine_id`.
+- Переход по ссылке открывает нужное вино.
 
----
-
-### Subtask 3.4.1 — Modal-based MVP solution
+### Subtask 3.4.1 — MVP-решение через модалку
 
 **Description / DoD:**
-- Use modal as the MVP solution.
-- If `w` is present in URL:
-  - open the wine modal on load.
-- When modal opens:
-  - update URL with `w`.
-- When modal closes:
-  - remove `w` from URL.
+- Использовать модалку как MVP-решение.
+- Если `w` присутствует в URL:
+  - открыть модалку при загрузке.
+- При открытии модалки:
+  - обновлять URL с `w`.
+- При закрытии:
+  - удалять `w` из URL.
 
-**Implementation order:** Phase 5
+**Implementation order:** Phase 5  
 **Status:** ✅ Done
 
 ---
 
-## Task 3.5 — Card layout and typography unification
+## Task 3.5 — Унификация карточек и типографики
 
 ### Description / DoD
-- Wine cards follow a single visual standard.
-- Clear hierarchy:
+- Карточки вин следуют единому визуальному стандарту.
+- Чёткая иерархия:
   - title,
   - producer,
   - region,
   - prices.
-- Consistent spacing and alignment.
+- Консистентные отступы и выравнивание.
 
----
-
-### Subtask 3.5.1 — Compact cards and notes as chips
+### Subtask 3.5.1 — Компактные карточки и заметки-чипы
 
 **Description / DoD:**
-- Reduce card height.
-- Make “story” more compact.
-- Render wine tasting notes (`notes` field) as up to 3 visual chips.
+- Уменьшить высоту карточек.
+- Сделать “story” более компактным.
+- Отображать tasting notes (`notes`) в виде до 3 визуальных чипов.
 
-**Implementation order:** Phase 6
+**Implementation order:** Phase 6  
 **Status:** ✅ Done
 
 ---
 
-### Subtask 3.5.2 — Mobile layout improvements
+### Subtask 3.5.2 — Улучшения мобильного лейаута
 
 **Description / DoD:**
-- Single-column layout on mobile.
-- Larger tap targets.
-- Comfortable scrolling and interaction.
+- Одноколоночный layout на мобильных.
+- Увеличенные tap-таргеты.
+- Комфортный скролл и взаимодействие.
 
-**Implementation order:** Phase 7
+**Implementation order:** Phase 7  
 **Status:** ✅ Done
 
 ---
 
-## Task 3.6 — Accessibility and keyboard support
+## Task 3.6 — Доступность и поддержка клавиатуры
 
 ### Description / DoD
-- Improve accessibility for keyboard and screen readers.
+- Улучшить доступность для клавиатуры и screen readers.
 
----
-
-### Subtask 3.6.1 — Focus and tab navigation
+### Subtask 3.6.1 — Фокус и tab-навигация
 
 **Description / DoD:**
-- `Esc` closes the modal.
-- Correct focus handling.
-- Logical tab order for buttons and selects.
-- Visible and clear focus outline.
-- Proper `aria-label`s where needed.
+- `Esc` закрывает модалку.
+- Корректная работа фокуса.
+- Логичный tab-порядок.
+- Видимый focus outline.
+- Корректные `aria-label`.
 
-**Implementation order:** Phase 8
+**Implementation order:** Phase 8  
 **Status:** ✅ Done
 
-Subtask 3.6.2 — Section tabs semantics (buttons)
-Description / DoD:
- • Section tabs are rendered as <button> elements (not <div>).
- • Active state uses aria-pressed="true".
-Status: ✅ Done
+### Subtask 3.6.2 — Семантика табов секций (buttons)
+**Description / DoD:**
+- Таб-секции рендерятся как `<button>`, а не `<div>`.
+- Активное состояние использует `aria-pressed="true"`.
+**Status:** ✅ Done
 
-Subtask 3.6.3 — Live status for screen readers
-Description / DoD:
- • Status pill uses role="status" and aria-live="polite" so SR announces loading/ready/error states.
-Status: ✅ Done
+### Subtask 3.6.3 — Live-статус для screen readers
+**Description / DoD:**
+- Статус-индикатор использует `role="status"` и `aria-live="polite`,
+  чтобы screen reader озвучивал состояния loading / ready / error.
+**Status:** ✅ Done
 
 ---
 
-## Task 3.7 — Images and placeholders
+## Task 3.7 — Изображения и плейсхолдеры
 
 ### Description / DoD
-- Wine cards must not break if bottle image is missing or broken.
+- Карточки вин не должны ломаться,
+  если изображение бутылки отсутствует или не загружается.
 
----
-
-### Subtask 3.7.1 — Placeholder image
+### Subtask 3.7.1 — Placeholder-изображение
 
 **Description / DoD:**
-- Add local placeholder image:
-  - `assets/placeholder-bottle.png` or `.svg`.
-- Use placeholder when `bottle_img` is missing or invalid.
+- Добавить локальный placeholder:
+  - `assets/placeholder-bottle.png` или `.svg`.
+- Использовать placeholder, если `bottle_img` отсутствует или невалиден.
 
-**Implementation order:** Phase 9
+**Implementation order:** Phase 9  
 **Status:** ✅ Done
 
 ---
 
-### Subtask 3.7.2 — Lazy-loading images
+### Subtask 3.7.2 — Lazy-loading изображений
 
 **Description / DoD:**
-- Use `loading="lazy"` for bottle images.
-- Ensure graceful fallback behavior.
+- Использовать `loading="lazy"` для изображений бутылок.
+- Обеспечить graceful fallback-поведение.
 
-**Implementation order:** Phase 10
+**Implementation order:** Phase 10  
 **Status:** ✅ Done
+
+---
+
+# Sprint 4 — Цены, валюта и availability (логика меню)
+
+## Description
+Этот спринт фокусируется на унификации логики цен, валюты
+и статуса доступности (86),
+чтобы поведение меню было корректным, предсказуемым и единообразным.
+
+## Goal
+Корректные цены и статус 86,
+единые и управляемые правила отображения.
+
+---
+
+## Definition of Done (DoD)
+
+- Все цены форматируются единым способом.
+- Валюта задаётся на уровне конфига ресторана.
+- Отображение BTG и Bottle следует явным правилам.
+- Поведение unavailable-вин (86) управляется через конфиг.
+
+---
+
+## Task 4.1 — Валюта из config/restaurants и форматирование цен
+
+### Description / DoD
+- Валюта задаётся на уровне ресторана.
+- Форматирование цен выполняется через `Intl.NumberFormat`.
+
+### Subtask 4.1.1 — Добавить `currency` в конфиги
+
+**Description / DoD:**
+- Добавить `currency` в `peopletalk.json` и `novikov_bh.json`.
+- Начальное значение: `USD`.
+**Status:** ✅ Done
+
+- Поле `currency: "USD"` добавлено в оба конфига ресторанов
+**Status:** ✅ Done
+
+- Поле `currency: "USD"` добавлено в оба конфига ресторанов
+
+### Subtask 4.1.2 — Единый формат BTG / Bottle
+
+**Description / DoD:**
+- Если `btg_price` отсутствует — `/glass` не показывается.
+- Цена бутылки отображается независимо.
+**Status:** ✅ Done
+
+- Функция `money()` переписана с использованием `Intl.NumberFormat`
+- Валюта берётся из конфига ресторана и форматируется корректно ($102, $30 / glass и т.д.)
+- Цены отображаются в карточках вин и в модалке
+- Если `btg_price` отсутствует, `/glass` не показывается
+**Status:** ✅ Done
+
+- Функция `money()` переписана с использованием `Intl.NumberFormat`
+- Валюта берётся из конфига ресторана и форматируется корректно ($102, $30 / glass и т.д.)
+- Цены отображаются в карточках вин и в модалке
+- Если `btg_price` отсутствует, `/glass` не показывается
+
+---
+
+## Task 4.2 — `format_ml` как UI-дефолт
+
+### Description / DoD
+- Используется дефолтный объём (например, 750ml).
+- Объём не отображается без UX-решения.
+
+### Subtask 4.2.1 — Решение по отображению объёма
+
+**Description / DoD:**
+- Принять решение: показываем ли объём и где (карточка / модалка).
+**Status:** ✅ Done
+
+- Объём отображается только в модалке (не на карточках)
+- Бутылка: 750 ml
+- Бокал: 150 ml / 5 oz (для американского рынка)
+**Status:** ✅ Done
+
+- Объём отображается только в модалке (не на карточках)
+- Бутылка: 750 ml
+- Бокал: 150 ml / 5 oz (для американского рынка)
+
+---
+
+## Task 4.3 — Availability и логика 86
+
+### Description / DoD
+- Поведение unavailable-вин определяется через конфиг.
+
+### Subtask 4.3.1 — Тоггл поведения 86
+
+**Description / DoD:**
+- `hide86 = true` — скрывать unavailable-вина.
+- `hide86 = false` — показывать с чипом “Out of stock”.**Status:** ✅ Done
+
+- Поле `hide86` добавлено в оба конфига с начальным значением `false`
+- Логика фильтрации и отображения "Out of stock" уже была реализована в Sprint 3

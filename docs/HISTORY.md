@@ -1,109 +1,155 @@
-# Project History
+# История проекта
 
 ## Sprint 1
-- Repository cloned from GitHub and opened in VS Code.
-- Created `docs/` folder.
-- Added project workflow documentation:
+- Репозиторий клонирован с GitHub и открыт в VS Code.
+- Создана папка `docs/`.
+- Добавлена документация по рабочему процессу проекта:
   - `SPEC.md`
   - `SPRINT.md`
 
 ## Sprint 2
 
-### Core functionality
-- Introduced `sectionsOrder` and `sectionsOrderByLang` in configs
-  as a single source of truth for section ordering (language-aware).
-- Implemented robust section resolution logic with strict fallback chain:
+### Основной функционал
+- В конфиги добавлены `sectionsOrder` и `sectionsOrderByLang`
+  как единый источник истины для порядка секций (с учетом языка).
+- Реализована устойчивая логика разрешения секций со строгой цепочкой fallback:
   1) `sectionsOrderByLang[lang]`
   2) `sectionsOrder`
-  3) data-derived sections (only if config produces no matches)
-- Normalized section keys to ensure consistency across languages and CSV data.
+  3) секции, полученные из данных (только если конфиг не дал совпадений)
+- Нормализованы ключи секций для обеспечения консистентности
+  между языками и CSV-данными.
 
-### Navigation & UX
-- Added URL-based deep-link support:
-  - `?section=` for section filtering
-  - `?w=` for wine modal
-- Modal open / close state is fully synced with URL.
-- Added debounced search input to reduce unnecessary re-renders.
-- Implemented in-memory caching for CSV and config data
-  (no refetch on section change).
+### Навигация и UX
+- Добавлена поддержка deep-links через URL:
+  - `?section=` для фильтрации по секциям
+  - `?w=` для открытия модального окна вина
+- Состояние открытия / закрытия модального окна полностью синхронизировано с URL.
+- Добавлен debounced-поиск для снижения лишних перерендеров.
+- Реализован in-memory cache для CSV и конфигов
+  (без повторных запросов при смене секции).
 
-### Data mapping & robustness
-- Fixed image rendering issue:
-  - CSV column `bottle_img` correctly mapped to internal `imageUrl`.
-- Added normalization for CSV boolean fields:
+### Маппинг данных и устойчивость
+- Исправлена проблема с рендерингом изображений:
+  - CSV-колонка `bottle_img` корректно маппится во внутреннее поле `imageUrl`.
+- Добавлена нормализация булевых CSV-полей:
   - `visible`
   - `is_available`
-- Implemented defensive CSV mapping:
-  - validation of required fields
-  - protection against empty UI due to mismatched column names
+- Реализован защитный CSV-маппинг:
+  - валидация обязательных полей
+  - защита от пустого UI из-за несовпадения названий колонок
 
-### QA & stability checks
-- Added runtime sanity checks in console:
-  - verification that wines are loaded after mapping & filters
-  - validation of required mapped keys
-  - validation of `sectionsEffective` against data and config
-- Manually verified behavior via DevTools for:
-  - EN / ES language switching
-  - Novikov / PeopleTalk configs
-  - section ordering consistency
-  - image rendering
-  - URL state synchronization
+### QA и проверки стабильности
+- Добавлены runtime-проверки в консоль:
+  - проверка, что вина загружены после маппинга и фильтров
+  - валидация обязательных замаппленных ключей
+  - проверка `sectionsEffective` на соответствие данным и конфигам
+- Поведение вручную проверено через DevTools для:
+  - переключения языков EN / ES
+  - конфигов Novikov / PeopleTalk
+  - консистентности порядка секций
+  - рендеринга изображений
+  - синхронизации состояния с URL
 
-### Result
-- Sprint 2 completed successfully.
-- Section rendering is deterministic and language-safe.
-- Deep-links are reliable and shareable.
-- CSV → UI mapping is explicit and protected against silent failures.
-- Project is ready for Sprint 3 without technical debt from Sprint 2.
+### Результат
+- Sprint 2 успешно завершен.
+- Рендеринг секций детерминирован и безопасен для разных языков.
+- Deep-links надежны и готовы к использованию.
+- Маппинг CSV → UI явный и защищен от «тихих» ошибок.
+- Проект готов к Sprint 3 без технического долга со Sprint 2.
 
-## 2026-01-28 — Sprint 3 (completed)
+## 2026-01-28 — Sprint 3 (завершен)
 
-### Product features & UX
-- Implemented fast, language-aware search:
-  - unified search haystack (name / producer / region / grape),
-  - debounced input (250 ms),
-  - clear/reset behavior with proper mobile UX.
-- Added availability (86) management:
-  - global hide86 config option per restaurant,
-  - unavailable wines either hidden or shown as “86” directly in price area,
-  - visual dimming for unavailable items.
+### Продуктовые функции и UX
+- Реализован быстрый поиск с учетом языка:
+  - единый поисковый haystack (name / producer / region / grape),
+  - debounced input (250 мс),
+  - поведение очистки / сброса с корректным мобильным UX.
+- Добавлено управление availability (86):
+  - глобальная настройка `hide86` на уровне ресторана,
+  - недоступные вина либо скрываются, либо помечаются как “86” прямо в зоне цены,
+  - визуальное затемнение недоступных позиций.
 
-### Language & navigation
-- Implemented language switch without full page reload:
-  - reloads CSV per selected language only,
-  - recomputes sections and active state,
-  - keeps URL in sync (?lang=) including popstate handling.
-- Completed deep-link MVP for wines:
-  - ?w=<wine_id> opens modal on load,
-  - modal open/close updates URL state,
-  - section auto-adjusts when opening a wine.
+### Языки и навигация
+- Реализовано переключение языка без полной перезагрузки страницы:
+  - CSV перезагружается только для выбранного языка,
+  - пересчитываются секции и активное состояние,
+  - URL остается синхронизированным (`?lang=`), включая обработку popstate.
+- Завершен MVP deep-links для вин:
+  - `?w=<wine_id>` открывает модальное окно при загрузке,
+  - открытие / закрытие модалки обновляет состояние URL,
+  - секция автоматически подстраивается при открытии вина.
 
-### UI & mobile experience
-- Unified wine card layout and typography:
-  - compact card design,
-  - clear hierarchy (title / sub / prices),
-  - tasting notes rendered as up to 3 visual chips from notes field.
-- Improved mobile UX:
-  - single-column layout,
-  - larger tap targets,
-  - better wrapping and spacing for chips and text.
+### UI и мобильный опыт
+- Унифицированы карточки вин и типографика:
+  - компактный дизайн карточки,
+  - четкая иерархия (title / sub / цены),
+  - tasting notes рендерятся как до 3 визуальных chips из поля notes.
+- Улучшен мобильный UX:
+  - одноколоночный layout,
+  - увеличенные зоны нажатия,
+  - улучшенный перенос и отступы для chips и текста.
 
-### Accessibility
-- Added keyboard and accessibility support:
-  - Esc closes modal only when open,
-  - focus trap inside modal (Tab / Shift+Tab),
-  - logical tab order for controls,
-  - visible focus outline,
-  - proper aria-labels for interactive elements,
-  - section tabs use semantic buttons + pressed state,
-  - status pill announces loading/ready via aria-live.
+### Доступность
+- Добавлена поддержка клавиатуры и accessibility:
+  - Esc закрывает модалку только когда она открыта,
+  - focus trap внутри модалки (Tab / Shift+Tab),
+  - логичный порядок табуляции для элементов управления,
+  - видимый focus outline,
+  - корректные aria-labels для интерактивных элементов,
+  - вкладки секций используют семантические кнопки + pressed state,
+  - статус pill сообщает loading/ready через aria-live.
 
-### Images & robustness
-- Added bottle image placeholder:
-  - UI remains stable if bottle_img is missing or broken.
-- Enabled native lazy-loading (loading="lazy") for bottle images to improve performance on large menus.
+### Изображения и устойчивость
+- Добавлен placeholder для изображений бутылок:
+  - UI остается стабильным, если `bottle_img` отсутствует или битый.
+- Включена нативная lazy-loading загрузка (`loading="lazy"`)
+  для изображений бутылок, чтобы улучшить производительность
+  на больших винных картах.
 
-### Result
-- Sprint 3 completed successfully.
-- Wine Gallery is now a production-ready, fast, accessible, and shareable product.
-- UX is consistent across restaurants, languages, desktop, and mobile.
+### Результат
+- Sprint 3 успешно завершен.
+- Wine Gallery теперь — production-ready продукт:
+  быстрый, доступный и пригодный для шаринга.
+- UX консистентен между ресторанами, языками, десктопом и мобильными устройствами.
+
+## 2026-01-31 — Sprint 4 (завершен)
+
+### Валюта и форматирование цен
+- Добавлено поле `currency: "USD"` в оба конфига (`peopletalk.json`, `novikov_bh.json`)
+- Функция `money()` переписана с использованием `Intl.NumberFormat`:
+  - цены форматируются корректно с символом валюты ($102, $30 / glass и т.д.)
+  - валюта берётся из конфига ресторана
+  - поддержка разных валют в будущем
+- Цены отображаются в карточках вин и в модалке
+
+### Объёмы вин (format_ml)
+- Объёмы отображаются только в модалке (не на карточках):
+  - Бутылка: 750 ml
+  - Бокал: 150 ml / 5 oz (для американского рынка)
+- Объёмы показываются мелким текстом под соответствующими ценами
+
+### Availability (86) и конфигурация
+- Добавлено поле `hide86` в оба конфига ресторанов (значение по умолчанию: `false`)
+- Логика фильтрации и отображения уже была реализована в Sprint 3
+
+### Исправления и улучшения UI
+- Убрано отображение отладочной информации из хедера:
+  - удалены поля `r: novikov_bh` и `lang: en`
+  - удалена строка "Updated from CSV"
+- Интерфейс стал более чистым и минималистичным
+
+### Исправления багов
+- **Баг с испанским языком:** исправлена проблема, когда при переключении на испанский язык отображались только 2 секции (Champagne и All)
+  - Причина: CSV испанской версии содержит английские названия секций, а конфиг содержал испанские
+  - Решение: добавлено новое поле `sectionLabelsOverride` в конфиги для переопределения названий секций на конкретном языке
+  - Логика в `computeSectionsEffective()` применяет переопределение для правильного отображения испанских названий
+- **Баг с модалкой:** исправлена автоматическая смена активной секции при открытии модалки
+  - Было: при открытии модалки с вином секция автоматически менялась на секцию этого вина
+  - Стало: активная секция остаётся той же, где был пользователь (даже если он был в "All")
+
+### Результат
+- Sprint 4 успешно завершен.
+- Цены и валюта унифицированы и управляются из конфига.
+- Объёмы добавлены для информативности (только в модалке).
+- Все баги с языками и модалкой исправлены.
+- Проект готов к следующему спринту без технического долга.

@@ -5,12 +5,23 @@
   "logoUrl": "assets/novikov-logo.png",
   "defaultLanguage": "en",
   "enabledLanguages": ["en", "es"],
+  "currency": "USD",
   "hide86": false,
   "sectionsOrder": ["Sparkling","Champagne","White","Rosé","Red","Dessert wines"],
   "sectionsOrderByLang": {
   "en": ["Sparkling", "Champagne", "White", "Rosé", "Red", "Dessert wines"],
-  "es": ["Espumosos", "Champagne", "Blancos", "Rosados", "Tintos", "Vinos de Postre"]
+  "es": ["Sparkling", "Champagne", "White", "Rosé", "Red", "Dessert wines"]
 },
+  "sectionLabelsOverride": {
+    "es": {
+      "sparkling": "Espumosos",
+      "champagne": "Champagne",
+      "white": "Blancos",
+      "rose": "Rosados",
+      "red": "Tintos",
+      "dessert_wines": "Vinos de Postre"
+    }
+  },
   "csvUrl": {
     "en": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=938845198&single=true&output=csv",
     "es": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=379411074&single=true&output=csv"

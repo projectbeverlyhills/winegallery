@@ -1,12 +1,45 @@
 {
   "restaurantId": "peopletalk",
   "name": "PeopleTalk",
-  "theme": "peopletalk",
+  "branding": {
+    "logo": "assets/peopletalk-logo.png",
+    "subtitle": "Wine List"
+  },
+  "theme": {
+    "preset": "peopletalk",
+    "variables": {
+      "--bg1": "#0b0f0e",
+      "--bg2": "#04110d",
+      "--card": "#0e1312cc",
+      "--card2": "#0f1514aa",
+      "--stroke": "rgba(255,255,255,0.10)",
+      "--stroke2": "rgba(255,255,255,0.14)",
+      "--text": "rgba(255,255,255,0.92)",
+      "--muted": "rgba(255,255,255,0.62)",
+      "--muted2": "rgba(255,255,255,0.50)",
+      "--chip": "rgba(255,255,255,0.06)",
+      "--chipActive": "rgba(156,255,206,0.15)",
+      "--good": "#74ffb6"
+    },
+    "font": "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial"
+  },
   "logoUrl": "assets/peopletalk-logo.png",
   "defaultLanguage": "en",
   "enabledLanguages": ["en", "es"],
   "currency": "USD",
   "hide86": false,
+  "menus": [
+    {
+      "key": "wine",
+      "title": "Wine List",
+      "type": "wine",
+      "layout": "cards",
+      "csvUrl": {
+        "en": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=1714627589&single=true&output=csv",
+        "es": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=1934559009&single=true&output=csv"
+      }
+    }
+  ],
   "sectionsOrder": ["Sparkling","White","Red"],
   "csvUrl": {
     "en": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=1714627589&single=true&output=csv",

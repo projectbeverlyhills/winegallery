@@ -92,6 +92,18 @@
       flex-wrap:wrap;
       justify-content:flex-end;
     }
+    .btn{
+      cursor:pointer;
+      border-radius: 12px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      padding: 7px 10px;
+      font-size: 12px;
+    }
+    .btn:hover{
+      border-color: var(--stroke2);
+    }
     .pill{
       display:flex;
       align-items:center;
@@ -454,10 +466,124 @@
     .card:focus-within{
       border-color: rgba(116,255,182,0.45);
     }
+
+    /* ===== Start screen ===== */
+    .startScreen{
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 20;
+    }
+    .startCard{
+      width: min(560px, 92vw);
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .startBrand{
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .startBrand img{
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      object-fit: contain;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--stroke);
+    }
+    .startTitle{
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .startSubtitle{
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .loginForm,
+    .menuList{
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .menuBtn{
+      width: 100%;
+      text-align: left;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .menuBtn[disabled]{
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+    .formError{
+      color: #ffb4b4;
+      font-size: 12px;
+    }
+    .restaurantSelector{
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .restaurantSelectorLabel{
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    #startRestaurantSelect{
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      font-size: 14px;
+    }
+    .hidden{ display:none !important; }
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="startScreen" id="startScreen" aria-hidden="true">
+    <div class="startCard">
+      <div class="restaurantSelector" id="restaurantSelector" style="display:none;">
+        <div class="restaurantSelectorLabel">Restaurant</div>
+        <select id="startRestaurantSelect" aria-label="Select restaurant"></select>
+      </div>
+
+      <div class="startBrand">
+        <img id="startLogo" alt="logo" src="" />
+        <div>
+          <div class="startTitle" id="startTitle">Wine Gallery</div>
+          <div class="startSubtitle" id="startSubtitle"></div>
+        </div>
+      </div>
+
+      <form id="loginForm" class="loginForm" autocomplete="off">
+        <input id="loginInput" placeholder="Login" aria-label="Login" />
+        <input id="passwordInput" placeholder="Password" type="password" aria-label="Password" />
+        <button class="btn" type="submit">Sign in</button>
+        <div id="loginError" class="formError"></div>
+      </form>
+
+      <div id="menuList" class="menuList"></div>
+    </div>
+  </div>
+
+  <div class="wrap" id="appWrap">
     <div class="topbar">
       <div class="brand">
         <img id="logo" alt="logo" src="" />
@@ -468,10 +594,12 @@
 
       <div class="controls">
         <select id="restaurantSelect" title="Restaurant" aria-label="Restaurant"></select>
+        <select id="menuSelect" title="Menu" aria-label="Menu"></select>
         <select id="langSelect" title="Language" aria-label="Language"></select>
         <input id="searchInput" placeholder="Search..." aria-label="Search wines" />
 
         <button id="clearSearchBtn" class="iconBtn" type="button" title="Clear search" aria-label="Clear search">×</button>
+        <button id="logoutBtn" class="btn" type="button">Logout</button>
 
         <!-- (4) aria-live status -->
         <div class="status" id="statusPill" role="status" aria-live="polite">
@@ -516,6 +644,9 @@ const $ = (id) => document.getElementById(id);
 
 const state = {
   restaurantId: null,
+  menuKey: null,
+  menus: [],
+  menuConfig: null,
   lang: null,
   config: null,
   configsIndex: null,
@@ -526,6 +657,9 @@ const state = {
   isLoading: false,
   status: 'Idle',
   statusType: 'idle',
+  isAuthenticated: false,
+  authRole: null,
+  basePath: null, // Сохраняем basePath один раз при загрузке
   cache: {
     configsIndex: null,
     configByRestaurant: new Map(),
@@ -546,7 +680,12 @@ function normalizeAssetPath(path) {
   if (!path) return '';
   if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) return path;
   if (path.startsWith('/')) return path;
-  return path;
+  
+  // For relative paths, prepend basePath
+  const bp = state.basePath || '';
+  const fullPath = bp + (bp && !bp.endsWith('/') ? '/' : '') + path;
+  console.log('[normalizeAssetPath]', path, '-> basePath:', bp, '-> full:', fullPath);
+  return fullPath;
 }
 
 function normalizeSectionKey(input) {
@@ -593,24 +732,54 @@ function setStatus(text, type='idle') {
  * 2) URL params (deep-links)
  * =========================
  */
-function readUrlParams() {
+function readRoute() {
   const u = new URL(window.location.href);
   const p = u.searchParams;
+  const cleanPath = u.pathname.replace(/\/index\.html$/i, '').replace(/\/$/, '');
+  const parts = cleanPath.split('/').filter(Boolean);
+  
+  // Skip folder name (e.g., 'winegallery'), take the rest
+  let pathRestaurant = null;
+  let pathMenu = null;
+  
+  if (parts.length >= 1) {
+    // If last part is a known folder name, skip it
+    const lastPart = parts[parts.length - 1];
+    if (lastPart === 'winegallery') {
+      // Root path like /winegallery/, parts after folder
+      pathRestaurant = parts.length > 1 ? parts[parts.length - 2] : null;
+      pathMenu = parts.length > 2 ? parts[parts.length - 3] : null;
+    } else if (parts.length >= 1) {
+      // Direct path like /novikov or /novikov/wine
+      pathRestaurant = parts[0];
+      pathMenu = parts[1] || null;
+    }
+  }
+
   return {
-    r: p.get('r'),
+    r: pathRestaurant || p.get('r'),
+    menu: pathMenu || p.get('menu'),
     lang: p.get('lang'),
     section: normalizeSectionKey(p.get('section')),
     w: p.get('w')
   };
 }
 
+function buildPath(r, menu) {
+  if (!r) return '/';
+  if (!menu) return `/${r}`;
+  return `/${r}/${menu}`;
+}
+
 function writeUrlParams(next, mode = 'replace') {
   const u = new URL(window.location.href);
   const p = u.searchParams;
 
-  if (next.r !== undefined) {
-    if (next.r) p.set('r', next.r); else p.delete('r');
-  }
+  const targetRestaurant = next.r !== undefined ? next.r : state.restaurantId;
+  const targetMenu = next.menu !== undefined ? next.menu : state.menuKey;
+
+  p.delete('r');
+  p.delete('menu');
   if (next.lang !== undefined) {
     if (next.lang) p.set('lang', next.lang); else p.delete('lang');
   }
@@ -621,7 +790,8 @@ function writeUrlParams(next, mode = 'replace') {
     if (next.w) p.set('w', next.w); else p.delete('w');
   }
 
-  const newUrl = u.pathname + (p.toString() ? '?' + p.toString() : '');
+  const newPath = buildPath(targetRestaurant, targetMenu);
+  const newUrl = newPath + (p.toString() ? '?' + p.toString() : '');
 
   if (mode === 'push') history.pushState(null, '', newUrl);
   else history.replaceState(null, '', newUrl);
@@ -630,6 +800,7 @@ function writeUrlParams(next, mode = 'replace') {
 function syncUrl(mode = 'replace') {
   writeUrlParams({
     r: state.restaurantId,
+    menu: state.menuKey,
     lang: state.lang,
     section: state.activeSection,
     w: state.modalWineId
@@ -792,16 +963,39 @@ async function fetchText(url) {
   return await res.text();
 }
 
+function getBasePath() {
+  // Используем сохранённый basePath, если он есть
+  if (state.basePath !== null) {
+    return state.basePath;
+  }
+  
+  // Определяем и сохраняем basePath один раз
+  const path = window.location.pathname;
+  
+  // Если URL содержит /winegallery/, значит index.html по адресу /winegallery/index.html
+  // и конфиги находятся в /winegallery/configs/
+  if (path.includes('/winegallery/')) {
+    state.basePath = '/winegallery/';
+    return state.basePath;
+  }
+  
+  // Если сервер запущен из папки winegallery, конфиги в /configs/
+  state.basePath = '/';
+  return state.basePath;
+}
+
 async function loadConfigsIndex() {
   if (state.cache.configsIndex) return state.cache.configsIndex;
-  const idx = await fetchJson('configs/index.json');
+  const basePath = getBasePath();
+  const idx = await fetchJson(`${basePath}configs/index.json`);
   state.cache.configsIndex = idx;
   return idx;
 }
 
 async function loadRestaurantConfig(restaurantId) {
   if (state.cache.configByRestaurant.has(restaurantId)) return state.cache.configByRestaurant.get(restaurantId);
-  const cfg = await fetchJson(`configs/${restaurantId}.json`);
+  const basePath = getBasePath();
+  const cfg = await fetchJson(`${basePath}configs/${restaurantId}.json`);
   state.cache.configByRestaurant.set(restaurantId, cfg);
   return cfg;
 }
@@ -811,6 +1005,467 @@ async function loadCSV(csvUrl) {
   const text = await fetchText(csvUrl);
   state.cache.csvByUrl.set(csvUrl, text);
   return text;
+}
+
+function applyThemeFromConfig(config) {
+  const vars = config?.theme?.variables || {};
+  const root = document.documentElement;
+  for (const [k, v] of Object.entries(vars)) {
+    if (k && v) root.style.setProperty(k, v);
+  }
+  if (config?.theme?.font) root.style.setProperty('--font', config.theme.font);
+}
+
+function normalizeMenus(config) {
+  if (Array.isArray(config?.menus) && config.menus.length) return config.menus;
+  if (config?.csvUrl) {
+    return [{
+      key: 'wine',
+      title: 'Wine List',
+      type: 'wine',
+      layout: 'cards',
+      csvUrl: config.csvUrl
+    }];
+  }
+  return [];
+}
+
+function getMenuByKey(key) {
+  return (state.menus || []).find(m => m.key === key) || null;
+}
+
+function getCsvUrlForLang(lang) {
+  const menuCsv = state.menuConfig?.csvUrl;
+  const fallbackCsv = state.config?.csvUrl;
+  const source = menuCsv || fallbackCsv || {};
+  return source?.[lang] || source?.en || null;
+}
+
+function authStorageKey() {
+  return `wg_auth_${state.restaurantId}`;
+}
+
+function readAuthState() {
+  const key = authStorageKey();
+  return sessionStorage.getItem(key) === '1';
+}
+
+function setAuthState(role) {
+  const key = authStorageKey();
+  sessionStorage.setItem(key, '1');
+  sessionStorage.setItem(`${key}_role`, role || '');
+  state.isAuthenticated = true;
+  state.authRole = role || null;
+}
+
+function clearAuthState() {
+  const key = authStorageKey();
+  sessionStorage.removeItem(key);
+  sessionStorage.removeItem(`${key}_role`);
+  state.isAuthenticated = false;
+  state.authRole = null;
+}
+
+function showStartScreen() {
+  $('startScreen').style.display = 'flex';
+  $('startScreen').setAttribute('aria-hidden', 'false');
+  $('appWrap').classList.add('hidden');
+}
+
+function showAppScreen() {
+  $('startScreen').style.display = 'none';
+  $('startScreen').setAttribute('aria-hidden', 'true');
+  $('appWrap').classList.remove('hidden');
+}
+
+function renderStartBranding() {
+  const logo = state.config?.branding?.logo || state.config?.logoUrl || '';
+  console.log('[renderStartBranding] logo before normalize:', logo);
+  const normalizedLogo = normalizeAssetPath(logo);
+  console.log('[renderStartBranding] logo after normalize:', normalizedLogo);
+  $('startLogo').src = normalizedLogo;
+  $('startTitle').textContent = state.config?.name || state.restaurantId || 'Wine Gallery';
+  $('startSubtitle').textContent = state.config?.branding?.subtitle || '';
+  console.log('[renderStartBranding] Set title:', state.config?.name, 'subtitle:', state.config?.branding?.subtitle);
+}
+
+function renderStartRestaurantSelect() {
+  const sel = $('startRestaurantSelect');
+  const selector = $('restaurantSelector');
+  sel.innerHTML = '';
+  
+  if (!state.configsIndex?.restaurants) return;
+  
+  // Скрыть селектор по умолчанию (конфиденциальность)
+  selector.style.display = 'none';
+  
+  for (const r of state.configsIndex.restaurants) {
+    const opt = document.createElement('option');
+    opt.value = r.id;
+    opt.textContent = r.label || r.id;
+    if (r.id === state.restaurantId) opt.selected = true;
+    sel.appendChild(opt);
+  }
+  
+  sel.onchange = async () => {
+    const newRestaurantId = sel.value;
+    if (newRestaurantId !== state.restaurantId) {
+      state.restaurantId = newRestaurantId;
+      state.config = await loadRestaurantConfig(newRestaurantId);
+      applyThemeFromConfig(state.config);
+      
+      state.menus = normalizeMenus(state.config);
+      state.menuKey = null;
+      state.menuConfig = null;
+      state.activeSection = 'all';
+      state.isAuthenticated = !requiresAuth(state.config) || readAuthState();
+      
+      renderStartBranding();
+      renderStartRestaurantSelect();
+      
+      const needsAuth = requiresAuth(state.config);
+      const loginForm = $('loginForm');
+      const loginError = $('loginError');
+      
+      if (needsAuth && !state.isAuthenticated) {
+        loginForm.classList.remove('hidden');
+        $('menuList').classList.add('hidden');
+        loginError.textContent = '';
+        $('loginInput').value = '';
+        $('passwordInput').value = '';
+      } else {
+        loginForm.classList.add('hidden');
+        $('menuList').classList.remove('hidden');
+        renderMenuList();
+      }
+    }
+  };
+}
+
+function renderMenuList() {
+  const list = $('menuList');
+  list.innerHTML = '';
+
+  for (const menu of state.menus) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'menuBtn';
+    btn.textContent = menu.title || menu.key;
+
+    const hasCsv = !!(menu?.csvUrl?.en || menu?.csvUrl?.[state.lang]);
+    if (!hasCsv) {
+      btn.disabled = true;
+      btn.textContent = `${menu.title || menu.key} (coming soon)`;
+    }
+
+    btn.onclick = () => enterMenu(menu.key);
+    list.appendChild(btn);
+  }
+}
+
+function renderMenuSelect() {
+  const ms = $('menuSelect');
+  if (!ms) {
+    console.log('[renderMenuSelect] menuSelect element not found');
+    return;
+  }
+  ms.innerHTML = '';
+  console.log('[renderMenuSelect] Found menuSelect, state.menus:', state.menus);
+
+  for (const menu of state.menus) {
+    const opt = document.createElement('option');
+    opt.value = menu.key;
+    opt.textContent = menu.title || menu.key;
+    if (menu.key === state.menuKey) opt.selected = true;
+    ms.appendChild(opt);
+  }
+  console.log('[renderMenuSelect] Menu options added, total:', ms.options.length);
+}
+
+function renderGlobalLoginForm() {
+  showStartScreen();
+  const loginForm = $('loginForm');
+  const loginError = $('loginError');
+  const loginInput = $('loginInput');
+  const passwordInput = $('passwordInput');
+  
+  loginForm.classList.remove('hidden');
+  $('menuList').classList.add('hidden');
+  $('restaurantSelector').style.display = 'none';
+  
+  // Remove restaurant branding - show generic title
+  $('startLogo').style.display = 'none';
+  $('startTitle').textContent = 'Wine Gallery';
+  $('startSubtitle').textContent = '';
+  
+  loginError.textContent = '';
+  loginInput.value = '';
+  passwordInput.value = '';
+  loginInput.placeholder = 'Login';
+  passwordInput.placeholder = 'Password';
+  
+  // Remove old onsubmit handler
+  loginForm.onsubmit = async (e) => {
+    e.preventDefault();
+    loginError.textContent = '';
+    
+    const login = loginInput.value?.trim() || '';
+    const pass = passwordInput.value?.trim() || '';
+    
+    console.log('[Login] Attempting with:', login, pass);
+    
+    if (!login || !pass) {
+      loginError.textContent = 'Please enter login and password.';
+      return;
+    }
+    
+    try {
+      const user = await validateGlobalCredentials(login, pass);
+      console.log('[Login] User found:', user);
+      
+      if (!user) {
+        loginError.textContent = 'Invalid login or password.';
+        return;
+      }
+      
+      // Success - load restaurant and proceed
+      state.restaurantId = user.restaurantId;
+      console.log('[Login] Setting restaurant:', state.restaurantId);
+      
+      writeUrlParams({ r: state.restaurantId }, 'push');
+      
+      try {
+        state.config = await loadRestaurantConfig(state.restaurantId);
+        console.log('[Login] Config loaded:', state.config);
+      } catch (configErr) {
+        console.error('[Login] Config load error:', configErr);
+        loginError.textContent = 'Error loading restaurant config: ' + configErr.message;
+        return;
+      }
+      
+      applyThemeFromConfig(state.config);
+      
+      state.menus = normalizeMenus(state.config);
+      state.menuKey = null;
+      state.menuConfig = null;
+      state.lang = state.config.defaultLanguage || 'en';
+      
+      setAuthState(user.role);
+      loginForm.classList.add('hidden');
+      $('menuList').classList.remove('hidden');
+      
+      renderStartBranding();
+      renderMenuList();
+      
+      setStatus('Ready', 'good');
+    } catch (err) {
+      console.error('[Login] Error:', err);
+      loginError.textContent = 'Error: ' + err.message;
+    }
+  };
+}
+
+
+function requiresAuth(config) {
+  return config?.auth?.mode === 'local' && Array.isArray(config?.auth?.users) && config.auth.users.length > 0;
+}
+
+async function validateGlobalCredentials(login, password) {
+  try {
+    const basePath = getBasePath();
+    const authUrl = `${basePath}configs/auth.json?v=` + Date.now();
+    const authIndex = await fetchJson(authUrl);
+    const user = authIndex.users?.find(u => u.login === login && u.password === password);
+    console.log('[Auth] Checking login:', login, 'Found user:', user ? user.restaurantId : 'none');
+    return user || null;
+  } catch (e) {
+    console.error('[Auth] Error loading auth config:', e);
+    throw e;
+  }
+}
+
+function validateCredentials(login, password) {
+  const users = state.config?.auth?.users || [];
+  return users.find(u => u.login === login && u.password === password) || null;
+}
+
+async function enterMenu(menuKey) {
+  console.log('[EnterMenu] Called with:', menuKey);
+  state.menuKey = menuKey;
+  state.menuConfig = getMenuByKey(menuKey);
+  console.log('[EnterMenu] Menu config:', state.menuConfig);
+
+  renderMenuSelect();
+  
+  // Populate language select
+  const ls = $('langSelect');
+  ls.innerHTML = '';
+  for (const l of state.config.enabledLanguages || ['en']) {
+    const opt = document.createElement('option');
+    opt.value = l;
+    opt.textContent = l.toUpperCase();
+    if (l === state.lang) opt.selected = true;
+    ls.appendChild(opt);
+  }
+  console.log('[EnterMenu] Language options populated, count:', ls.options.length);
+  
+  // Set topbar branding (logo and restaurant name)
+  const brandLogo = state.config?.branding?.logo || state.config?.logoUrl || '';
+  $('restaurantName').textContent = state.config.name || state.restaurantId;
+  $('logo').src = normalizeAssetPath(brandLogo);
+  $('logo').style.display = brandLogo ? 'inline-block' : 'none';
+  console.log('[EnterMenu] Topbar branding set - logo:', brandLogo, 'name:', state.config.name);
+  
+  showAppScreen();
+
+  writeUrlParams({ menu: menuKey }, 'push');
+  console.log('[EnterMenu] Calling setLanguage with:', state.lang);
+  
+  // Форсируем загрузку данных, даже если язык не изменился
+  state.wines = [];
+  await loadWinesForCurrentMenu();
+  
+  console.log('[EnterMenu] Finished');
+}
+
+async function loadWinesForCurrentMenu() {
+  console.log('[LoadWines] Starting for menu:', state.menuKey, 'lang:', state.lang);
+  
+  if (!state.menuKey) {
+    console.log('[LoadWines] No menu selected');
+    return;
+  }
+
+  const csvUrl = getCsvUrlForLang(state.lang);
+  console.log('[LoadWines] CSV URL:', csvUrl);
+  
+  if (!csvUrl) {
+    setStatus('Menu not configured', 'idle');
+    return;
+  }
+
+  try {
+    setStatus('Loading wines...', 'idle');
+    const csvText = await loadCSV(csvUrl);
+    console.log('[LoadWines] CSV loaded, length:', csvText.length);
+    
+    const raw = csvToObjects(csvText);
+    console.log('[LoadWines] Parsed rows:', raw.length);
+
+    function toNum(v) {
+      const n = Number(String(v ?? '').replace(',', '.').trim());
+      return isFinite(n) ? n : null;
+    }
+    
+    function buildTitle(x) {
+      const producer = String(x.producer ?? '').trim();
+      const name = String(x.name ?? '').trim();
+      const vintage = String(x.vintage ?? '').trim();
+      const base = [producer, name].filter(Boolean).join(' ');
+      return [base, vintage].filter(Boolean).join(' ');
+    }
+    
+    function buildSub(x) {
+      const country = String(x.country ?? '').trim();
+      const region = String(x.region ?? '').trim();
+      const grape = String(x.grape ?? '').trim();
+      return [country, region, grape].filter(Boolean).join(' • ');
+    }
+
+    state.wines = raw
+      .map(x => {
+        const section = String(x.section ?? '').trim();
+        const sectionKeyRaw = String(x.section_key ?? '').trim();
+        const sectionKey = normalizeSectionKey(sectionKeyRaw || section);
+
+        const visible = toBool(x.visible);
+        const available = toBool(x.is_available);
+
+        const producer = String(x.producer ?? '').trim();
+        const region = String(x.region ?? '').trim();
+        const grape = String(x.grape ?? '').trim();
+
+        const hay = buildSearchHaystack([
+          buildTitle(x),
+          producer,
+          region,
+          grape
+        ]);
+
+        return {
+          id: String(x.id ?? '').trim(),
+          title: buildTitle(x),
+          sub: buildSub(x),
+
+          section,
+          sectionKey,
+
+          producer,
+          region,
+          grape,
+          searchHaystack: hay,
+
+          style: String(x.style ?? '').trim(),
+          description: String(x.story ?? '').trim(),
+          notes: String(x.notes ?? '').trim(),
+          pairing: String(x.pairing ?? '').trim(),
+
+          imageUrl: String(x.bottle_img ?? '').trim(),
+          priceGlass: x.btg_price ?? '',
+          priceBottle: x.bottle_price ?? '',
+
+          order: toNum(x.order),
+          raw: x,
+
+          visible,
+          available,
+        };
+      })
+      .filter(w => w.id && w.title)
+      .filter(w => w.visible);
+
+    console.log('[LoadWines] Mapped wines:', state.wines.length);
+
+    state.sectionsEffective = computeSectionsEffective(state.wines, state.config, state.lang);
+    state.activeSection = 'all';
+
+    setStatus('Ready', 'good');
+    filterAndRender();
+    
+  } catch (err) {
+    console.error('[LoadWines] Error:', err);
+    setStatus('Error: ' + err.message, 'idle');
+  }
+}
+
+async function setMenu(nextMenuKey, opts = {}) {
+  const { fromPopstate = false } = opts;
+  if (!nextMenuKey || nextMenuKey === state.menuKey) return;
+
+  const nextMenu = getMenuByKey(nextMenuKey);
+  if (!nextMenu) {
+    state.menuKey = null;
+    state.menuConfig = null;
+    showStartScreen();
+    $('menuList').classList.remove('hidden');
+    renderMenuList();
+    return;
+  }
+
+  state.menuKey = nextMenuKey;
+  state.menuConfig = nextMenu;
+  state.activeSection = 'all';
+
+  showAppScreen();
+
+  closeModal(false);
+  state.modalWineId = null;
+
+  if (!fromPopstate) {
+    writeUrlParams({ menu: nextMenuKey, w: null, section: 'all' }, 'push');
+  }
+
+  await setLanguage(state.lang);
 }
 
 /**
@@ -1280,13 +1935,11 @@ $('clearSearchBtn').addEventListener('click', clearSearch);
 
 /* (1) removed the duplicated input listener here */
 
-function getCsvUrlForLang(lang) {
-  return state.config?.csvUrl?.[lang] || state.config?.csvUrl?.en || null;
-}
-
 // Sprint 3.3: Language switch without full reload
 async function setLanguage(nextLang, opts = {}) {
   const { fromPopstate = false } = opts;
+
+  console.log('[SetLanguage] Called with:', nextLang, 'Current:', state.lang, 'Opts:', opts);
 
   if (!nextLang) return;
   if (nextLang === state.lang) return;
@@ -1311,8 +1964,23 @@ async function setLanguage(nextLang, opts = {}) {
     state.search = '';
     syncClearButton();
 
+    console.log('[SetLanguage] MenuKey:', state.menuKey);
+
+    if (!state.menuKey) {
+      console.log('[SetLanguage] No menu selected, showing menu list');
+      renderMenuList();
+      setStatus('Ready', 'good');
+      return;
+    }
+
     const csvUrl = getCsvUrlForLang(nextLang);
-    if (!csvUrl) throw new Error('No csvUrl for selected language');
+    console.log('[SetLanguage] CSV URL:', csvUrl);
+    if (!csvUrl) {
+      setStatus('Menu not configured', 'idle');
+      showStartScreen();
+      $('menuList').classList.remove('hidden');
+      return;
+    }
 
     const csvText = await loadCSV(csvUrl);
     const raw = csvToObjects(csvText);
@@ -1418,18 +2086,32 @@ async function boot() {
     setStatus('Loading...', 'idle');
 
     state.configsIndex = await loadConfigsIndex();
-    const url = readUrlParams();
+    const url = readRoute();
+
+    // Если нет ресторана в URL - показать форму глобального входа
+    if (!url.r) {
+      showStartScreen();
+      renderGlobalLoginForm();
+      setStatus('Ready', 'good');
+      return;
+    }
 
     const defaultRestaurant = state.configsIndex?.defaultRestaurant || state.configsIndex?.restaurants?.[0]?.id;
     state.restaurantId = url.r || defaultRestaurant;
 
     state.config = await loadRestaurantConfig(state.restaurantId);
+    applyThemeFromConfig(state.config);
+
+    state.menus = normalizeMenus(state.config);
+    state.menuKey = (url.menu && getMenuByKey(url.menu)) ? url.menu : null;
+    state.menuConfig = getMenuByKey(state.menuKey);
 
     const defaultLang = state.config.defaultLanguage || 'en';
     state.lang = (url.lang && state.config.enabledLanguages?.includes(url.lang)) ? url.lang : defaultLang;
 
     const rs = $('restaurantSelect');
     rs.innerHTML = '';
+    console.log('[Boot] Restaurant select element:', rs, 'restaurants:', state.configsIndex.restaurants.length);
     for (const r of state.configsIndex.restaurants) {
       const opt = document.createElement('option');
       opt.value = r.id;
@@ -1437,9 +2119,11 @@ async function boot() {
       if (r.id === state.restaurantId) opt.selected = true;
       rs.appendChild(opt);
     }
+    console.log('[Boot] Restaurant options added, total:', rs.options.length);
 
     const ls = $('langSelect');
     ls.innerHTML = '';
+    console.log('[Boot] Language select element:', ls, 'display:', getComputedStyle(ls).display);
     for (const l of state.config.enabledLanguages || ['en']) {
       const opt = document.createElement('option');
       opt.value = l;
@@ -1447,12 +2131,107 @@ async function boot() {
       if (l === state.lang) opt.selected = true;
       ls.appendChild(opt);
     }
+    console.log('[Boot] Language options added, total:', ls.options.length);
 
+    renderMenuSelect();
+
+    const brandLogo = state.config?.branding?.logo || state.config?.logoUrl || '';
+    console.log('[Boot] Setting brand - logo:', brandLogo, 'name:', state.config.name);
+    
     $('restaurantName').textContent = state.config.name || state.restaurantId;
-    $('logo').src = normalizeAssetPath(state.config.logoUrl || '');
+    $('logo').src = normalizeAssetPath(brandLogo);
+    $('logo').style.display = brandLogo ? 'inline-block' : 'none';
+    
+    renderStartBranding();
+    renderStartRestaurantSelect();
 
-    const csvUrl = state.config.csvUrl?.[state.lang] || state.config.csvUrl?.en;
-    if (!csvUrl) throw new Error('No csvUrl for selected language');
+    const needsAuth = requiresAuth(state.config);
+    state.isAuthenticated = !needsAuth || readAuthState();
+    const logoutBtn = $('logoutBtn');
+    logoutBtn.style.display = needsAuth ? 'inline-flex' : 'none';
+    console.log('[Boot] needsAuth:', needsAuth, 'logoutBtn display:', logoutBtn.style.display, 'element:', logoutBtn);
+
+    const loginForm = $('loginForm');
+    const loginError = $('loginError');
+
+    loginForm.onsubmit = (e) => {
+      e.preventDefault();
+      loginError.textContent = '';
+
+      const login = $('loginInput').value || '';
+      const pass = $('passwordInput').value || '';
+      const user = validateCredentials(login.trim(), pass.trim());
+
+      if (!user) {
+        loginError.textContent = 'Invalid login or password.';
+        return;
+      }
+
+      setAuthState(user.role);
+      loginForm.classList.add('hidden');
+      $('menuList').classList.remove('hidden');
+      renderMenuList();
+    };
+
+    rs.onchange = async () => {
+      state.cache.csvByUrl.clear();
+      writeUrlParams({ r: rs.value, menu: null, w: null, section: 'all' });
+      window.location.reload();
+    };
+
+    const ms = $('menuSelect');
+    ms.onchange = async () => {
+      await setMenu(ms.value);
+    };
+
+    ls.onchange = async () => {
+      await setLanguage(ls.value);
+    };
+
+    const logoutBtnEl = $('logoutBtn');
+    logoutBtnEl.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('[Logout] Button clicked');
+      clearAuthState();
+      state.menuKey = null;
+      state.menuConfig = null;
+      state.activeSection = 'all';
+      writeUrlParams({ r: null, menu: null, w: null, section: 'all' }, 'push');
+      showStartScreen();
+      $('loginForm').classList.remove('hidden');
+      $('menuList').classList.add('hidden');
+      $('loginError').textContent = '';
+      console.log('[Logout] Complete - showing start screen');
+    }, { capture: true });
+
+    if (needsAuth && !state.isAuthenticated) {
+      showStartScreen();
+      loginForm.classList.remove('hidden');
+      $('menuList').classList.add('hidden');
+      setStatus('Ready', 'good');
+      return;
+    }
+
+    loginForm.classList.add('hidden');
+    $('menuList').classList.remove('hidden');
+    renderMenuList();
+
+    if (!state.menuKey) {
+      showStartScreen();
+      $('menuList').classList.remove('hidden');
+      setStatus('Ready', 'good');
+      return;
+    }
+
+    showAppScreen();
+
+    const csvUrl = getCsvUrlForLang(state.lang);
+    if (!csvUrl) {
+      setStatus('Menu not configured', 'idle');
+      showStartScreen();
+      $('menuList').classList.remove('hidden');
+      return;
+    }
 
     const csvText = await loadCSV(csvUrl);
     const raw = csvToObjects(csvText);
@@ -1557,16 +2336,6 @@ async function boot() {
       }
     }
 
-    rs.onchange = async () => {
-      state.cache.csvByUrl.clear();
-      writeUrlParams({ r: rs.value, w: null });
-      window.location.reload();
-    };
-
-    ls.onchange = async () => {
-      await setLanguage(ls.value);
-    };
-
   } catch (err) {
     console.error(err);
     setStatus('Error: ' + err.message, 'idle');
@@ -1594,7 +2363,32 @@ async function boot() {
 }
 
 window.addEventListener('popstate', () => {
-  const url = readUrlParams();
+  const url = readRoute();
+
+  if (url.r && url.r !== state.restaurantId) {
+    window.location.reload();
+    return;
+  }
+
+  if (!state.isAuthenticated && requiresAuth(state.config)) {
+    showStartScreen();
+    $('loginForm').classList.remove('hidden');
+    $('menuList').classList.add('hidden');
+    return;
+  }
+
+  if (!url.menu) {
+    state.menuKey = null;
+    state.menuConfig = null;
+    showStartScreen();
+    $('menuList').classList.remove('hidden');
+    return;
+  }
+
+  if (url.menu && url.menu !== state.menuKey) {
+    setMenu(url.menu, { fromPopstate: true });
+    return;
+  }
 
   if (url.lang && url.lang !== state.lang) {
     setLanguage(url.lang, { fromPopstate: true });

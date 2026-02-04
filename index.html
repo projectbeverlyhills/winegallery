@@ -637,6 +637,7 @@ const state = {
   isAuthenticated: false,
   authRole: null,
   basePath: null, // Сохраняем basePath один раз при загрузке
+  isLoadingRestaurant: false, // Flag to prevent reload on intentional URL change
   cache: {
     configsIndex: null,
     configByRestaurant: new Map(),
@@ -1156,6 +1157,8 @@ function renderGlobalLoginForm() {
       state.restaurantId = user.restaurantId;
       console.log('[Login] Setting restaurant:', state.restaurantId);
       
+      // Don't trigger reload on popstate - we're loading the restaurant intentionally
+      state.isLoadingRestaurant = true;
       writeUrlParams({ r: state.restaurantId }, 'push');
       
       try {
@@ -1177,6 +1180,7 @@ function renderGlobalLoginForm() {
       setAuthState(user.role);
       loginForm.classList.add('hidden');
       $('menuList').classList.remove('hidden');
+      $('startScreen').style.display = 'none'; // Hide start screen after login
       
       renderStartBranding();
       renderMenuList();
@@ -2270,10 +2274,12 @@ async function boot() {
 window.addEventListener('popstate', () => {
   const url = readRoute();
 
-  if (url.r && url.r !== state.restaurantId) {
+  if (url.r && url.r !== state.restaurantId && !state.isLoadingRestaurant) {
     window.location.reload();
     return;
   }
+  
+  state.isLoadingRestaurant = false;
 
   if (!state.isAuthenticated && requiresAuth(state.config)) {
     showStartScreen();

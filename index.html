@@ -534,35 +534,13 @@
       color: #ffb4b4;
       font-size: 12px;
     }
-    .restaurantSelector{
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .restaurantSelectorLabel{
-      font-size: 12px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    #startRestaurantSelect{
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,0.04);
-      color: var(--text);
-      font-size: 14px;
-    }
     .hidden{ display:none !important; }
   </style>
 </head>
 <body>
   <div class="startScreen" id="startScreen" aria-hidden="true">
     <div class="startCard">
-      <div class="restaurantSelector" id="restaurantSelector" style="display:none;">
-        <div class="restaurantSelectorLabel">Restaurant</div>
-        <select id="startRestaurantSelect" aria-label="Select restaurant"></select>
-      </div>
+
 
       <div class="startBrand">
         <img id="startLogo" alt="logo" src="" />
@@ -593,7 +571,6 @@
       </div>
 
       <div class="controls">
-        <select id="restaurantSelect" title="Restaurant" aria-label="Restaurant"></select>
         <select id="menuSelect" title="Menu" aria-label="Menu"></select>
         <select id="langSelect" title="Language" aria-label="Language"></select>
         <input id="searchInput" placeholder="Search..." aria-label="Search wines" />
@@ -1087,59 +1064,6 @@ function renderStartBranding() {
   $('startTitle').textContent = state.config?.name || state.restaurantId || 'Wine Gallery';
   $('startSubtitle').textContent = state.config?.branding?.subtitle || '';
   console.log('[renderStartBranding] Set title:', state.config?.name, 'subtitle:', state.config?.branding?.subtitle);
-}
-
-function renderStartRestaurantSelect() {
-  const sel = $('startRestaurantSelect');
-  const selector = $('restaurantSelector');
-  sel.innerHTML = '';
-  
-  if (!state.configsIndex?.restaurants) return;
-  
-  // Скрыть селектор по умолчанию (конфиденциальность)
-  selector.style.display = 'none';
-  
-  for (const r of state.configsIndex.restaurants) {
-    const opt = document.createElement('option');
-    opt.value = r.id;
-    opt.textContent = r.label || r.id;
-    if (r.id === state.restaurantId) opt.selected = true;
-    sel.appendChild(opt);
-  }
-  
-  sel.onchange = async () => {
-    const newRestaurantId = sel.value;
-    if (newRestaurantId !== state.restaurantId) {
-      state.restaurantId = newRestaurantId;
-      state.config = await loadRestaurantConfig(newRestaurantId);
-      applyThemeFromConfig(state.config);
-      
-      state.menus = normalizeMenus(state.config);
-      state.menuKey = null;
-      state.menuConfig = null;
-      state.activeSection = 'all';
-      state.isAuthenticated = !requiresAuth(state.config) || readAuthState();
-      
-      renderStartBranding();
-      renderStartRestaurantSelect();
-      
-      const needsAuth = requiresAuth(state.config);
-      const loginForm = $('loginForm');
-      const loginError = $('loginError');
-      
-      if (needsAuth && !state.isAuthenticated) {
-        loginForm.classList.remove('hidden');
-        $('menuList').classList.add('hidden');
-        loginError.textContent = '';
-        $('loginInput').value = '';
-        $('passwordInput').value = '';
-      } else {
-        loginForm.classList.add('hidden');
-        $('menuList').classList.remove('hidden');
-        renderMenuList();
-      }
-    }
-  };
 }
 
 function renderMenuList() {
@@ -2109,18 +2033,6 @@ async function boot() {
     const defaultLang = state.config.defaultLanguage || 'en';
     state.lang = (url.lang && state.config.enabledLanguages?.includes(url.lang)) ? url.lang : defaultLang;
 
-    const rs = $('restaurantSelect');
-    rs.innerHTML = '';
-    console.log('[Boot] Restaurant select element:', rs, 'restaurants:', state.configsIndex.restaurants.length);
-    for (const r of state.configsIndex.restaurants) {
-      const opt = document.createElement('option');
-      opt.value = r.id;
-      opt.textContent = r.label || r.id;
-      if (r.id === state.restaurantId) opt.selected = true;
-      rs.appendChild(opt);
-    }
-    console.log('[Boot] Restaurant options added, total:', rs.options.length);
-
     const ls = $('langSelect');
     ls.innerHTML = '';
     console.log('[Boot] Language select element:', ls, 'display:', getComputedStyle(ls).display);
@@ -2143,7 +2055,6 @@ async function boot() {
     $('logo').style.display = brandLogo ? 'inline-block' : 'none';
     
     renderStartBranding();
-    renderStartRestaurantSelect();
 
     const needsAuth = requiresAuth(state.config);
     state.isAuthenticated = !needsAuth || readAuthState();
@@ -2171,12 +2082,6 @@ async function boot() {
       loginForm.classList.add('hidden');
       $('menuList').classList.remove('hidden');
       renderMenuList();
-    };
-
-    rs.onchange = async () => {
-      state.cache.csvByUrl.clear();
-      writeUrlParams({ r: rs.value, menu: null, w: null, section: 'all' });
-      window.location.reload();
     };
 
     const ms = $('menuSelect');

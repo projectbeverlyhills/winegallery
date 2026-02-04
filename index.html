@@ -670,7 +670,6 @@ function normalizeAssetPath(path) {
   
   // For relative paths like "assets/novikov-logo.png", prepend /winegallery/
   const fullPath = '/winegallery/' + path;
-  console.log('[normalizeAssetPath]', path, '-> full:', fullPath);
   return fullPath;
 }
 
@@ -718,17 +717,27 @@ function setStatus(text, type='idle') {
  * 2) URL params (deep-links)
  * =========================
  */
+function shouldUseHashRouting() {
+  return window.location.hostname === '127.0.0.1'
+    || window.location.hostname === 'localhost'
+    || window.location.protocol === 'file:';
+}
+
 function readRoute() {
   const u = new URL(window.location.href);
   const p = u.searchParams;
   const cleanPath = u.pathname.replace(/\/index\.html$/i, '').replace(/\/$/, '');
   const parts = cleanPath.split('/').filter(Boolean);
+  const hashParts = (u.hash && u.hash.startsWith('#/')) ? u.hash.slice(2).split('/').filter(Boolean) : [];
   
   // Skip folder name (e.g., 'winegallery'), take the rest
   let pathRestaurant = null;
   let pathMenu = null;
   
-  if (parts.length >= 1) {
+  if (hashParts.length) {
+    pathRestaurant = hashParts[0] || null;
+    pathMenu = hashParts[1] || null;
+  } else if (parts.length >= 1) {
     // If last part is a known folder name, skip it
     const lastPart = parts[parts.length - 1];
     if (lastPart === 'winegallery') {
@@ -752,6 +761,13 @@ function readRoute() {
 }
 
 function buildPath(r, menu) {
+  if (shouldUseHashRouting()) {
+    const bp = getBasePath();
+    const base = bp.endsWith('/') ? bp : `${bp}/`;
+    if (!r) return base;
+    const suffix = menu ? `${r}/${menu}` : `${r}`;
+    return `${base}#/${suffix}`;
+  }
   if (!r) return '/';
   if (!menu) return `/${r}`;
   return `/${r}/${menu}`;
@@ -1053,31 +1069,36 @@ function clearAuthState() {
 }
 
 function showStartScreen() {
-  $('startScreen').style.display = 'flex';
-  $('startScreen').setAttribute('aria-hidden', 'false');
-  $('appWrap').classList.add('hidden');
+  const startScreen = $('startScreen');
+  const appWrap = $('appWrap');
+  if (startScreen) {
+    startScreen.style.display = 'flex';
+    startScreen.setAttribute('aria-hidden', 'false');
+    startScreen.inert = false;
+  }
+  if (appWrap) appWrap.classList.add('hidden');
 }
 
 function showAppScreen() {
   const startScreen = $('startScreen');
   if (startScreen) {
-    startScreen.style.display = 'none';
+    if (startScreen.contains(document.activeElement)) {
+      document.activeElement.blur();
+    }
+    startScreen.inert = true;
     startScreen.setAttribute('aria-hidden', 'true');
+    startScreen.style.display = 'none';
   }
   
   const appWrap = $('appWrap');
   if (appWrap) {
     appWrap.classList.remove('hidden');
   }
-  
-  console.log('[showAppScreen] Switched to app screen');
 }
 
 function renderStartBranding() {
   const logo = state.config?.branding?.logo || state.config?.logoUrl || '';
-  console.log('[renderStartBranding] logo before normalize:', logo);
   const normalizedLogo = normalizeAssetPath(logo);
-  console.log('[renderStartBranding] logo after normalize:', normalizedLogo);
   
   const startLogo = $('startLogo');
   const startTitle = $('startTitle');
@@ -1100,17 +1121,11 @@ function renderStartBranding() {
     if (startSubtitle) startSubtitle.textContent = state.config?.branding?.subtitle || '';
   }
   
-  console.log('[renderStartBranding] Set title:', state.config?.name, 'subtitle:', state.config?.branding?.subtitle);
 }
 
 function renderMenuList() {
   const list = $('menuList');
-  console.log('[renderMenuList] list element:', list, 'state.menus:', state.menus?.length);
-  
-  if (!list) {
-    console.error('[renderMenuList] menuList element not found!');
-    return;
-  }
+  if (!list) return;
   
   list.innerHTML = '';
 
@@ -1129,17 +1144,14 @@ function renderMenuList() {
     btn.onclick = () => enterMenu(menu.key);
     list.appendChild(btn);
   }
-  console.log('[renderMenuList] Created', state.menus.length, 'menu buttons');
 }
 
 function renderMenuSelect() {
   const ms = $('menuSelect');
   if (!ms) {
-    console.log('[renderMenuSelect] menuSelect element not found');
     return;
   }
   ms.innerHTML = '';
-  console.log('[renderMenuSelect] Found menuSelect, state.menus:', state.menus);
 
   for (const menu of state.menus) {
     const opt = document.createElement('option');
@@ -1148,7 +1160,6 @@ function renderMenuSelect() {
     if (menu.key === state.menuKey) opt.selected = true;
     ms.appendChild(opt);
   }
-  console.log('[renderMenuSelect] Menu options added, total:', ms.options.length);
 }
 
 function renderGlobalLoginForm() {
@@ -1188,8 +1199,6 @@ function renderGlobalLoginForm() {
     const login = loginInput.value?.trim() || '';
     const pass = passwordInput.value?.trim() || '';
     
-    console.log('[Login] Attempting with:', login, pass);
-    
     if (!login || !pass) {
       loginError.textContent = 'Please enter login and password.';
       return;
@@ -1197,7 +1206,6 @@ function renderGlobalLoginForm() {
     
     try {
       const user = await validateGlobalCredentials(login, pass);
-      console.log('[Login] User found:', user);
       
       if (!user) {
         loginError.textContent = 'Invalid login or password.';
@@ -1206,17 +1214,14 @@ function renderGlobalLoginForm() {
       
       // Success - load restaurant and proceed
       state.restaurantId = user.restaurantId;
-      console.log('[Login] Setting restaurant:', state.restaurantId);
       
       // Don't change URL yet - wait until user selects a menu
       // Changing URL to Pretty URL like /novikov_bh causes browser to try loading that page (404)
       // URL will be updated when user enters a menu via enterMenu()
       state.isLoadingRestaurant = true;
-      console.log('[Login] Restaurant loaded, not changing URL yet');
       
       try {
         state.config = await loadRestaurantConfig(state.restaurantId);
-        console.log('[Login] Config loaded:', state.config);
       } catch (configErr) {
         console.error('[Login] Config load error:', configErr);
         loginError.textContent = 'Error loading restaurant config: ' + configErr.message;
@@ -1226,33 +1231,32 @@ function renderGlobalLoginForm() {
       applyThemeFromConfig(state.config);
       
       state.menus = normalizeMenus(state.config);
-      console.log('[Login] Menus normalized:', state.menus.length, 'menus');
       state.menuKey = null;
       state.menuConfig = null;
       state.lang = state.config.defaultLanguage || 'en';
       
       setAuthState(user.role);
-      console.log('[Login] Auth state set to role:', user.role);
       
       loginForm.classList.add('hidden');
-      console.log('[Login] Login form hidden');
       
-      $('menuList').classList.remove('hidden');
-      console.log('[Login] Menu list shown');
+      // Show menuList and remove aria-hidden from startScreen since content is now visible
+      const menuList = $('menuList');
+      if (menuList) menuList.classList.remove('hidden');
+      
+      const startScreen = $('startScreen');
+      if (startScreen) {
+        startScreen.setAttribute('aria-hidden', 'false');
+      }
       
       // Don't hide startScreen - menuList is inside it!
       // If we hide startScreen, menuList will be hidden too
       // Keep startScreen visible for menu selection
-      console.log('[Login] Keeping startScreen visible (menuList is inside startScreen)');
       
       renderStartBranding();
-      console.log('[Login] Start branding rendered');
       
       renderMenuList();
-      console.log('[Login] Menu list rendered:', $('menuList').innerHTML.length, 'chars');
       
       setStatus('Ready', 'good');
-      console.log('[Login] Status set to Ready');
     } catch (err) {
       console.error('[Login] Error:', err);
       loginError.textContent = 'Error: ' + err.message;
@@ -1271,7 +1275,6 @@ async function validateGlobalCredentials(login, password) {
     const authUrl = `${basePath}configs/auth.json?v=` + Date.now();
     const authIndex = await fetchJson(authUrl);
     const user = authIndex.users?.find(u => u.login === login && u.password === password);
-    console.log('[Auth] Checking login:', login, 'Found user:', user ? user.restaurantId : 'none');
     return user || null;
   } catch (e) {
     console.error('[Auth] Error loading auth config:', e);
@@ -1285,10 +1288,8 @@ function validateCredentials(login, password) {
 }
 
 async function enterMenu(menuKey) {
-  console.log('[EnterMenu] Called with:', menuKey);
   state.menuKey = menuKey;
   state.menuConfig = getMenuByKey(menuKey);
-  console.log('[EnterMenu] Menu config:', state.menuConfig);
 
   renderMenuSelect();
   
@@ -1302,37 +1303,28 @@ async function enterMenu(menuKey) {
     if (l === state.lang) opt.selected = true;
     ls.appendChild(opt);
   }
-  console.log('[EnterMenu] Language options populated, count:', ls.options.length);
   
   // Set topbar branding (logo and restaurant name)
   const brandLogo = state.config?.branding?.logo || state.config?.logoUrl || '';
   $('restaurantName').textContent = state.config.name || state.restaurantId;
   $('logo').src = normalizeAssetPath(brandLogo);
   $('logo').style.display = brandLogo ? 'inline-block' : 'none';
-  console.log('[EnterMenu] Topbar branding set - logo:', brandLogo, 'name:', state.config.name);
   
   showAppScreen();
 
   writeUrlParams({ menu: menuKey }, 'push');
-  console.log('[EnterMenu] Calling setLanguage with:', state.lang);
   
   // Форсируем загрузку данных, даже если язык не изменился
   state.wines = [];
   await loadWinesForCurrentMenu();
-  
-  console.log('[EnterMenu] Finished');
 }
 
 async function loadWinesForCurrentMenu() {
-  console.log('[LoadWines] Starting for menu:', state.menuKey, 'lang:', state.lang);
-  
   if (!state.menuKey) {
-    console.log('[LoadWines] No menu selected');
     return;
   }
 
   const csvUrl = getCsvUrlForLang(state.lang);
-  console.log('[LoadWines] CSV URL:', csvUrl);
   
   if (!csvUrl) {
     setStatus('Menu not configured', 'idle');
@@ -1342,10 +1334,8 @@ async function loadWinesForCurrentMenu() {
   try {
     setStatus('Loading wines...', 'idle');
     const csvText = await loadCSV(csvUrl);
-    console.log('[LoadWines] CSV loaded, length:', csvText.length);
     
     const raw = csvToObjects(csvText);
-    console.log('[LoadWines] Parsed rows:', raw.length);
 
     function toNum(v) {
       const n = Number(String(v ?? '').replace(',', '.').trim());
@@ -1418,8 +1408,6 @@ async function loadWinesForCurrentMenu() {
       })
       .filter(w => w.id && w.title)
       .filter(w => w.visible);
-
-    console.log('[LoadWines] Mapped wines:', state.wines.length);
 
     state.sectionsEffective = computeSectionsEffective(state.wines, state.config, state.lang);
     state.activeSection = 'all';
@@ -1501,8 +1489,6 @@ function computeSectionsEffective(wines, config, lang) {
     const override = config.sectionLabelsOverride[lang];
     state.sectionLabels = { ...state.sectionLabels, ...override };
   }
-
-  console.log('[DEBUG] computeSectionsEffective lang=%o, keysInData=%o, normalizedOrder=%o, labelsFromConfig=%o', lang, Array.from(keysInData), normalizedOrder, labelsFromConfig);
 
   if (normalizedOrder.length) {
     const effective = normalizedOrder.filter(k => keysInData.has(k));
@@ -1934,8 +1920,6 @@ $('clearSearchBtn').addEventListener('click', clearSearch);
 async function setLanguage(nextLang, opts = {}) {
   const { fromPopstate = false } = opts;
 
-  console.log('[SetLanguage] Called with:', nextLang, 'Current:', state.lang, 'Opts:', opts);
-
   if (!nextLang) return;
   if (nextLang === state.lang) return;
   if (!state.config?.enabledLanguages?.includes(nextLang)) {
@@ -1959,17 +1943,13 @@ async function setLanguage(nextLang, opts = {}) {
     state.search = '';
     syncClearButton();
 
-    console.log('[SetLanguage] MenuKey:', state.menuKey);
-
     if (!state.menuKey) {
-      console.log('[SetLanguage] No menu selected, showing menu list');
       renderMenuList();
       setStatus('Ready', 'good');
       return;
     }
 
     const csvUrl = getCsvUrlForLang(nextLang);
-    console.log('[SetLanguage] CSV URL:', csvUrl);
     if (!csvUrl) {
       setStatus('Menu not configured', 'idle');
       showStartScreen();
@@ -2106,7 +2086,6 @@ async function boot() {
 
     const ls = $('langSelect');
     ls.innerHTML = '';
-    console.log('[Boot] Language select element:', ls, 'display:', getComputedStyle(ls).display);
     for (const l of state.config.enabledLanguages || ['en']) {
       const opt = document.createElement('option');
       opt.value = l;
@@ -2114,12 +2093,10 @@ async function boot() {
       if (l === state.lang) opt.selected = true;
       ls.appendChild(opt);
     }
-    console.log('[Boot] Language options added, total:', ls.options.length);
 
     renderMenuSelect();
 
     const brandLogo = state.config?.branding?.logo || state.config?.logoUrl || '';
-    console.log('[Boot] Setting brand - logo:', brandLogo, 'name:', state.config.name);
     
     $('restaurantName').textContent = state.config.name || state.restaurantId;
     $('logo').src = normalizeAssetPath(brandLogo);
@@ -2131,7 +2108,6 @@ async function boot() {
     state.isAuthenticated = !needsAuth || readAuthState();
     const logoutBtn = $('logoutBtn');
     logoutBtn.style.display = needsAuth ? 'inline-flex' : 'none';
-    console.log('[Boot] needsAuth:', needsAuth, 'logoutBtn display:', logoutBtn.style.display, 'element:', logoutBtn);
 
     const loginForm = $('loginForm');
     const loginError = $('loginError');
@@ -2167,7 +2143,6 @@ async function boot() {
     const logoutBtnEl = $('logoutBtn');
     logoutBtnEl.addEventListener('click', (e) => {
       e.preventDefault();
-      console.log('[Logout] Button clicked');
       clearAuthState();
       state.menuKey = null;
       state.menuConfig = null;
@@ -2177,7 +2152,6 @@ async function boot() {
       $('loginForm').classList.remove('hidden');
       $('menuList').classList.add('hidden');
       $('loginError').textContent = '';
-      console.log('[Logout] Complete - showing start screen');
     }, { capture: true });
 
     if (needsAuth && !state.isAuthenticated) {
@@ -2211,11 +2185,6 @@ async function boot() {
 
     const csvText = await loadCSV(csvUrl);
     const raw = csvToObjects(csvText);
-
-    console.log('[WineGallery] restaurant:', state.restaurantId, 'lang:', state.lang);
-    console.log('[WineGallery] csvUrl:', csvUrl);
-    console.log('[WineGallery] raw rows:', raw.length);
-    if (raw[0]) console.log('[WineGallery] raw headers:', Object.keys(raw[0]));
 
     function toNum(v) {
       const n = Number(String(v ?? '').replace(',', '.').trim());

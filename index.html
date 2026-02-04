@@ -662,14 +662,15 @@ function bindLogoutHandler() {
   logoutBtnEl.addEventListener('click', (e) => {
     e.preventDefault();
     clearAuthState();
+    state.restaurantId = null;
+    state.config = null;
+    state.menus = [];
     state.menuKey = null;
     state.menuConfig = null;
     state.activeSection = 'all';
     writeUrlParams({ r: null, menu: null, w: null, section: 'all' }, 'push');
     showStartScreen();
-    $('loginForm').classList.remove('hidden');
-    $('menuList').classList.add('hidden');
-    $('loginError').textContent = '';
+    renderGlobalLoginForm();
     $('logoutBtn').style.display = 'none';
   }, { capture: true });
   logoutHandlerBound = true;

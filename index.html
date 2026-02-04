@@ -1061,9 +1061,21 @@ function renderStartBranding() {
   console.log('[renderStartBranding] logo before normalize:', logo);
   const normalizedLogo = normalizeAssetPath(logo);
   console.log('[renderStartBranding] logo after normalize:', normalizedLogo);
-  $('startLogo').src = normalizedLogo;
-  $('startTitle').textContent = state.config?.name || state.restaurantId || 'Wine Gallery';
-  $('startSubtitle').textContent = state.config?.branding?.subtitle || '';
+  
+  // Only show logo if we're past global login (i.e., if loginForm is hidden)
+  const loginForm = $('loginForm');
+  if (loginForm && !loginForm.classList.contains('hidden')) {
+    // Global login form is visible - don't show restaurant branding yet
+    $('startLogo').style.display = 'none';
+    $('startTitle').textContent = 'Wine Gallery';
+    $('startSubtitle').textContent = '';
+  } else {
+    // Restaurant is loaded - show branding
+    $('startLogo').src = normalizedLogo;
+    $('startTitle').textContent = state.config?.name || state.restaurantId || 'Wine Gallery';
+    $('startSubtitle').textContent = state.config?.branding?.subtitle || '';
+  }
+  
   console.log('[renderStartBranding] Set title:', state.config?.name, 'subtitle:', state.config?.branding?.subtitle);
 }
 
@@ -1159,7 +1171,9 @@ function renderGlobalLoginForm() {
       
       // Don't trigger reload on popstate - we're loading the restaurant intentionally
       state.isLoadingRestaurant = true;
+      console.log('[Login] Set isLoadingRestaurant to true');
       writeUrlParams({ r: state.restaurantId }, 'push');
+      console.log('[Login] Called writeUrlParams, URL should change now');
       
       try {
         state.config = await loadRestaurantConfig(state.restaurantId);

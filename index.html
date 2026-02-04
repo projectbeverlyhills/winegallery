@@ -657,12 +657,20 @@ function resolveBottleSrc(url) {
 function normalizeAssetPath(path) {
   if (!path) return '';
   if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) return path;
-  if (path.startsWith('/')) return path;
   
-  // For relative paths, prepend basePath
-  const bp = state.basePath || '';
-  const fullPath = bp + (bp && !bp.endsWith('/') ? '/' : '') + path;
-  console.log('[normalizeAssetPath]', path, '-> basePath:', bp, '-> full:', fullPath);
+  // Always use absolute path from /winegallery/ root since Pretty URLs can interfere with relative paths
+  // For example: when URL is /novikov_bh, relative paths like assets/... become /novikov_bh/assets/
+  if (path.startsWith('/')) {
+    // Already absolute - check if it starts with /winegallery/, if not prepend it
+    if (!path.startsWith('/winegallery/')) {
+      return '/winegallery' + path;
+    }
+    return path;
+  }
+  
+  // For relative paths like "assets/novikov-logo.png", prepend /winegallery/
+  const fullPath = '/winegallery/' + path;
+  console.log('[normalizeAssetPath]', path, '-> full:', fullPath);
   return fullPath;
 }
 

@@ -1240,10 +1240,11 @@ function renderGlobalLoginForm() {
       $('menuList').classList.remove('hidden');
       console.log('[Login] Menu list shown');
       
-      $('startScreen').style.display = 'none'; // Hide start screen after login
-      console.log('[Login] Start screen hidden');
+      // Don't hide startScreen - menuList is inside it!
+      // If we hide startScreen, menuList will be hidden too
+      // Keep startScreen visible for menu selection
+      console.log('[Login] Keeping startScreen visible (menuList is inside startScreen)');
       
-      showAppScreen();
       renderStartBranding();
       console.log('[Login] Start branding rendered');
       

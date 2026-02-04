@@ -1059,9 +1059,18 @@ function showStartScreen() {
 }
 
 function showAppScreen() {
-  $('startScreen').style.display = 'none';
-  $('startScreen').setAttribute('aria-hidden', 'true');
-  $('appWrap').classList.remove('hidden');
+  const startScreen = $('startScreen');
+  if (startScreen) {
+    startScreen.style.display = 'none';
+    startScreen.setAttribute('aria-hidden', 'true');
+  }
+  
+  const appWrap = $('appWrap');
+  if (appWrap) {
+    appWrap.classList.remove('hidden');
+  }
+  
+  console.log('[showAppScreen] Switched to app screen');
 }
 
 function renderStartBranding() {
@@ -1234,6 +1243,7 @@ function renderGlobalLoginForm() {
       $('startScreen').style.display = 'none'; // Hide start screen after login
       console.log('[Login] Start screen hidden');
       
+      showAppScreen();
       renderStartBranding();
       console.log('[Login] Start branding rendered');
       

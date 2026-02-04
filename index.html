@@ -1096,6 +1096,13 @@ function renderStartBranding() {
 
 function renderMenuList() {
   const list = $('menuList');
+  console.log('[renderMenuList] list element:', list, 'state.menus:', state.menus?.length);
+  
+  if (!list) {
+    console.error('[renderMenuList] menuList element not found!');
+    return;
+  }
+  
   list.innerHTML = '';
 
   for (const menu of state.menus) {
@@ -1113,6 +1120,7 @@ function renderMenuList() {
     btn.onclick = () => enterMenu(menu.key);
     list.appendChild(btn);
   }
+  console.log('[renderMenuList] Created', state.menus.length, 'menu buttons');
 }
 
 function renderMenuSelect() {
@@ -1209,19 +1217,31 @@ function renderGlobalLoginForm() {
       applyThemeFromConfig(state.config);
       
       state.menus = normalizeMenus(state.config);
+      console.log('[Login] Menus normalized:', state.menus.length, 'menus');
       state.menuKey = null;
       state.menuConfig = null;
       state.lang = state.config.defaultLanguage || 'en';
       
       setAuthState(user.role);
+      console.log('[Login] Auth state set to role:', user.role);
+      
       loginForm.classList.add('hidden');
+      console.log('[Login] Login form hidden');
+      
       $('menuList').classList.remove('hidden');
+      console.log('[Login] Menu list shown');
+      
       $('startScreen').style.display = 'none'; // Hide start screen after login
+      console.log('[Login] Start screen hidden');
       
       renderStartBranding();
+      console.log('[Login] Start branding rendered');
+      
       renderMenuList();
+      console.log('[Login] Menu list rendered:', $('menuList').innerHTML.length, 'chars');
       
       setStatus('Ready', 'good');
+      console.log('[Login] Status set to Ready');
     } catch (err) {
       console.error('[Login] Error:', err);
       loginError.textContent = 'Error: ' + err.message;

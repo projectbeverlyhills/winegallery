@@ -1208,11 +1208,11 @@ function renderGlobalLoginForm() {
       state.restaurantId = user.restaurantId;
       console.log('[Login] Setting restaurant:', state.restaurantId);
       
-      // Don't trigger reload on popstate - we're loading the restaurant intentionally
+      // Don't change URL yet - wait until user selects a menu
+      // Changing URL to Pretty URL like /novikov_bh causes browser to try loading that page (404)
+      // URL will be updated when user enters a menu via enterMenu()
       state.isLoadingRestaurant = true;
-      console.log('[Login] Set isLoadingRestaurant to true');
-      writeUrlParams({ r: state.restaurantId }, 'push');
-      console.log('[Login] Called writeUrlParams, URL should change now');
+      console.log('[Login] Restaurant loaded, not changing URL yet');
       
       try {
         state.config = await loadRestaurantConfig(state.restaurantId);

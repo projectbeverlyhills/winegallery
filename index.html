@@ -1062,18 +1062,25 @@ function renderStartBranding() {
   const normalizedLogo = normalizeAssetPath(logo);
   console.log('[renderStartBranding] logo after normalize:', normalizedLogo);
   
-  // Only show logo if we're past global login (i.e., if loginForm is hidden)
+  const startLogo = $('startLogo');
+  const startTitle = $('startTitle');
+  const startSubtitle = $('startSubtitle');
   const loginForm = $('loginForm');
+  
+  // Only show logo if we're past global login (i.e., if loginForm is hidden)
   if (loginForm && !loginForm.classList.contains('hidden')) {
     // Global login form is visible - don't show restaurant branding yet
-    $('startLogo').style.display = 'none';
-    $('startTitle').textContent = 'Wine Gallery';
-    $('startSubtitle').textContent = '';
+    if (startLogo) startLogo.style.display = 'none';
+    if (startTitle) startTitle.textContent = 'Wine Gallery';
+    if (startSubtitle) startSubtitle.textContent = '';
   } else {
     // Restaurant is loaded - show branding
-    $('startLogo').src = normalizedLogo;
-    $('startTitle').textContent = state.config?.name || state.restaurantId || 'Wine Gallery';
-    $('startSubtitle').textContent = state.config?.branding?.subtitle || '';
+    if (startLogo) {
+      startLogo.src = normalizedLogo;
+      startLogo.style.display = 'inline-block';
+    }
+    if (startTitle) startTitle.textContent = state.config?.name || state.restaurantId || 'Wine Gallery';
+    if (startSubtitle) startSubtitle.textContent = state.config?.branding?.subtitle || '';
   }
   
   console.log('[renderStartBranding] Set title:', state.config?.name, 'subtitle:', state.config?.branding?.subtitle);
@@ -1128,12 +1135,19 @@ function renderGlobalLoginForm() {
   
   loginForm.classList.remove('hidden');
   $('menuList').classList.add('hidden');
-  $('restaurantSelector').style.display = 'none';
   
-  // Remove restaurant branding - show generic title
-  $('startLogo').style.display = 'none';
-  $('startTitle').textContent = 'Wine Gallery';
-  $('startSubtitle').textContent = '';
+  // Safely hide restaurant selector and branding elements
+  const restaurantSelector = $('restaurantSelector');
+  if (restaurantSelector) restaurantSelector.style.display = 'none';
+  
+  const startLogo = $('startLogo');
+  if (startLogo) startLogo.style.display = 'none';
+  
+  const startTitle = $('startTitle');
+  if (startTitle) startTitle.textContent = 'Wine Gallery';
+  
+  const startSubtitle = $('startSubtitle');
+  if (startSubtitle) startSubtitle.textContent = '';
   
   loginError.textContent = '';
   loginInput.value = '';

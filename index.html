@@ -648,10 +648,31 @@ const state = {
 };
 
 const PLACEHOLDER_BOTTLE = 'assets/placeholder-bottle.svg';
+let logoutHandlerBound = false;
 
 function resolveBottleSrc(url) {
   const u = normalizeAssetPath(url || '');
   return u ? u : PLACEHOLDER_BOTTLE;
+}
+
+function bindLogoutHandler() {
+  if (logoutHandlerBound) return;
+  const logoutBtnEl = $('logoutBtn');
+  if (!logoutBtnEl) return;
+  logoutBtnEl.addEventListener('click', (e) => {
+    e.preventDefault();
+    clearAuthState();
+    state.menuKey = null;
+    state.menuConfig = null;
+    state.activeSection = 'all';
+    writeUrlParams({ r: null, menu: null, w: null, section: 'all' }, 'push');
+    showStartScreen();
+    $('loginForm').classList.remove('hidden');
+    $('menuList').classList.add('hidden');
+    $('loginError').textContent = '';
+    $('logoutBtn').style.display = 'none';
+  }, { capture: true });
+  logoutHandlerBound = true;
 }
 
 function normalizeAssetPath(path) {
@@ -1255,6 +1276,8 @@ function renderGlobalLoginForm() {
       renderStartBranding();
       
       renderMenuList();
+
+      bindLogoutHandler();
 
       $('logoutBtn').style.display = 'inline-flex';
       
@@ -2143,20 +2166,7 @@ async function boot() {
       await setLanguage(ls.value);
     };
 
-    const logoutBtnEl = $('logoutBtn');
-    logoutBtnEl.addEventListener('click', (e) => {
-      e.preventDefault();
-      clearAuthState();
-      state.menuKey = null;
-      state.menuConfig = null;
-      state.activeSection = 'all';
-      writeUrlParams({ r: null, menu: null, w: null, section: 'all' }, 'push');
-      showStartScreen();
-      $('loginForm').classList.remove('hidden');
-      $('menuList').classList.add('hidden');
-      $('loginError').textContent = '';
-      $('logoutBtn').style.display = 'none';
-    }, { capture: true });
+    bindLogoutHandler();
 
     if (needsAuth && !state.isAuthenticated) {
       showStartScreen();

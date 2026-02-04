@@ -1255,6 +1255,8 @@ function renderGlobalLoginForm() {
       renderStartBranding();
       
       renderMenuList();
+
+      $('logoutBtn').style.display = 'inline-flex';
       
       setStatus('Ready', 'good');
     } catch (err) {
@@ -2107,7 +2109,7 @@ async function boot() {
     const needsAuth = requiresAuth(state.config);
     state.isAuthenticated = !needsAuth || readAuthState();
     const logoutBtn = $('logoutBtn');
-    logoutBtn.style.display = needsAuth ? 'inline-flex' : 'none';
+    logoutBtn.style.display = state.isAuthenticated ? 'inline-flex' : 'none';
 
     const loginForm = $('loginForm');
     const loginError = $('loginError');
@@ -2129,6 +2131,7 @@ async function boot() {
       loginForm.classList.add('hidden');
       $('menuList').classList.remove('hidden');
       renderMenuList();
+      $('logoutBtn').style.display = 'inline-flex';
     };
 
     const ms = $('menuSelect');
@@ -2152,6 +2155,7 @@ async function boot() {
       $('loginForm').classList.remove('hidden');
       $('menuList').classList.add('hidden');
       $('loginError').textContent = '';
+      $('logoutBtn').style.display = 'none';
     }, { capture: true });
 
     if (needsAuth && !state.isAuthenticated) {

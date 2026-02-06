@@ -970,37 +970,44 @@ function parseNotesChips(s) {
 }
 
 // Словарь токенов для notes (иконки SVG + названия из файлов)
-const TOKEN_DICTIONARY = {
-  'black fruit': { label: 'Black Fruit', icon: 'BLACK FRUIT.svg' },
-  'botrytis': { label: 'Botrytis', icon: 'BOTRYTIS.svg' },
-  'brown spice': { label: 'Brown Spice', icon: 'BROWN SPICE.svg' },
-  'burnt': { label: 'Burnt', icon: 'BURNT.svg' },
-  'caramelized': { label: 'Caramelized', icon: 'CARAMELIZED.svg' },
-  'chemical': { label: 'Chemical', icon: 'CHEMICAL.svg' },
-  'citrus': { label: 'Citrus', icon: 'CITRUS.svg' },
-  'cocoa': { label: 'Cocoa', icon: 'COCOA.svg' },
-  'dried fruit': { label: 'Dried Fruit', icon: 'DRIED FRUIT.svg' },
-  'floral': { label: 'Floral', icon: 'FLORAL.svg' },
-  'fresh green': { label: 'Fresh Green', icon: 'FRESH GREEN.svg' },
-  'grassy': { label: 'Grassy', icon: 'GRASSY.svg' },
-  'methoxy-pyrazines': { label: 'Methoxy-Pyrazines', icon: 'METHOXY-PYRAZINES.svg' },
-  'mineral': { label: 'Mineral', icon: 'MINERAL.svg' },
-  'nutty': { label: 'Nutty', icon: 'NUTTY.svg' },
-  'oak': { label: 'Oak', icon: 'OAK.svg' },
-  'pepper': { label: 'Pepper', icon: 'PEPPER.svg' },
-  'pungent': { label: 'Pungent', icon: 'PUNGENT.svg' },
-  'red fruit': { label: 'Red Fruit', icon: 'RED FRUIT.svg' },
-  'resinous herbs': { label: 'Resinous Herbs', icon: 'RESINOUS HERBS.svg' },
-  'soil': { label: 'Soil', icon: 'SOIL.svg' },
-  'sour': { label: 'Sour', icon: 'SOUR.svg' },
-  'sulfur': { label: 'Sulfur', icon: 'SULFUR.svg' },
-  'sweet': { label: 'Sweet', icon: 'SWEET.svg' },
-  'tea': { label: 'Tea', icon: 'TEA.svg' },
-  'tobacco': { label: 'Tobacco', icon: 'TOBACCO.svg' },
-  'tree fruit melon': { label: 'Tree Fruit Melon', icon: 'TREE FRUIT_MELON.svg' },
-  'tropical fruit': { label: 'Tropical Fruit', icon: 'TROPICAL FRUIT.svg' },
-  'umami': { label: 'Umami', icon: 'UMAMI.svg' },
-};
+const NOTE_ICON_FILES = [
+  'BLACK FRUIT.svg',
+  'BOTRYTIS.svg',
+  'BROWN SPICE.svg',
+  'BURNT.svg',
+  'CARAMELIZED.svg',
+  'CHEMICAL.svg',
+  'CITRUS.svg',
+  'COCOA.svg',
+  'DRIED FRUIT.svg',
+  'FLORAL.svg',
+  'FRESH GREEN.svg',
+  'GRASSY.svg',
+  'METHOXY-PYRAZINES.svg',
+  'MINERAL.svg',
+  'NUTTY.svg',
+  'OAK.svg',
+  'PEPPER.svg',
+  'PUNGENT.svg',
+  'RED FRUIT.svg',
+  'RESINOUS HERBS.svg',
+  'SOIL.svg',
+  'SOUR.svg',
+  'SULFUR.svg',
+  'SWEET.svg',
+  'TEA.svg',
+  'TOBACCO.svg',
+  'TREE FRUIT_MELON.svg',
+  'TROPICAL FRUIT.svg',
+  'UMAMI.svg'
+];
+
+const TOKEN_DICTIONARY = NOTE_ICON_FILES.reduce((acc, file) => {
+  const raw = file.replace(/\.svg$/i, '').replace(/_/g, ' ').toLowerCase();
+  const label = raw.replace(/(^|[\s-])\w/g, (m) => m.toUpperCase());
+  acc[raw] = { label, icon: file };
+  return acc;
+}, {});
 
 function buildNoteTag(tokenData) {
   const container = document.createElement('div');

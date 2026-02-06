@@ -42,9 +42,7 @@
       padding:22px 18px 70px;
     }
     .topbar{
-      position: sticky;
-      top: 10px;
-      z-index: 10;
+      position: static;
       display:flex;
       align-items:center;
       justify-content:space-between;
@@ -123,6 +121,9 @@
       border-radius: 12px;
       padding: 7px 10px;
       font-size: 12px;
+    }
+    #langSelect {
+      display: none;
     }
     .iconBtn{
       cursor:pointer;
@@ -534,6 +535,22 @@
       color: #ffb4b4;
       font-size: 12px;
     }
+    .noteContainer {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.03);
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .noteContainer img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+    }
     .hidden{ display:none !important; }
   </style>
 </head>
@@ -649,6 +666,53 @@ const state = {
 
 const PLACEHOLDER_BOTTLE = 'assets/placeholder-bottle.svg';
 let logoutHandlerBound = false;
+
+const UI_STRINGS = {
+  en: {
+    all: 'All',
+    search: 'Search...',
+    login: 'Login',
+    password: 'Password',
+    signIn: 'Sign in',
+    logout: 'Logout',
+    ready: 'Ready',
+    loading: 'Loading...',
+    loadingLanguage: 'Loading language...',
+    loadingWines: 'Loading wines...',
+    menuNotConfigured: 'Menu not configured',
+    wineNotFound: 'Wine not found',
+    comingSoon: 'coming soon'
+  }
+};
+
+function t(key) {
+  return UI_STRINGS.en[key] || key;
+}
+
+function menuTitleForLang(menu) {
+  if (!menu) return '';
+  return menu.title || menu.key;
+}
+
+function applyLanguageUI() {
+  const searchInput = $('searchInput');
+  if (searchInput) searchInput.placeholder = t('search');
+
+  const loginInput = $('loginInput');
+  if (loginInput) loginInput.placeholder = t('login');
+
+  const passwordInput = $('passwordInput');
+  if (passwordInput) passwordInput.placeholder = t('password');
+
+  const loginForm = $('loginForm');
+  if (loginForm) {
+    const signInBtn = loginForm.querySelector('button.btn');
+    if (signInBtn) signInBtn.textContent = t('signIn');
+  }
+
+  const logoutBtn = $('logoutBtn');
+  if (logoutBtn) logoutBtn.textContent = t('logout');
+}
 
 function resolveBottleSrc(url) {
   const u = normalizeAssetPath(url || '');
@@ -905,41 +969,67 @@ function parseNotesChips(s) {
     .slice(0, 3);
 }
 
-// Словарь токенов для notes с переводами en/es и эмодзи (MVP для иконок)
+// Словарь токенов для notes (иконки SVG + названия из файлов)
 const TOKEN_DICTIONARY = {
-  // Citrus & Fruit
-  'citrus': { en: 'Citrus', es: 'Cítricos', emoji: '🍋' },
-  'green apple': { en: 'Green apple', es: 'Manzana verde', emoji: '🟢' },
-  'stone fruit': { en: 'Stone fruit', es: 'Fruta de hueso', emoji: '🍑' },
-  'red berry': { en: 'Red berry', es: 'Baya roja', emoji: '🍒' },
-  'dark berry': { en: 'Dark berry', es: 'Baya oscura', emoji: '🫐' },
-  'tropical': { en: 'Tropical', es: 'Tropical', emoji: '🥭' },
-  'passion fruit': { en: 'Passion fruit', es: 'Fruta de la pasión', emoji: '🟠' },
-  'black fruit': { en: 'Black fruit', es: 'Fruta negra', emoji: '⚫' },
-  
-  // Floral & Herbal
-  'floral': { en: 'Floral', es: 'Floral', emoji: '🌸' },
-  'white flower': { en: 'White flower', es: 'Flor blanca', emoji: '🌼' },
-  'green herbal': { en: 'Herbal', es: 'Herbal', emoji: '🌿' },
-  'fresh herbal crisp': { en: 'Fresh herbal', es: 'Herbal fresco', emoji: '🌿' },
-  
-  // Spice & Wood
-  'spice': { en: 'Spice', es: 'Especias', emoji: '🌶️' },
-  'oak': { en: 'Oak', es: 'Roble', emoji: '🪵' },
-  'wood': { en: 'Wood', es: 'Madera', emoji: '🪵' },
-  'mineral': { en: 'Mineral', es: 'Mineral', emoji: '🪨' },
-  
-  // Taste Profile
-  'mineral pure precise': { en: 'Mineral & Pure', es: 'Mineral y Puro', emoji: '💎' },
-  'dry almond mineral': { en: 'Dry almond', es: 'Almendra seca', emoji: '🌰' },
-  'iconic rich luxurious': { en: 'Iconic & Rich', es: 'Icónico y Rico', emoji: '👑' },
-  'powerful complex prestigious': { en: 'Powerful & Complex', es: 'Potente y Complejo', emoji: '⚡' },
-  'structured berry refined': { en: 'Berry & Refined', es: 'Baya y Refinado', emoji: '✨' },
-  'buttery rich smooth': { en: 'Buttery & Rich', es: 'Mantecoso y Rico', emoji: '🧈' },
-  'zesty tropical bright': { en: 'Zesty & Tropical', es: 'Zesty y Tropical', emoji: '☀️' },
-  'clean smooth refreshing': { en: 'Clean & Smooth', es: 'Limpio y Suave', emoji: '💧' },
-  'silky tannin honey': { en: 'Silky & Honey', es: 'Sedoso y Miel', emoji: '🍯' },
+  'black fruit': { label: 'Black Fruit', icon: 'BLACK FRUIT.svg' },
+  'botrytis': { label: 'Botrytis', icon: 'BOTRYTIS.svg' },
+  'brown spice': { label: 'Brown Spice', icon: 'BROWN SPICE.svg' },
+  'burnt': { label: 'Burnt', icon: 'BURNT.svg' },
+  'caramelized': { label: 'Caramelized', icon: 'CARAMELIZED.svg' },
+  'chemical': { label: 'Chemical', icon: 'CHEMICAL.svg' },
+  'citrus': { label: 'Citrus', icon: 'CITRUS.svg' },
+  'cocoa': { label: 'Cocoa', icon: 'COCOA.svg' },
+  'dried fruit': { label: 'Dried Fruit', icon: 'DRIED FRUIT.svg' },
+  'floral': { label: 'Floral', icon: 'FLORAL.svg' },
+  'fresh green': { label: 'Fresh Green', icon: 'FRESH GREEN.svg' },
+  'grassy': { label: 'Grassy', icon: 'GRASSY.svg' },
+  'methoxy-pyrazines': { label: 'Methoxy-Pyrazines', icon: 'METHOXY-PYRAZINES.svg' },
+  'mineral': { label: 'Mineral', icon: 'MINERAL.svg' },
+  'nutty': { label: 'Nutty', icon: 'NUTTY.svg' },
+  'oak': { label: 'Oak', icon: 'OAK.svg' },
+  'pepper': { label: 'Pepper', icon: 'PEPPER.svg' },
+  'pungent': { label: 'Pungent', icon: 'PUNGENT.svg' },
+  'red fruit': { label: 'Red Fruit', icon: 'RED FRUIT.svg' },
+  'resinous herbs': { label: 'Resinous Herbs', icon: 'RESINOUS HERBS.svg' },
+  'soil': { label: 'Soil', icon: 'SOIL.svg' },
+  'sour': { label: 'Sour', icon: 'SOUR.svg' },
+  'sulfur': { label: 'Sulfur', icon: 'SULFUR.svg' },
+  'sweet': { label: 'Sweet', icon: 'SWEET.svg' },
+  'tea': { label: 'Tea', icon: 'TEA.svg' },
+  'tobacco': { label: 'Tobacco', icon: 'TOBACCO.svg' },
+  'tree fruit melon': { label: 'Tree Fruit Melon', icon: 'TREE FRUIT_MELON.svg' },
+  'tropical fruit': { label: 'Tropical Fruit', icon: 'TROPICAL FRUIT.svg' },
+  'umami': { label: 'Umami', icon: 'UMAMI.svg' },
 };
+
+function buildNoteTag(tokenData) {
+  const container = document.createElement('div');
+  container.className = 'noteContainer';
+  container.style.display = 'flex';
+  container.style.alignItems = 'center';
+  container.style.gap = '6px';
+  
+  // SVG иконка
+  if (tokenData.icon) {
+    const basePath = getBasePath();
+    const iconPath = `${basePath}assets/notes/${tokenData.icon}`;
+    const icon = document.createElement('img');
+    icon.src = iconPath;
+    icon.alt = tokenData.label;
+    icon.style.width = '36px';
+    icon.style.height = '36px';
+    icon.style.objectFit = 'contain';
+    container.appendChild(icon);
+  }
+  
+  const label = document.createElement('span');
+  label.textContent = tokenData.label;
+  label.style.fontSize = '14px';
+  label.style.whiteSpace = 'nowrap';
+  container.appendChild(label);
+  
+  return container;
+}
 
 function getTokenDisplay(tokenStr, lang = 'en') {
   const normalized = tokenStr.toLowerCase().trim();
@@ -948,8 +1038,8 @@ function getTokenDisplay(tokenStr, lang = 'en') {
   if (TOKEN_DICTIONARY[normalized]) {
     const token = TOKEN_DICTIONARY[normalized];
     return {
-      label: token[lang] || token.en,
-      emoji: token.emoji
+      label: token.label,
+      icon: token.icon
     };
   }
   
@@ -957,8 +1047,8 @@ function getTokenDisplay(tokenStr, lang = 'en') {
   for (const [key, data] of Object.entries(TOKEN_DICTIONARY)) {
     if (normalized.includes(key.split(' ')[0])) {
       return {
-        label: data[lang] || data.en,
-        emoji: data.emoji
+        label: data.label,
+        icon: data.icon
       };
     }
   }
@@ -966,7 +1056,7 @@ function getTokenDisplay(tokenStr, lang = 'en') {
   // Fallback - просто вернуть оригинальный текст
   return {
     label: tokenStr,
-    emoji: '🍷'
+    icon: null
   };
 }
 
@@ -1155,12 +1245,12 @@ function renderMenuList() {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'menuBtn';
-    btn.textContent = menu.title || menu.key;
+    btn.textContent = menuTitleForLang(menu);
 
     const hasCsv = !!(menu?.csvUrl?.en || menu?.csvUrl?.[state.lang]);
     if (!hasCsv) {
       btn.disabled = true;
-      btn.textContent = `${menu.title || menu.key} (coming soon)`;
+      btn.textContent = `${menuTitleForLang(menu)} (${t('comingSoon')})`;
     }
 
     btn.onclick = () => enterMenu(menu.key);
@@ -1178,7 +1268,7 @@ function renderMenuSelect() {
   for (const menu of state.menus) {
     const opt = document.createElement('option');
     opt.value = menu.key;
-    opt.textContent = menu.title || menu.key;
+    opt.textContent = menuTitleForLang(menu);
     if (menu.key === state.menuKey) opt.selected = true;
     ms.appendChild(opt);
   }
@@ -1210,8 +1300,9 @@ function renderGlobalLoginForm() {
   loginError.textContent = '';
   loginInput.value = '';
   passwordInput.value = '';
-  loginInput.placeholder = 'Login';
-  passwordInput.placeholder = 'Password';
+  loginInput.placeholder = t('login');
+  passwordInput.placeholder = t('password');
+  applyLanguageUI();
   
   // Remove old onsubmit handler
   loginForm.onsubmit = async (e) => {
@@ -1256,6 +1347,8 @@ function renderGlobalLoginForm() {
       state.menuKey = null;
       state.menuConfig = null;
       state.lang = state.config.defaultLanguage || 'en';
+
+      applyLanguageUI();
       
       setAuthState(user.role);
       
@@ -1275,6 +1368,8 @@ function renderGlobalLoginForm() {
       // Keep startScreen visible for menu selection
       
       renderStartBranding();
+
+      renderMenuSelect();
       
       renderMenuList();
 
@@ -1282,7 +1377,7 @@ function renderGlobalLoginForm() {
 
       $('logoutBtn').style.display = 'inline-flex';
       
-      setStatus('Ready', 'good');
+      setStatus(t('ready'), 'good');
     } catch (err) {
       console.error('[Login] Error:', err);
       loginError.textContent = 'Error: ' + err.message;
@@ -1353,12 +1448,12 @@ async function loadWinesForCurrentMenu() {
   const csvUrl = getCsvUrlForLang(state.lang);
   
   if (!csvUrl) {
-    setStatus('Menu not configured', 'idle');
+    setStatus(t('menuNotConfigured'), 'idle');
     return;
   }
 
   try {
-    setStatus('Loading wines...', 'idle');
+    setStatus(t('loadingWines'), 'idle');
     const csvText = await loadCSV(csvUrl);
     
     const raw = csvToObjects(csvText);
@@ -1438,7 +1533,7 @@ async function loadWinesForCurrentMenu() {
     state.sectionsEffective = computeSectionsEffective(state.wines, state.config, state.lang);
     state.activeSection = 'all';
 
-    setStatus('Ready', 'good');
+    setStatus(t('ready'), 'good');
     filterAndRender();
     
   } catch (err) {
@@ -1558,7 +1653,7 @@ function renderSectionButtons() {
     tabs.appendChild(b);
   };
 
-  addChip('all', 'All', state.activeSection === 'all');
+  addChip('all', t('all'), state.activeSection === 'all');
 
   for (const secKey of state.sectionsEffective) {
     addChip(secKey, labelForSectionKey(secKey), state.activeSection === secKey);
@@ -1652,11 +1747,9 @@ function renderGrid(list) {
     if (chips.length) {
       notes.textContent = '';
       for (const c of chips) {
-        const t = document.createElement('div');
-        t.className = 'tag';
         const tokenData = getTokenDisplay(c, state.lang);
-        t.textContent = `${tokenData.emoji} ${tokenData.label}`;
-        notes.appendChild(t);
+        const noteTag = buildNoteTag(tokenData);
+        notes.appendChild(noteTag);
       }
     } else {
       notes.textContent = '';
@@ -1821,11 +1914,9 @@ function openWineModal(wineId, pushHistory = true) {
   else mn.style.display = 'flex';
 
   for (const c of chips) {
-    const t = document.createElement('div');
-    t.className = 'tag';
     const tokenData = getTokenDisplay(c, state.lang);
-    t.textContent = `${tokenData.emoji} ${tokenData.label}`;
-    mn.appendChild(t);
+    const noteTag = buildNoteTag(tokenData);
+    mn.appendChild(noteTag);
   }
 
   $('modalBack').style.display = 'flex';
@@ -1954,9 +2045,12 @@ async function setLanguage(nextLang, opts = {}) {
   }
 
   try {
-    setStatus('Loading language...', 'idle');
+    setStatus(t('loadingLanguage'), 'idle');
 
     state.lang = nextLang;
+
+    applyLanguageUI();
+    renderMenuSelect();
 
     const ls = $('langSelect');
     if (ls) ls.value = nextLang;
@@ -1970,14 +2064,15 @@ async function setLanguage(nextLang, opts = {}) {
     syncClearButton();
 
     if (!state.menuKey) {
+      renderMenuSelect();
       renderMenuList();
-      setStatus('Ready', 'good');
+      setStatus(t('ready'), 'good');
       return;
     }
 
     const csvUrl = getCsvUrlForLang(nextLang);
     if (!csvUrl) {
-      setStatus('Menu not configured', 'idle');
+      setStatus(t('menuNotConfigured'), 'idle');
       showStartScreen();
       $('menuList').classList.remove('hidden');
       return;
@@ -2068,7 +2163,7 @@ async function setLanguage(nextLang, opts = {}) {
       syncUrl('replace');
     }
 
-    setStatus('Ready', 'good');
+    setStatus(t('ready'), 'good');
     filterAndRender();
 
   } catch (err) {
@@ -2084,7 +2179,7 @@ async function setLanguage(nextLang, opts = {}) {
  */
 async function boot() {
   try {
-    setStatus('Loading...', 'idle');
+    setStatus(t('loading'), 'idle');
 
     state.configsIndex = await loadConfigsIndex();
     const url = readRoute();
@@ -2093,7 +2188,7 @@ async function boot() {
     if (!url.r) {
       showStartScreen();
       renderGlobalLoginForm();
-      setStatus('Ready', 'good');
+      setStatus(t('ready'), 'good');
       return;
     }
 
@@ -2107,8 +2202,9 @@ async function boot() {
     state.menuKey = (url.menu && getMenuByKey(url.menu)) ? url.menu : null;
     state.menuConfig = getMenuByKey(state.menuKey);
 
-    const defaultLang = state.config.defaultLanguage || 'en';
-    state.lang = (url.lang && state.config.enabledLanguages?.includes(url.lang)) ? url.lang : defaultLang;
+    state.lang = 'en';
+
+    applyLanguageUI();
 
     const ls = $('langSelect');
     ls.innerHTML = '';
@@ -2163,17 +2259,13 @@ async function boot() {
       await setMenu(ms.value);
     };
 
-    ls.onchange = async () => {
-      await setLanguage(ls.value);
-    };
-
     bindLogoutHandler();
 
     if (needsAuth && !state.isAuthenticated) {
       showStartScreen();
       loginForm.classList.remove('hidden');
       $('menuList').classList.add('hidden');
-      setStatus('Ready', 'good');
+      setStatus(t('ready'), 'good');
       return;
     }
 
@@ -2184,7 +2276,7 @@ async function boot() {
     if (!state.menuKey) {
       showStartScreen();
       $('menuList').classList.remove('hidden');
-      setStatus('Ready', 'good');
+      setStatus(t('ready'), 'good');
       return;
     }
 
@@ -2192,7 +2284,7 @@ async function boot() {
 
     const csvUrl = getCsvUrlForLang(state.lang);
     if (!csvUrl) {
-      setStatus('Menu not configured', 'idle');
+      setStatus(t('menuNotConfigured'), 'idle');
       showStartScreen();
       $('menuList').classList.remove('hidden');
       return;
@@ -2283,7 +2375,7 @@ async function boot() {
       state.activeSection = 'all';
     }
 
-    setStatus('Ready', 'good');
+    setStatus(t('ready'), 'good');
     syncUrl();
     filterAndRender();
 
@@ -2292,7 +2384,7 @@ async function boot() {
       if (w) {
         openWineModal(w.id, false);
       } else {
-        setStatus('Wine not found', 'idle');
+        setStatus(t('wineNotFound'), 'idle');
       }
     }
 

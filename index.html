@@ -12,9 +12,9 @@
       --card2:#ffffffb3;
       --stroke:rgba(20,20,20,0.10);
       --stroke2:rgba(20,20,20,0.16);
-      --text:rgba(20,20,20,0.92);
-      --muted:rgba(20,20,20,0.62);
-      --muted2:rgba(20,20,20,0.50);
+      --text:#000;
+      --muted:#000;
+      --muted2:#000;
       --chip:rgba(20,20,20,0.06);
       --chipActive:rgba(89, 120, 255, 0.12);
       --good:#2f9d6a;
@@ -195,7 +195,7 @@
     .chip.active{
       background: var(--chipActive);
       border-color: rgba(116,255,182,0.45);
-      color: rgba(220,255,240,0.95);
+      color: #000;
     }
 
     .grid{
@@ -302,7 +302,7 @@
       text-align:right;
       font-size: 14px;
       font-weight: 700;
-      color: rgba(255,255,255,0.92);
+      color: #000;
       min-width: 74px;
       line-height:1.1;
     }
@@ -326,12 +326,12 @@
       border-radius: 999px;
       border: 1px solid var(--stroke);
       background: rgba(255,255,255,0.04);
-      color: rgba(255,255,255,0.76);
+      color: #000;
     }
     .desc{
       font-size: 12px;
       line-height: 1.35;
-      color: rgba(255,255,255,0.80);
+      color: #000;
       margin-top: 8px;
       max-height: 4.05em;
       overflow: hidden;
@@ -345,7 +345,7 @@
     }
     .notes .tag{
       background: rgba(255,255,255,0.03);
-      color: rgba(255,255,255,0.70);
+      color: #000;
     }
 
     .cardBtn{
@@ -379,7 +379,7 @@
       justify-content:space-between;
       padding: 14px 16px;
       border-bottom: 1px solid rgba(255,255,255,0.10);
-      color: rgba(255,255,255,0.85);
+      color: #000;
       font-size: 13px;
     }
     .modalBody{
@@ -433,7 +433,7 @@
     }
     .modalText .pairing{
       font-size: 12px;
-      color: rgba(255,255,255,0.75);
+      color: #000;
       font-weight: 500;
       margin-top: 12px;
       padding-top: 10px;
@@ -445,7 +445,7 @@
       border: 1px solid rgba(255,255,255,0.14);
       padding: 7px 10px;
       background: rgba(255,255,255,0.06);
-      color: rgba(255,255,255,0.85);
+      color: #000;
       font-size: 12px;
       min-height: 36px;
     }
@@ -532,7 +532,7 @@
       opacity: 0.5;
     }
     .formError{
-      color: #ffb4b4;
+      color: #000;
       font-size: 12px;
     }
     .noteContainer {
@@ -969,41 +969,41 @@ function parseNotesChips(s) {
     .slice(0, 3);
 }
 
-// Словарь токенов для notes (иконки SVG + названия из файлов)
+// Словарь токенов для notes (иконки PNG + названия из файлов)
 const NOTE_ICON_FILES = [
-  'BUTTERY.svg',  
-  'BLACK FRUIT.svg',
-  'BROWN SPICE.svg',
-  'BURNT.svg',
-  'CARAMELIZED.svg',
-  'CHEMICAL.svg',
-  'CITRUS.svg',
-  'COCOA.svg',
-  'DRIED FRUIT.svg',
-  'FLORAL.svg',
-  'FRESH GREEN.svg',
-  'GRASSY.svg',
-  'METHOXY-PYRAZINES.svg',
-  'MINERAL.svg',
-  'NUTTY.svg',
-  'OAKY.svg',
-  'PEPPER.svg',
-  'PUNGENT.svg',
-  'RED FRUIT.svg',
-  'RESINOUS HERBS.svg',
-  'SAFFRON.svg',
-  'SOIL.svg',
-  'SULFUR.svg',
-  'TEA.svg',
-  'TOBACCO.svg',
-  'TREE FRUIT.svg',
-  'TROPICAL FRUIT.svg',
-  'UMAMI.svg',
-  'VANILLA.svg',
+  'BUTTERY.PNG',  
+  'BLACK FRUIT.PNG',
+  'BROWN SPICE.PNG',
+  'BURNT.PNG',
+  'CARAMELIZED.PNG',
+  'CHEMICAL.PNG',
+  'CITRUS.PNG',
+  'COCOA.PNG',
+  'DRIED FRUIT.PNG',
+  'FLORAL.PNG',
+  'FRESH GREEN.PNG',
+  'GRASSY.PNG',
+  'METHOXY-PYRAZINES.PNG',
+  'MINERAL.PNG',
+  'NUTTY.PNG',
+  'OAKY.PNG',
+  'PEPPER.PNG',
+  'PUNGENT.PNG',
+  'RED FRUIT.PNG',
+  'RESINOUS HERBS.PNG',
+  'SAFFRON.PNG',
+  'SOIL.PNG',
+  'SULFUR.PNG',
+  'TEA.PNG',
+  'TOBACCO.PNG',
+  'TREE FRUIT.PNG',
+  'TROPICAL FRUIT.PNG',
+  'UMAMI.PNG',
+  'VANILLA.PNG',
 ];
 
 const TOKEN_DICTIONARY = NOTE_ICON_FILES.reduce((acc, file) => {
-  const raw = file.replace(/\.svg$/i, '').replace(/_/g, ' ').toLowerCase();
+  const raw = file.replace(/\.png$/i, '').replace(/_/g, ' ').toLowerCase();
   const label = raw.replace(/(^|[\s-])\w/g, (m) => m.toUpperCase());
   acc[raw] = { label, icon: file };
   return acc;
@@ -1016,7 +1016,7 @@ function buildNoteTag(tokenData) {
   container.style.alignItems = 'center';
   container.style.gap = '6px';
   
-  // SVG иконка
+  // PNG иконка
   if (tokenData.icon) {
     const basePath = getBasePath();
     const iconPath = `${basePath}assets/notes/${tokenData.icon}`;

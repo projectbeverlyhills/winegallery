@@ -6,19 +6,19 @@
   <title>WineGallery</title>
   <style>
     :root{
-      --bg1:#0b0f0e;
-      --bg2:#04110d;
-      --card:#0e1312cc;
-      --card2:#0f1514aa;
-      --stroke:rgba(255,255,255,0.10);
-      --stroke2:rgba(255,255,255,0.14);
-      --text:rgba(255,255,255,0.92);
-      --muted:rgba(255,255,255,0.62);
-      --muted2:rgba(255,255,255,0.50);
-      --chip:rgba(255,255,255,0.06);
-      --chipActive:rgba(156, 255, 206, 0.15);
-      --good:#74ffb6;
-      --shadow:0 12px 35px rgba(0,0,0,0.55);
+      --bg1:#f7f5f2;
+      --bg2:#ece8e2;
+      --card:#ffffffcc;
+      --card2:#ffffffb3;
+      --stroke:rgba(20,20,20,0.10);
+      --stroke2:rgba(20,20,20,0.16);
+      --text:rgba(20,20,20,0.92);
+      --muted:rgba(20,20,20,0.62);
+      --muted2:rgba(20,20,20,0.50);
+      --chip:rgba(20,20,20,0.06);
+      --chipActive:rgba(89, 120, 255, 0.12);
+      --good:#2f9d6a;
+      --shadow:0 12px 35px rgba(17,17,17,0.18);
       --radius:18px;
       --radius2:14px;
       --pad:22px;
@@ -30,9 +30,9 @@
       margin:0;
       font-family:var(--font);
       color:var(--text);
-      background: radial-gradient(1200px 800px at 20% 20%, rgba(91,255,170,0.08), transparent 60%),
-                  radial-gradient(900px 650px at 80% 30%, rgba(0,160,255,0.05), transparent 60%),
-                  radial-gradient(900px 700px at 55% 85%, rgba(255,255,255,0.03), transparent 65%),
+      background: radial-gradient(1200px 800px at 20% 15%, rgba(180,200,255,0.20), transparent 60%),
+                  radial-gradient(900px 650px at 80% 25%, rgba(255,210,170,0.18), transparent 60%),
+                  radial-gradient(900px 700px at 55% 85%, rgba(0,0,0,0.03), transparent 65%),
                   linear-gradient(120deg, var(--bg2), var(--bg1));
       overflow-x:hidden;
     }
@@ -589,7 +589,7 @@
 
       <div class="controls">
         <select id="menuSelect" title="Menu" aria-label="Menu"></select>
-        <select id="langSelect" title="Language" aria-label="Language"></select>
+        <select id="langSelect" title="Language" aria-label="Language" style="display:none"></select>
         <input id="searchInput" placeholder="Search..." aria-label="Search wines" />
 
         <button id="clearSearchBtn" class="iconBtn" type="button" title="Clear search" aria-label="Clear search">×</button>
@@ -971,8 +971,8 @@ function parseNotesChips(s) {
 
 // Словарь токенов для notes (иконки SVG + названия из файлов)
 const NOTE_ICON_FILES = [
+  'BUTTERY.svg',  
   'BLACK FRUIT.svg',
-  'BOTRYTIS.svg',
   'BROWN SPICE.svg',
   'BURNT.svg',
   'CARAMELIZED.svg',
@@ -986,20 +986,20 @@ const NOTE_ICON_FILES = [
   'METHOXY-PYRAZINES.svg',
   'MINERAL.svg',
   'NUTTY.svg',
-  'OAK.svg',
+  'OAKY.svg',
   'PEPPER.svg',
   'PUNGENT.svg',
   'RED FRUIT.svg',
   'RESINOUS HERBS.svg',
+  'SAFFRON.svg',
   'SOIL.svg',
-  'SOUR.svg',
   'SULFUR.svg',
-  'SWEET.svg',
   'TEA.svg',
   'TOBACCO.svg',
-  'TREE FRUIT_MELON.svg',
+  'TREE FRUIT.svg',
   'TROPICAL FRUIT.svg',
-  'UMAMI.svg'
+  'UMAMI.svg',
+  'VANILLA.svg',
 ];
 
 const TOKEN_DICTIONARY = NOTE_ICON_FILES.reduce((acc, file) => {
@@ -1353,7 +1353,7 @@ function renderGlobalLoginForm() {
       state.menus = normalizeMenus(state.config);
       state.menuKey = null;
       state.menuConfig = null;
-      state.lang = state.config.defaultLanguage || 'en';
+      state.lang = 'en';
 
       applyLanguageUI();
       
@@ -1424,7 +1424,7 @@ async function enterMenu(menuKey) {
   // Populate language select
   const ls = $('langSelect');
   ls.innerHTML = '';
-  for (const l of state.config.enabledLanguages || ['en']) {
+  for (const l of ['en']) {
     const opt = document.createElement('option');
     opt.value = l;
     opt.textContent = l.toUpperCase();
@@ -2044,12 +2044,11 @@ $('clearSearchBtn').addEventListener('click', clearSearch);
 async function setLanguage(nextLang, opts = {}) {
   const { fromPopstate = false } = opts;
 
-  if (!nextLang) return;
-  if (nextLang === state.lang) return;
-  if (!state.config?.enabledLanguages?.includes(nextLang)) {
-    console.warn('[WineGallery] Language not enabled:', nextLang);
-    return;
-  }
+  const normalized = String(nextLang || '').toLowerCase();
+  if (normalized !== 'en') return;
+  if (state.lang === 'en') return;
+
+  nextLang = 'en';
 
   try {
     setStatus(t('loadingLanguage'), 'idle');
@@ -2215,7 +2214,7 @@ async function boot() {
 
     const ls = $('langSelect');
     ls.innerHTML = '';
-    for (const l of state.config.enabledLanguages || ['en']) {
+    for (const l of ['en']) {
       const opt = document.createElement('option');
       opt.value = l;
       opt.textContent = l.toUpperCase();

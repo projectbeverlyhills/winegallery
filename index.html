@@ -1019,7 +1019,8 @@ function buildNoteTag(tokenData) {
   // PNG иконка
   if (tokenData.icon) {
     const basePath = getBasePath();
-    const iconPath = `${basePath}assets/notes/${tokenData.icon}`;
+    const iconFile = tokenData.icon.replace(/\.png$/i, '.png');
+    const iconPath = `${basePath}assets/notes/${iconFile}`;
     const icon = document.createElement('img');
     icon.src = iconPath;
     icon.alt = tokenData.label;

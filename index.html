@@ -14,27 +14,21 @@
       --stroke2:rgba(20,20,20,0.16);
       --text:#000;
       --muted:#000;
-      --muted2:#000;
-      --chip:rgba(20,20,20,0.06);
-      --chipActive:rgba(89, 120, 255, 0.12);
-      --good:#2f9d6a;
-      --shadow:0 12px 35px rgba(17,17,17,0.18);
-      --radius:18px;
-      --radius2:14px;
-      --pad:22px;
-      --gap:16px;
-      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-    }
-    html,body{
-      height:100%;
-      margin:0;
-      font-family:var(--font);
-      color:var(--text);
-      background: radial-gradient(1200px 800px at 20% 15%, rgba(180,200,255,0.20), transparent 60%),
-                  radial-gradient(900px 650px at 80% 25%, rgba(255,210,170,0.18), transparent 60%),
-                  radial-gradient(900px 700px at 55% 85%, rgba(0,0,0,0.03), transparent 65%),
-                  linear-gradient(120deg, var(--bg2), var(--bg1));
-      overflow-x:hidden;
+      state.wines = raw.map(x => ({
+        id: String(x.id || '').trim(),
+        title: buildTitle(x),
+        sub: buildSub(x),
+        section: String(x.section || '').trim(),
+        sectionKey: normalizeSectionKey(String(x.section ?? '').trim()),
+        style: String(x.style || '').trim(),
+        description: String(x.story ?? '').trim(),
+        notes: String(x.notes ?? '').trim(),
+        imageUrl: String(x.bottle_img || '').trim(),
+        priceBottle: toNum(x.bottle_price),
+        priceGlass: toNum(x.btg_price),
+        visible: toBool(x.visible),
+        available: toBool(x.is_available)
+      })).filter(w => w.id && w.title);
     }
     .wrap{
       max-width:1240px;
@@ -121,9 +115,6 @@
       border-radius: 12px;
       padding: 7px 10px;
       font-size: 12px;
-    }
-    #langSelect {
-      display: none;
     }
     .iconBtn{
       cursor:pointer;
@@ -589,7 +580,6 @@
 
       <div class="controls">
         <select id="menuSelect" title="Menu" aria-label="Menu"></select>
-        <select id="langSelect" title="Language" aria-label="Language" style="display:none"></select>
         <input id="searchInput" placeholder="Search..." aria-label="Search wines" />
 
         <button id="clearSearchBtn" class="iconBtn" type="button" title="Clear search" aria-label="Clear search">×</button>
@@ -677,7 +667,6 @@ const UI_STRINGS = {
     logout: 'Logout',
     ready: 'Ready',
     loading: 'Loading...',
-    loadingLanguage: 'Loading language...',
     loadingWines: 'Loading wines...',
     menuNotConfigured: 'Menu not configured',
     wineNotFound: 'Wine not found',
@@ -840,7 +829,6 @@ function readRoute() {
   return {
     r: pathRestaurant || p.get('r'),
     menu: pathMenu || p.get('menu'),
-    lang: p.get('lang'),
     section: normalizeSectionKey(p.get('section')),
     w: p.get('w')
   };
@@ -868,9 +856,6 @@ function writeUrlParams(next, mode = 'replace') {
 
   p.delete('r');
   p.delete('menu');
-  if (next.lang !== undefined) {
-    if (next.lang) p.set('lang', next.lang); else p.delete('lang');
-  }
   if (next.section !== undefined) {
     if (next.section && next.section !== 'all') p.set('section', next.section); else p.delete('section');
   }
@@ -889,7 +874,6 @@ function syncUrl(mode = 'replace') {
   writeUrlParams({
     r: state.restaurantId,
     menu: state.menuKey,
-    lang: state.lang,
     section: state.activeSection,
     w: state.modalWineId
   }, mode);
@@ -1421,18 +1405,7 @@ async function enterMenu(menuKey) {
   state.menuConfig = getMenuByKey(menuKey);
 
   renderMenuSelect();
-  
-  // Populate language select
-  const ls = $('langSelect');
-  ls.innerHTML = '';
-  for (const l of ['en']) {
-    const opt = document.createElement('option');
-    opt.value = l;
-    opt.textContent = l.toUpperCase();
-    if (l === state.lang) opt.selected = true;
-    ls.appendChild(opt);
-  }
-  
+
   // Set topbar branding (logo and restaurant name)
   const brandLogo = state.config?.branding?.logo || state.config?.logoUrl || '';
   $('restaurantName').textContent = state.config.name || state.restaurantId;
@@ -1577,7 +1550,7 @@ async function setMenu(nextMenuKey, opts = {}) {
     writeUrlParams({ menu: nextMenuKey, w: null, section: 'all' }, 'push');
   }
 
-  await setLanguage(state.lang);
+  await loadWinesForCurrentMenu();
 }
 
 /**
@@ -2041,144 +2014,6 @@ $('clearSearchBtn').addEventListener('click', clearSearch);
 
 /* (1) removed the duplicated input listener here */
 
-// Sprint 3.3: Language switch without full reload
-async function setLanguage(nextLang, opts = {}) {
-  const { fromPopstate = false } = opts;
-
-  const normalized = String(nextLang || '').toLowerCase();
-  if (normalized !== 'en') return;
-  if (state.lang === 'en') return;
-
-  nextLang = 'en';
-
-  try {
-    setStatus(t('loadingLanguage'), 'idle');
-
-    state.lang = nextLang;
-
-    applyLanguageUI();
-    renderMenuSelect();
-
-    const ls = $('langSelect');
-    if (ls) ls.value = nextLang;
-
-    state.modalWineId = null;
-    closeModal(false);
-    writeUrlParams({ w: null }, 'replace');
-
-    if ($('searchInput')) $('searchInput').value = '';
-    state.search = '';
-    syncClearButton();
-
-    if (!state.menuKey) {
-      renderMenuSelect();
-      renderMenuList();
-      setStatus(t('ready'), 'good');
-      return;
-    }
-
-    const csvUrl = getCsvUrlForLang(nextLang);
-    if (!csvUrl) {
-      setStatus(t('menuNotConfigured'), 'idle');
-      showStartScreen();
-      $('menuList').classList.remove('hidden');
-      return;
-    }
-
-    const csvText = await loadCSV(csvUrl);
-    const raw = csvToObjects(csvText);
-
-    function toNum(v) {
-      const n = Number(String(v ?? '').replace(',', '.').trim());
-      return isFinite(n) ? n : null;
-    }
-    function buildTitle(x) {
-      const producer = String(x.producer ?? '').trim();
-      const name = String(x.name ?? '').trim();
-      const vintage = String(x.vintage ?? '').trim();
-      const base = [producer, name].filter(Boolean).join(' ');
-      return [base, vintage].filter(Boolean).join(' ');
-    }
-    function buildSub(x) {
-      const country = String(x.country ?? '').trim();
-      const region = String(x.region ?? '').trim();
-      const grape = String(x.grape ?? '').trim();
-      return [country, region, grape].filter(Boolean).join(' • ');
-    }
-
-    state.wines = raw
-      .map(x => {
-        const section = String(x.section ?? '').trim();
-        const sectionKeyRaw = String(x.section_key ?? '').trim();
-        const sectionKey = normalizeSectionKey(sectionKeyRaw || section);
-
-        const visible = toBool(x.visible);
-        const available = toBool(x.is_available);
-
-        const producer = String(x.producer ?? '').trim();
-        const region = String(x.region ?? '').trim();
-        const grape = String(x.grape ?? '').trim();
-
-        const hay = buildSearchHaystack([
-          buildTitle(x),
-          producer,
-          region,
-          grape
-        ]);
-
-        return {
-          id: String(x.id ?? '').trim(),
-          title: buildTitle(x),
-          sub: buildSub(x),
-
-          section,
-          sectionKey,
-
-          producer,
-          region,
-          grape,
-          searchHaystack: hay,
-
-          style: String(x.style ?? '').trim(),
-          description: String(x.story ?? '').trim(),
-          notes: String(x.notes ?? '').trim(),
-          pairing: String(x.pairing ?? '').trim(),
-
-          imageUrl: String(x.bottle_img ?? '').trim(),
-          priceGlass: x.btg_price ?? '',
-          priceBottle: x.bottle_price ?? '',
-
-          order: toNum(x.order),
-          raw: x,
-
-          visible,
-          available,
-        };
-      })
-      .filter(w => w.id && w.title)
-      .filter(w => w.visible);
-
-    state.sectionsEffective = computeSectionsEffective(state.wines, state.config, state.lang);
-
-    const current = state.activeSection || 'all';
-    if (current !== 'all' && !state.sectionsEffective.includes(current)) {
-      state.activeSection = 'all';
-      if (!fromPopstate) writeUrlParams({ section: 'all' }, 'replace');
-    }
-
-    if (!fromPopstate) {
-      syncUrl('replace');
-    }
-
-    setStatus(t('ready'), 'good');
-    filterAndRender();
-
-  } catch (err) {
-    console.error(err);
-    setStatus('Error: ' + err.message, 'idle');
-  }
-}
-
 /**
  * =========================
  * 9) Boot / init
@@ -2212,16 +2047,6 @@ async function boot() {
     state.lang = 'en';
 
     applyLanguageUI();
-
-    const ls = $('langSelect');
-    ls.innerHTML = '';
-    for (const l of ['en']) {
-      const opt = document.createElement('option');
-      opt.value = l;
-      opt.textContent = l.toUpperCase();
-      if (l === state.lang) opt.selected = true;
-      ls.appendChild(opt);
-    }
 
     renderMenuSelect();
 
@@ -2448,11 +2273,6 @@ window.addEventListener('popstate', () => {
 
   if (url.menu && url.menu !== state.menuKey) {
     setMenu(url.menu, { fromPopstate: true });
-    return;
-  }
-
-  if (url.lang && url.lang !== state.lang) {
-    setLanguage(url.lang, { fromPopstate: true });
     return;
   }
 

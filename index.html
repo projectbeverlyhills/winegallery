@@ -14,21 +14,16 @@
       --stroke2:rgba(20,20,20,0.16);
       --text:#000;
       --muted:#000;
-      state.wines = raw.map(x => ({
-        id: String(x.id || '').trim(),
-        title: buildTitle(x),
-        sub: buildSub(x),
-        section: String(x.section || '').trim(),
-        sectionKey: normalizeSectionKey(String(x.section ?? '').trim()),
-        style: String(x.style || '').trim(),
-        description: String(x.story ?? '').trim(),
-        notes: String(x.notes ?? '').trim(),
-        imageUrl: String(x.bottle_img || '').trim(),
-        priceBottle: toNum(x.bottle_price),
-        priceGlass: toNum(x.btg_price),
-        visible: toBool(x.visible),
-        available: toBool(x.is_available)
-      })).filter(w => w.id && w.title);
+      --muted2:#000;
+      --chip:rgba(20,20,20,0.06);
+      --chipActive:rgba(89, 120, 255, 0.12);
+      --good:#2f9d6a;
+      --shadow:0 12px 35px rgba(17,17,17,0.18);
+      --radius:18px;
+      --radius2:14px;
+      --pad:22px;
+      --gap:16px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
     .wrap{
       max-width:1240px;

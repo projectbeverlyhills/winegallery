@@ -8,24 +8,27 @@
   "theme": {
     "preset": "novikov_clean",
     "variables": {
-      "--bg1": "#f7f5f2",
-      "--bg2": "#ece8e2",
-      "--card": "#ffffffcc",
-      "--card2": "#ffffffb3",
-      "--stroke": "rgba(20,20,20,0.10)",
-      "--stroke2": "rgba(20,20,20,0.16)",
-      "--text": "rgba(20,20,20,0.92)",
-      "--muted": "rgba(20,20,20,0.62)",
-      "--muted2": "rgba(20,20,20,0.50)",
-      "--chip": "rgba(20,20,20,0.06)",
-      "--chipActive": "rgba(89,120,255,0.12)",
-      "--good": "#2f9d6a"
+      "--bg1": "#F7F4EE",
+      "--bg2": "#F7F4EE",
+      "--card": "#FFFFFF",
+      "--card2": "#FFFFFF",
+      "--stroke": "#E8E2D8",
+      "--stroke2": "#D8D1C6",
+      "--text": "#121212",
+      "--muted": "#6E6A63",
+      "--muted2": "#8A847B",
+      "--chip": "#F2EEE6",
+      "--chipActive": "#F6ECEE",
+      "--good": "#2F9D6A",
+      "--accent": "#6F1D2B",
+      "--accentSoft": "#B46A74",
+      "--track": "#EFE7DE"
     },
-    "font": "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial"
+    "font": "'Proxima Nova', 'Proxima Nova W01', 'Helvetica Neue', Helvetica, Arial, sans-serif"
   },
   "logoUrl": "assets/novikov-logo.png",
   "defaultLanguage": "en",
-  "enabledLanguages": ["en", "es"],
+  "enabledLanguages": ["en"],
   "currency": "USD",
   "hide86": false,
   "menus": [
@@ -35,8 +38,7 @@
       "type": "wine",
       "layout": "cards",
       "csvUrl": {
-        "en": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=938845198&single=true&output=csv",
-        "es": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=379411074&single=true&output=csv"
+        "en": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=938845198&single=true&output=csv"
       }
     },
     {
@@ -52,21 +54,9 @@
   ],
   "sectionsOrder": ["Sparkling","Champagne","White","Rosé","Red","Dessert wines"],
   "sectionsOrderByLang": {
-  "en": ["Sparkling", "Champagne", "White", "Rosé", "Red", "Dessert wines"],
-  "es": ["Sparkling", "Champagne", "White", "Rosé", "Red", "Dessert wines"]
+  "en": ["Sparkling", "Champagne", "White", "Rosé", "Red", "Dessert wines"]
 },
-  "sectionLabelsOverride": {
-    "es": {
-      "sparkling": "Espumosos",
-      "champagne": "Champagne",
-      "white": "Blancos",
-      "rose": "Rosados",
-      "red": "Tintos",
-      "dessert_wines": "Vinos de Postre"
-    }
-  },
   "csvUrl": {
-    "en": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=938845198&single=true&output=csv",
-    "es": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=379411074&single=true&output=csv"
+    "en": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=938845198&single=true&output=csv"
   }
 }

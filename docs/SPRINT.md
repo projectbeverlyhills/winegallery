@@ -562,3 +562,356 @@ pairing и понятные notes.
 - Модалка отображает все ею характеристики
 - Pairing отображается только для PeopleTalk
 
+# Sprint 6 — WineGallery UI refactor (List Card + Modal + Wine Profile)
+
+## Description
+Этот спринт приводит винное меню к стилю **Michelin × Apple** для **iPad**:
+в списке — только то, что помогает выбрать за **5 секунд**,
+в модалке — детали, которые дают **уверенность** (цены/размеры + профиль вина + краткое описание + pairing).
+Аудитория: **wealthy casual** и гости, которые **не разбираются в вине**.
+
+## Goal
+Сделать интерфейс премиальным, минималистичным и “без страха выбора”:
+- List Card = быстрое сканирование и решение
+- Modal = уверенный выбор за счёт деталей
+
+---
+
+## Definition of Done (DoD)
+
+- В List Card показываются **обе цены**: bottle + glass.
+- В List Card **нет длинного описания** (никаких paragraph).
+- В List Card есть **1 строка Style line** (3–6 слов).
+- В List Card **максимум 2 chips**.
+- В List Card **ровно 3 taste notes** (медальоны/иконки) и **без повторов**.
+- Wine Profile **НЕ показывается** в List Card.
+- В Modal есть блок Pricing с размерами (750 ml; 150 ml/5 oz).
+- В Modal есть Wine Profile **ровно 4 шкалы** (по правилам ниже).
+- Акцент Wine Profile **не ярко-красный**, используется Burgundy accent `#6F1D2B`.
+- Применена единая палитра нейтралей и акцента (см. Task 6.3).
+- Визуально нет “фитнес-апп” ощущений: **без градиентов, без тяжелых теней**.
+
+---
+
+## Task 6.1 — List Card: структура и “5 секунд на выбор”
+
+### Description / DoD
+- Привести List Card к фиксированной иерархии:
+  Title + Price stack → Subtitle → Style line → Chips(2) → Notes(3).
+- Убрать любой контент, который не помогает выбрать быстро.
+
+### Subtask 6.1.1 — Контейнер и сетка
+
+**Description / DoD:**
+- Высота карточки: **170–190px**
+- Радиус: **20–24px**
+- Padding: **18–22px**
+- Сетка: 2 колонки
+  - Left: **26–30%** (бутылка)
+  - Right: **70–74%** (контент)
+- Никаких градиентов, тяжелых теней, декоративных рамок.
+
+### Subtask 6.1.2 — Bottle визуал слева
+
+**Description / DoD:**
+- Бутылка стоит на мягком теплом фоне (нейтраль).
+- Допускается **очень лёгкая** тень под бутылкой (subtle).
+- Бутылка вертикально центрирована.
+- Без “глянца”, без “постеров”, без ярких эффектов.
+
+### Subtask 6.1.3 — Контент справа (фиксированный порядок)
+
+**Description / DoD:**
+- Row A:
+  - Title (1 строка, ellipsis если длинно)
+  - Price stack справа:
+    - Bottle price — semibold
+    - Glass price — lighter
+  - **Обе цены обязательны**
+- Row B:
+  - Subtitle: `Страна · Регион · Сорт` (1 строка)
+- Row C:
+  - Style line (1 строка, 3–6 слов)
+  - Не энциклопедия, а позиционирование (Apple-style)
+- Row D:
+  - Chips: **максимум 2**
+- Row E:
+  - Taste notes: **ровно 3** медальона + lowercase подписи
+  - **Без повторов** (например, “floral, floral” запрещено)
+
+### Subtask 6.1.4 — Запреты в List Card
+
+**Description / DoD:**
+- Длинные описания (paragraph) — запрещены.
+- Wine Profile в List Card — запрещен.
+- ml/oz в List Card — запрещены.
+- >2 chips — запрещено.
+- ≠3 notes — запрещено.
+
+---
+
+## Task 6.2 — Modal: детали для уверенного выбора
+
+### Description / DoD
+- Modal раскрывает информацию только после тапа по карточке.
+- Вся информация в модалке структурирована блоками, без перегруза.
+
+### Subtask 6.2.1 — Layout модалки (2 колонки)
+
+**Description / DoD:**
+- 2 колонки:
+  - Left: bottle (крупнее) + те же 2 chips + те же 3 notes
+  - Right: pricing + wine profile + description + pairing
+- Кнопка закрытия сверху справа.
+
+### Subtask 6.2.2 — Pricing block (обязательно)
+
+**Description / DoD:**
+- Отображать размеры вместе с ценами:
+  - Bottle: `$X · 750 ml`
+  - Glass: `$Y · 150 ml / 5 oz`
+- Если есть несколько размеров бокала — отдельными строками.
+
+### Subtask 6.2.3 — Wine Profile (ровно 4 шкалы)
+
+**Description / DoD:**
+- В модалке всегда **4 шкалы**:
+  1) Body: light — full
+  2) Acidity: soft — bright
+  3) Sweetness: dry — sweet
+  4) Texture:
+     - для sparkling/white: crisp — creamy
+     - для red: smooth — firm (tannin)
+- Визуальный стиль:
+  - трек шкалы нейтральный
+  - маркер и акцент только Burgundy `#6F1D2B`
+  - без градиентов, без яркого красного, без “фитнес” вида
+
+### Subtask 6.2.4 — Description и Pairing (минимализм)
+
+**Description / DoD:**
+- Description: максимум **2–3 коротких предложения**
+  - без “This wine is made from…”
+  - без лишней энциклопедии
+- Pairing: **2–4 пункта максимум** (иконки или слова)
+
+---
+
+## Task 6.3 — Палитра (Luxury + Tech)
+
+### Description / DoD
+- Применить единую палитру нейтралей и одного акцента.
+- Убрать ярко-красные элементы.
+
+### Subtask 6.3.1 — Neutrals (обязательные значения)
+
+**Description / DoD:**
+- Background (app): `#F7F4EE`
+- Card surface: `#FFFFFF`
+- Primary text: `#121212`
+- Secondary text: `#6E6A63`
+- Divider/hairline: `#E8E2D8`
+- Chip background: `#F2EEE6`
+- Chip border: `#E2DBCF`
+- Slider track: `#EFE7DE`
+
+### Subtask 6.3.2 — Accent (Burgundy Tech)
+
+**Description / DoD:**
+- Accent main: `#6F1D2B`
+- Accent soft (опционально): `#B46A74`
+- Правило: **одна акцентная семья**, никаких неонов/градиентов.
+
+---
+
+# Sprint 7 — Типографика и система размеров (Apple/Michelin hierarchy)
+
+## Description
+Этот спринт фиксирует типографику и отступы, чтобы интерфейс ощущался
+дорогим, спокойным и предсказуемым. Меньше “прыгающих” размеров, больше системы.
+
+## Goal
+Единая типографика и spacing-система для List Card и Modal.
+
+---
+
+## Definition of Done (DoD)
+
+- Выбран один шрифт (Inter / SF Pro / Helvetica Now) и применён глобально.
+- Все размеры текста приведены к единой шкале.
+- Нет ALL CAPS.
+- Нет “случайных” font-weight по интерфейсу.
+- На одном экране максимум **3 уровня визуальной важности** (weights/цвет).
+
+---
+
+## Task 7.1 — Типографическая шкала (List Card)
+
+### Description / DoD
+- Title (List): **20–22px**, semibold
+- Subtitle: **14–15px**, regular, secondary
+- Style line: **14px**, regular, secondary (чуть светлее subtitle)
+- Bottle price: **18px**, semibold
+- Glass price: **14px**, regular, secondary
+- Chips: **12–13px**, medium
+- Notes labels: **12–13px**, regular, lowercase
+
+---
+
+## Task 7.2 — Типографическая шкала (Modal)
+
+### Description / DoD
+- Modal Title: **26–28px**, semibold
+- Modal pricing: **18–20px**, regular/medium (ценность высокая)
+- Текст описания: **14–16px**, regular, secondary
+
+---
+
+## Task 7.3 — Spacing система
+
+### Description / DoD
+- Внутри карточки: **8–12px** между рядами
+- Между логическими блоками: **16–20px**
+- Увеличенные зоны тапа на iPad (не мелкие кликабельные элементы)
+
+---
+
+# Sprint 8 — Стандартизация Style Line (короткие фразы)
+
+## Description
+Этот спринт вводит единый стиль коротких “позиционирующих” фраз,
+которые помогают новичку понять вино за секунду.
+Style line — это не описание, а “перевод” на человеческий.
+
+## Goal
+Сделать Style line консистентным по длине, стилю и смыслу для всех вин.
+
+---
+
+## Definition of Done (DoD)
+
+- У каждого вина в List Card есть Style line.
+- Style line всегда **1 строка** (ellipsis при переполнении).
+- Длина Style line: **3–6 слов**.
+- Нет шаблонных “This wine…” формулировок.
+- Нет повторов формулировок в одном разделе/категории (по возможности).
+- Тон: премиальный, простой, уверенный.
+
+---
+
+## Task 8.1 — Правила Style Line
+
+### Description / DoD
+- 3–6 слов
+- Без длинных предложений
+- Без “This wine…”
+- По умолчанию без точки в конце
+- Слова простые: crisp / fresh / elegant / rich / smooth / balanced / food-friendly
+
+---
+
+## Task 8.2 — Библиотека шаблонов (MVP)
+
+### Description / DoD
+Champagne:
+- Fresh, elegant, balanced
+- Crisp, refined, celebratory
+- Classic brut, food-friendly
+
+Sauvignon Blanc:
+- Crisp, zesty, mineral-driven
+- Light, clean, refreshing
+
+Chardonnay (oaked):
+- Creamy, round, structured
+- Rich texture, subtle oak
+
+Pinot Noir:
+- Silky, delicate, aromatic
+- Elegant red fruit profile
+
+Napa Cabernet:
+- Bold, structured, powerful
+- Dark fruit, firm tannins
+
+Rosé:
+- Fresh, dry, easy-drinking
+- Light, vibrant, refreshing
+
+---
+
+## Task 8.3 — Проверка и нормализация контента
+
+### Description / DoD
+- Пройти по всем карточкам:
+  - если Style line отсутствует — добавить
+  - если слишком длинная — сократить
+  - если не соответствует типу вина — заменить
+  - исключить повторы в одном разделе (по возможности)
+
+---
+
+# Sprint 3 — UI/UX улучшения карточки вина
+
+## Description
+Спринт направлен на улучшение визуального представления карточек вин:
+оптимизация типографики, компоновки элементов и размеров изображений
+для повышения читаемости и эстетики интерфейса.
+
+## Goal
+Улучшить UX карточки вина через оптимизацию шрифтов, разделение информации
+и подгонку размеров элементов.
+
+---
+
+## Task 3.1 — Оптимизация типографики
+
+### Subtask 3.1.1 — Сокращение количества шрифтов
+**Description / DoD:**
+- Уменьшить font stack с 6 шрифтов до 3
+- Оставить: 'Proxima Nova', 'Helvetica Neue', sans-serif
+**Status:** ✅ Done
+
+### Subtask 3.1.2 — Разделение производителя и названия вина
+**Description / DoD:**
+- Разделить producer и wine name на отдельные строки
+- Producer отображается серым цветом над названием
+- Синхронизировать размеры шрифтов (19px для обоих элементов)
+- На мобильных устройствах: 17px
+**Status:** ✅ Done
+
+### Subtask 3.1.3 — Многострочный режим для названия
+**Description / DoD:**
+- Реализовать отображение до 2 строк с ellipsis
+- Уменьшить font-size с 21px до 19px
+- Установить line-height: 1.3 для улучшенной читаемости
+**Status:** ✅ Done
+
+---
+
+## Task 3.2 — Оптимизация размеров изображений и контейнеров
+
+### Subtask 3.2.1 — Увеличение размера бутылки
+**Description / DoD:**
+- Увеличить max-height бутылки с 138px до 165px (desktop)
+- Для планшетов (930px): 145px
+**Status:** ✅ Done
+
+### Subtask 3.2.2 — Подгонка серого фона под размер бутылки
+**Description / DoD:**
+- Установить высоту .bottleWrap:
+  - Desktop: 175px (под бутылку 165px)
+  - Tablet (930px): 155px (под бутылку 145px)
+  - Mobile (680px): 175px
+- Уменьшить border-radius с 18px до 12px
+**Status:** ✅ Done
+
+---
+
+## Task 3.3 — Синхронизация стилей
+
+### Description / DoD
+- Обеспечить единый font-weight: 600 для producer и name
+- Подтвердить консистентность размеров на всех breakpoint'ах
+**Status:** ✅ Done
+

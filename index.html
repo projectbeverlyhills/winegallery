@@ -6,24 +6,35 @@
   <title>WineGallery</title>
   <style>
     :root{
-      --bg1:#f7f5f2;
-      --bg2:#ece8e2;
-      --card:#ffffffcc;
-      --card2:#ffffffb3;
-      --stroke:rgba(20,20,20,0.10);
-      --stroke2:rgba(20,20,20,0.16);
-      --text:#000;
-      --muted:#000;
-      --muted2:#000;
-      --chip:rgba(20,20,20,0.06);
-      --chipActive:rgba(89, 120, 255, 0.12);
+      --bg1:#F7F4EE;
+      --bg2:#F7F4EE;
+      --card:#FFFFFF;
+      --card2:#FFFFFF;
+      --stroke:#E8E2D8;
+      --stroke2:#D8D1C6;
+      --text:#121212;
+      --muted:#6E6A63;
+      --muted2:#8A847B;
+      --chip:#F2EEE6;
+      --chipActive:#F6ECEE;
       --good:#2f9d6a;
-      --shadow:0 12px 35px rgba(17,17,17,0.18);
-      --radius:18px;
-      --radius2:14px;
-      --pad:22px;
+      --accent:#6F1D2B;
+      --accentSoft:#B46A74;
+      --track:#EFE7DE;
+      --shadow:0 6px 20px rgba(18,18,18,0.08);
+      --radius:22px;
+      --radius2:16px;
+      --pad:20px;
       --gap:16px;
-      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      --font: 'Proxima Nova', 'Helvetica Neue', sans-serif;
+    }
+    body{
+      margin:0;
+      background: var(--bg1);
+      color: var(--text);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
     .wrap{
       max-width:1240px;
@@ -39,10 +50,9 @@
       padding:14px 16px;
       margin-bottom:14px;
       border:1px solid var(--stroke);
-      background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      background: var(--card);
       border-radius: 22px;
-      box-shadow: 0 18px 45px rgba(0,0,0,0.35);
-      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
     }
     .brand{
       display:flex;
@@ -55,9 +65,8 @@
       height:42px;
       border-radius: 12px;
       object-fit:contain;
-      background: rgba(255,255,255,0.06);
+      background: var(--bg1);
       border:1px solid var(--stroke);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
     }
     .brand .title{
       display:flex;
@@ -83,7 +92,7 @@
       cursor:pointer;
       border-radius: 12px;
       border: 1px solid var(--stroke);
-      background: rgba(255,255,255,0.04);
+      background: var(--chip);
       color: var(--text);
       padding: 7px 10px;
       font-size: 12px;
@@ -98,12 +107,12 @@
       padding:7px 10px;
       border-radius: 999px;
       border: 1px solid var(--stroke);
-      background: rgba(255,255,255,0.04);
+      background: var(--chip);
       font-size: 12px;
       color: var(--muted);
     }
     select, input{
-      background: rgba(255,255,255,0.04);
+      background: var(--card);
       border: 1px solid var(--stroke);
       color: var(--text);
       outline:none;
@@ -115,7 +124,7 @@
       cursor:pointer;
       border-radius: 12px;
       border: 1px solid var(--stroke);
-      background: rgba(255,255,255,0.04);
+      background: var(--card);
       color: var(--text);
       padding: 6px 10px;
       font-size: 16px;
@@ -135,7 +144,7 @@
       padding: 7px 10px;
       border-radius: 999px;
       border:1px solid var(--stroke);
-      background: rgba(255,255,255,0.03);
+      background: var(--card);
       display:flex;
       align-items:center;
       gap:8px;
@@ -180,160 +189,179 @@
     }
     .chip.active{
       background: var(--chipActive);
-      border-color: #000;
-      color: #000;
+      border-color: var(--accent);
+      color: var(--accent);
     }
 
     .grid{
       display:grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px;
+      gap: 16px;
       margin-top: 10px;
     }
     @media (max-width: 930px){
       .grid{ grid-template-columns: 1fr; }
       input{ min-width: 160px; }
 
-      .card{ padding: 14px 14px 12px; }
-      .row{ gap: 12px; }
+      .card{ padding: 16px; }
+      .cardLayout{ grid-template-columns: 32% 68%; gap: 12px; }
+      .bottleWrap{ height: 155px; }
+      .bottleImg{ max-height: 145px; }
 
-      .bottle{
-        width: 74px;
-        height: 122px;
-        padding: 7px;
-      }
+      .name{ font-size: 17px; }
+      .producer{ font-size: 17px; }
+      .sub{ font-size: 13px; }
+      .styleLine{ font-size: 13px; }
 
-      .name{ font-size: 14px; }
-      .sub{ font-size: 12px; margin-bottom: 6px; }
+      .priceBottle{ font-size: 16px; }
+      .priceGlass{ font-size: 13px; }
 
-      .price{
-        font-size: 13px;
-        min-width: 64px;
-      }
-      .price small{ font-size: 11px; }
-
-      .tags{
-        gap:6px;
-        margin-bottom: 8px;
-      }
-      .tag{
-        font-size: 10.5px;
-        padding: 4px 7px;
-      }
-
-      .desc{ max-height: 4.05em; }
-
-      .notes{
-        display:flex;
-        gap:6px;
-        flex-wrap:wrap;
-        margin-top: 8px;
-      }
+      .chipTag{ font-size: 11px; padding: 4px 8px; }
+      .noteLabel{ font-size: 11px; }
+    }
+    @media (max-width: 680px){
+      .cardLayout{ grid-template-columns: 1fr; }
+      .bottleWrap{ width: 100%; height: 175px; }
+      .priceStack{ text-align:left; }
+      .head{ gap: 8px; align-items: flex-start; }
     }
 
     .card{
       position:relative;
       border-radius: var(--radius);
       border:1px solid var(--stroke);
-      background: linear-gradient(180deg, var(--card), var(--card2));
+      background: var(--card);
       box-shadow: var(--shadow);
-      padding: 16px 16px 14px;
+      padding: 18px 20px;
+      min-height: 176px;
       overflow:hidden;
     }
     .card:hover{ border-color: var(--stroke2); }
-    .row{
-      display:flex;
-      gap: 14px;
-      align-items:flex-start;
+    .cardLayout{
+      display:grid;
+      grid-template-columns: 28% 72%;
+      gap: 16px;
+      align-items:center;
     }
-    .bottle{
-      width: 86px;
-      height: 140px;
-      border-radius: 14px;
+    .bottleWrap{
+      width: 100%;
+      height: 175px;
+      border-radius: 12px;
       border: 1px solid var(--stroke);
-      background: rgba(255,255,255,0.05);
+      background: var(--chip);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .bottleImg{
+      max-height: 165px;
+      max-width: 90%;
       object-fit: contain;
-      padding: 8px;
-      box-sizing:border-box;
-      flex: 0 0 auto;
+      filter: drop-shadow(0 6px 12px rgba(18,18,18,0.12));
     }
     .meta{
       flex:1;
       min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
     }
     .head{
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
-      gap:10px;
+      gap:12px;
     }
     .name{
-      font-weight: 700;
-      font-size: 14px;
+      font-weight: 600;
+      font-size: 19px;
       letter-spacing:0.2px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.3;
+    }
+    .producer{
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--muted);
       margin-bottom: 4px;
       white-space: nowrap;
-      overflow:hidden;
+      overflow: hidden;
       text-overflow: ellipsis;
     }
     .sub{
-      font-size: 12px;
+      font-size: 14px;
       color: var(--muted);
-      margin-bottom: 8px;
       white-space: nowrap;
       overflow:hidden;
       text-overflow: ellipsis;
     }
-    .price{
-      text-align:right;
+    .styleLine{
       font-size: 14px;
-      font-weight: 700;
-      color: #000;
-      min-width: 74px;
+      color: var(--muted2);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .priceStack{
+      text-align:right;
+      min-width: 88px;
       line-height:1.1;
     }
-    .price small{
-      display:block;
-      font-size: 12px;
-      color: var(--muted);
+    .priceBottle{
+      font-size: 18px;
       font-weight: 600;
-      margin-top: 2px;
+      color: var(--text);
     }
-    .tags{
+    .priceGlass{
+      display:block;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 400;
+      margin-top: 4px;
+    }
+    .chips{
       display:flex;
       gap:8px;
       flex-wrap:wrap;
-      margin-top: 6px;
-      margin-bottom: 10px;
     }
-    .tag{
-      font-size: 11px;
-      padding: 4px 8px;
+    .chipTag{
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 10px;
       border-radius: 999px;
       border: 1px solid var(--stroke);
-      background: rgba(255,255,255,0.04);
-      color: #000;
-    }
-    .desc{
-      font-size: 12px;
-      line-height: 1.35;
-      color: #000;
-      margin-top: 8px;
-      max-height: 4.05em;
-      overflow: hidden;
+      background: var(--chip);
+      color: var(--text);
     }
     .notes{
-      margin-top: 10px;
       display:flex;
-      gap:6px;
-      flex-wrap:nowrap;
+      gap:8px;
+      flex-wrap:wrap;
       align-items:center;
-      overflow-x:auto;
-      overflow-y:hidden;
     }
-    .notes .tag{
-      background: rgba(255,255,255,0.03);
-      color: #000;
+    .noteTag{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: var(--card);
+    }
+    .noteIcon{
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+    }
+    .noteLabel{
+      font-size: 12px;
+      text-transform: lowercase;
+      color: var(--muted);
+      white-space: nowrap;
     }
 
     .cardBtn{
@@ -354,88 +382,127 @@
       z-index: 50;
     }
     .modal{
-      width: min(880px, 100%);
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.15);
-      background: #f7f5f2;
-      box-shadow: 0 35px 90px rgba(0,0,0,0.7);
+      width: min(980px, 100%);
+      border-radius: 22px;
+      border: 1px solid var(--stroke);
+      background: var(--bg1);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.35);
       overflow:hidden;
-      color: #000;
+      color: var(--text);
     }
     .modalTop{
       display:flex;
       align-items:center;
       justify-content:space-between;
       padding: 14px 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.10);
-      color: #000;
-      font-size: 13px;
+      border-bottom: 1px solid var(--stroke);
+      color: var(--muted);
+      font-size: 12px;
     }
     .modalBody{
-      padding: 16px;
-      display:flex;
-      gap:16px;
+      padding: 20px;
+      display:grid;
+      grid-template-columns: 38% 62%;
+      gap:24px;
       align-items:flex-start;
-      color: #000;
+      color: var(--text);
     }
-    .modalBody .bottle{
-      width: 128px;
-      height: 210px;
-      padding:10px;
+    .modalLeft{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+    .modalBottleWrap{
+      height: 260px;
     }
     .modalText{
-      flex:1;
       min-width:0;
     }
     .modalText h2{
-      margin: 0 0 6px 0;
-      font-size: 18px;
+      margin: 0 0 8px 0;
+      font-size: 27px;
+      font-weight: 600;
       letter-spacing:0.2px;
     }
     .modalText .sub{
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       white-space: normal;
     }
     .modalText .price{
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      letter-spacing: 0.3px;
+      font-size: 19px;
+      font-weight: 500;
+      margin-bottom: 16px;
+      letter-spacing: 0.2px;
       line-height: 1.5;
     }
     .modalText .price > div{
-      font-size: 16px;
-      font-weight: 700;
+      font-size: 19px;
+      font-weight: 500;
     }
     .modalText .price small{
       display: block;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 400;
       margin-top: 2px;
       opacity: 0.6;
     }
+    .modalProfile{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-bottom: 16px;
+    }
+    .profileRow{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .profileLabel{
+      font-size: 12px;
+      color: var(--muted);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .profileTrack{
+      position:relative;
+      height: 6px;
+      background: var(--track);
+      border-radius: 999px;
+    }
+    .profileMarker{
+      position:absolute;
+      top: 50%;
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: var(--accent);
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 4px rgba(111,29,43,0.12);
+    }
     .modalText .desc{
       max-height: none;
       overflow: visible;
-      font-size: 13px;
+      font-size: 15px;
       line-height: 1.45;
-      margin-bottom: 10px;
+      color: var(--muted);
+      margin-bottom: 12px;
     }
     .modalText .pairing{
-      font-size: 12px;
-      color: #000;
+      font-size: 13px;
+      color: var(--text);
       font-weight: 500;
       margin-top: 12px;
-      padding-top: 10px;
-      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 12px;
+      border-top: 1px solid var(--stroke);
     }
     .closeBtn{
       cursor:pointer;
       border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.14);
+      border: 1px solid var(--stroke);
       padding: 7px 10px;
-      background: rgba(255,255,255,0.06);
-      color: #000;
+      background: var(--card);
+      color: var(--text);
       font-size: 12px;
       min-height: 36px;
     }
@@ -444,6 +511,17 @@
     }
 
     .card.is86{ opacity: 0.78; }
+    .badge86{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: var(--chip);
+      color: var(--accent);
+    }
 
     /* ===== Accessibility: visible focus ===== */
     :focus { outline: none; }
@@ -489,7 +567,7 @@
       height: 56px;
       border-radius: 14px;
       object-fit: contain;
-      background: rgba(255,255,255,0.06);
+      background: var(--bg1);
       border: 1px solid var(--stroke);
     }
     .startTitle{
@@ -512,7 +590,7 @@
       padding: 12px 14px;
       border-radius: 12px;
       border: 1px solid var(--stroke);
-      background: rgba(255,255,255,0.04);
+      background: var(--card);
       color: var(--text);
       font-size: 14px;
       cursor: pointer;
@@ -525,21 +603,10 @@
       color: #000;
       font-size: 12px;
     }
-    .noteContainer {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,0.03);
-      font-size: 13px;
-      color: var(--muted);
-    }
-    .noteContainer img {
-      width: 36px;
-      height: 36px;
-      object-fit: contain;
+    .noteContainer { display:none; }
+    @media (max-width: 900px){
+      .modalBody{ grid-template-columns: 1fr; }
+      .modalBottleWrap{ height: 220px; }
     }
     .hidden{ display:none !important; }
   </style>
@@ -603,14 +670,19 @@
         <button class="closeBtn" id="closeModalBtn" aria-label="Close modal">Close</button>
       </div>
       <div class="modalBody">
-        <img class="bottle" id="modalBottle" alt="bottle" src="" />
+        <div class="modalLeft">
+          <div class="bottleWrap modalBottleWrap">
+            <img class="bottleImg" id="modalBottle" alt="bottle" src="" />
+          </div>
+          <div class="chips" id="modalChips"></div>
+          <div class="notes" id="modalNotes"></div>
+        </div>
         <div class="modalText">
           <h2 id="modalName"></h2>
           <div class="sub" id="modalSub"></div>
           <div class="price" id="modalPrice"></div>
-          <div class="tags" id="modalTags"></div>
+          <div class="modalProfile" id="modalProfile"></div>
           <div class="desc" id="modalDesc"></div>
-          <div class="notes" id="modalNotes"></div>
           <div class="pairing" id="modalPairing" style="display:none;"></div>
         </div>
       </div>
@@ -945,11 +1017,213 @@ function buildSearchHaystack(parts) {
 }
 
 function parseNotesChips(s) {
-  return String(s || '')
+  const raw = String(s || '')
     .split(/[|,;]/g)
     .map(x => x.trim().replace(/_/g, ' '))
+    .filter(Boolean);
+
+  const seen = new Set();
+  const unique = [];
+  for (const item of raw) {
+    const key = item.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(item);
+  }
+
+  return unique.slice(0, 3);
+}
+
+function wordsFromText(text) {
+  return String(text || '')
+    .replace(/[“”"'()]/g, '')
+    .replace(/[^\p{L}\s-]/gu, ' ')
+    .split(/\s+/)
+    .map(x => x.trim())
     .filter(Boolean)
-    .slice(0, 3);
+    .filter(w => !['this','wine','and','with','from','the','a','an','of'].includes(w.toLowerCase()));
+}
+
+const STYLE_TEMPLATES = {
+  champagne: [
+    'Fresh, elegant, balanced',
+    'Crisp, refined, celebratory',
+    'Classic brut, food-friendly'
+  ],
+  sparkling: [
+    'Fresh, elegant, balanced',
+    'Crisp, refined, celebratory',
+    'Classic brut, food-friendly'
+  ],
+  sauvignon: [
+    'Crisp, zesty, mineral-driven',
+    'Light, clean, refreshing'
+  ],
+  chardonnay: [
+    'Creamy, round, structured',
+    'Rich texture, subtle oak'
+  ],
+  pinot: [
+    'Silky, delicate, aromatic',
+    'Elegant red fruit profile'
+  ],
+  cabernet: [
+    'Bold, structured, powerful',
+    'Dark fruit, firm tannins'
+  ],
+  rose: [
+    'Fresh, dry, easy-drinking',
+    'Light, vibrant, refreshing'
+  ],
+  red: [
+    'Elegant, structured, savory',
+    'Smooth tannins, dark fruit'
+  ],
+  white: [
+    'Crisp, clean, food-friendly',
+    'Fresh, bright, mineral'
+  ],
+  dessert: [
+    'Lush, layered, indulgent',
+    'Sweet, rich, dessert-friendly'
+  ]
+};
+
+function pickTemplate(key, id = '') {
+  const list = STYLE_TEMPLATES[key] || [];
+  if (!list.length) return '';
+  const seed = String(id || key || '').split('')
+    .reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+  const idx = seed % list.length;
+  return list[idx];
+}
+
+function buildStyleLine(w) {
+  const sectionKey = String(w.sectionKey || '').toLowerCase();
+  const grape = String(w.grape || '').toLowerCase();
+
+  const keyOrder = [
+    grape.includes('sauvignon') ? 'sauvignon' : null,
+    grape.includes('chardonnay') ? 'chardonnay' : null,
+    grape.includes('pinot') ? 'pinot' : null,
+    grape.includes('cabernet') ? 'cabernet' : null,
+    sectionKey.includes('champagne') ? 'champagne' : null,
+    sectionKey.includes('sparkling') ? 'sparkling' : null,
+    sectionKey.includes('rose') ? 'rose' : null,
+    sectionKey.includes('red') ? 'red' : null,
+    sectionKey.includes('white') ? 'white' : null,
+    sectionKey.includes('dessert') ? 'dessert' : null
+  ].filter(Boolean);
+
+  for (const k of keyOrder) {
+    const tpl = pickTemplate(k, w.id);
+    if (tpl) return tpl;
+  }
+
+  const candidates = [];
+  if (safe(w.style)) candidates.push(...wordsFromText(w.style));
+  if (safe(w.description)) candidates.push(...wordsFromText(w.description));
+  if (safe(w.grape)) candidates.push(...wordsFromText(w.grape));
+  if (safe(w.region)) candidates.push(...wordsFromText(w.region));
+
+  const seen = new Set();
+  const words = [];
+  for (const word of candidates) {
+    const key = word.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    words.push(word);
+    if (words.length >= 6) break;
+  }
+
+  const fallback = ['Balanced', 'elegant', 'food-friendly'];
+  const final = words.length >= 3 ? words.slice(0, 6) : [...words, ...fallback].slice(0, 3);
+  return final.join(' ');
+}
+
+function buildShortDescription(text) {
+  const raw = String(text || '').replace(/\s+/g, ' ').trim();
+  if (!raw) return '';
+  const cleaned = raw.replace(/^this wine\s+(is|offers|presents|delivers)\s+/i, '');
+  const sentences = cleaned.split(/(?<=[.!?])\s+/).filter(Boolean);
+  return sentences.slice(0, 3).join(' ');
+}
+
+function buildCardChips(w) {
+  const chips = [];
+  const section = labelForSectionKey(w.sectionKey);
+  if (section) chips.push(section);
+  if (safe(w.style)) chips.push(w.style);
+  if (chips.length < 2 && safe(w.grape)) chips.push(w.grape);
+
+  const seen = new Set();
+  const out = [];
+  for (const c of chips) {
+    const key = String(c || '').toLowerCase();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(c);
+    if (out.length >= 2) break;
+  }
+  return out;
+}
+
+function buildPairingList(text) {
+  const raw = String(text || '')
+    .split(/[|,;/]/g)
+    .map(x => x.trim())
+    .filter(Boolean);
+  return raw.slice(0, 4);
+}
+
+function getNoteTokensForWine(w) {
+  const tokens = parseNotesChips(w.notes);
+  const fallback = ['Fresh', 'Balanced', 'Elegant'];
+  for (const f of fallback) {
+    if (tokens.length >= 3) break;
+    if (!tokens.some(t => t.toLowerCase() === f.toLowerCase())) tokens.push(f);
+  }
+  return tokens.slice(0, 3);
+}
+
+function readProfileValue(raw, keys) {
+  for (const key of keys) {
+    if (raw && raw[key] !== undefined && raw[key] !== null) {
+      const val = Number(String(raw[key]).replace(',', '.'));
+      if (isFinite(val)) {
+        if (val <= 5) return Math.max(0, Math.min(100, (val - 1) * 25));
+        return Math.max(0, Math.min(100, val));
+      }
+    }
+  }
+  return null;
+}
+
+function inferProfile(sectionKey = '') {
+  const key = String(sectionKey || '').toLowerCase();
+  if (key.includes('red')) {
+    return { body: 72, acidity: 55, sweetness: 12, texture: 72, textureLabel: ['Smooth', 'Firm'] };
+  }
+  if (key.includes('sparkling') || key.includes('champagne')) {
+    return { body: 30, acidity: 72, sweetness: 22, texture: 28, textureLabel: ['Crisp', 'Creamy'] };
+  }
+  if (key.includes('rose')) {
+    return { body: 42, acidity: 60, sweetness: 18, texture: 40, textureLabel: ['Crisp', 'Creamy'] };
+  }
+  if (key.includes('dessert')) {
+    return { body: 62, acidity: 40, sweetness: 82, texture: 60, textureLabel: ['Crisp', 'Creamy'] };
+  }
+  return { body: 38, acidity: 64, sweetness: 12, texture: 36, textureLabel: ['Crisp', 'Creamy'] };
+}
+
+function getWineProfile(w) {
+  const raw = w?.raw || {};
+  const base = inferProfile(w.sectionKey);
+  const body = readProfileValue(raw, ['body', 'body_level', 'profile_body']) ?? base.body;
+  const acidity = readProfileValue(raw, ['acidity', 'acidity_level', 'profile_acidity']) ?? base.acidity;
+  const sweetness = readProfileValue(raw, ['sweetness', 'sweetness_level', 'profile_sweetness']) ?? base.sweetness;
+  const texture = readProfileValue(raw, ['texture', 'texture_level', 'profile_texture']) ?? base.texture;
+  return { body, acidity, sweetness, texture, textureLabel: base.textureLabel };
 }
 
 // Словарь токенов для notes (иконки PNG + названия из файлов)
@@ -994,10 +1268,7 @@ const TOKEN_DICTIONARY = NOTE_ICON_FILES.reduce((acc, file) => {
 
 function buildNoteTag(tokenData) {
   const container = document.createElement('div');
-  container.className = 'noteContainer';
-  container.style.display = 'flex';
-  container.style.alignItems = 'center';
-  container.style.gap = '6px';
+  container.className = 'noteTag';
   
   // PNG иконка
   if (tokenData.icon) {
@@ -1007,16 +1278,13 @@ function buildNoteTag(tokenData) {
     const icon = document.createElement('img');
     icon.src = iconPath;
     icon.alt = tokenData.label;
-    icon.style.width = '36px';
-    icon.style.height = '36px';
-    icon.style.objectFit = 'contain';
+    icon.className = 'noteIcon';
     container.appendChild(icon);
   }
   
   const label = document.createElement('span');
   label.textContent = tokenData.label;
-  label.style.fontSize = '14px';
-  label.style.whiteSpace = 'nowrap';
+  label.className = 'noteLabel';
   container.appendChild(label);
   
   return container;
@@ -1649,17 +1917,21 @@ function renderGrid(list) {
     card.className = 'card';
     if (!w.available) card.classList.add('is86');
 
-    const row = document.createElement('div');
-    row.className = 'row';
+    const layout = document.createElement('div');
+    layout.className = 'cardLayout';
+
+    const bottleWrap = document.createElement('div');
+    bottleWrap.className = 'bottleWrap';
 
     const img = document.createElement('img');
-    img.className = 'bottle';
+    img.className = 'bottleImg';
     img.loading = 'lazy';
     img.decoding = 'async';
-
     img.src = resolveBottleSrc(w.imageUrl);
     img.onerror = () => { img.src = PLACEHOLDER_BOTTLE; };
     img.alt = w.title ? `Bottle image: ${w.title}` : 'Wine bottle';
+
+    bottleWrap.appendChild(img);
 
     const meta = document.createElement('div');
     meta.className = 'meta';
@@ -1670,79 +1942,86 @@ function renderGrid(list) {
     const left = document.createElement('div');
     left.style.minWidth = '0';
 
+    if (w.producer) {
+      const producer = document.createElement('div');
+      producer.className = 'producer';
+      producer.textContent = w.producer;
+      left.appendChild(producer);
+    }
+
     const name = document.createElement('div');
     name.className = 'name';
-    name.textContent = w.title;
+    const nameVintage = [w.raw?.name, w.raw?.vintage].filter(Boolean).map(v => String(v).trim()).filter(Boolean).join(' ');
+    name.textContent = nameVintage || w.title;
+
+    left.appendChild(name);
+
+    const priceStack = document.createElement('div');
+    priceStack.className = 'priceStack';
+
+    const hasBottle = !!safe(w.priceBottle);
+    const hasGlass = !!safe(w.priceGlass);
+
+    if (hasBottle) {
+      const bottlePrice = document.createElement('div');
+      bottlePrice.className = 'priceBottle';
+      bottlePrice.textContent = money(w.priceBottle);
+      priceStack.appendChild(bottlePrice);
+    }
+
+    if (hasGlass) {
+      const glassPrice = document.createElement('small');
+      glassPrice.className = 'priceGlass';
+      glassPrice.textContent = money(w.priceGlass);
+      priceStack.appendChild(glassPrice);
+    }
+
+    if (!w.available) {
+      const badge = document.createElement('div');
+      badge.className = 'badge86';
+      badge.textContent = '86';
+      priceStack.appendChild(badge);
+    }
+
+    head.appendChild(left);
+    head.appendChild(priceStack);
 
     const sub = document.createElement('div');
     sub.className = 'sub';
     sub.textContent = w.sub;
 
-    left.appendChild(name);
-    left.appendChild(sub);
+    const styleLine = document.createElement('div');
+    styleLine.className = 'styleLine';
+    styleLine.textContent = buildStyleLine(w);
 
-    const price = document.createElement('div');
-    price.className = 'price';
-
-    if (!w.available) {
-      price.textContent = 'Out of stock';
-      price.style.opacity = '0.85';
-      price.style.fontWeight = '800';
-    } else {
-      if (safe(w.priceBottle)) {
-        price.textContent = money(w.priceBottle);
-      }
-      if (safe(w.priceGlass)) {
-        const sm = document.createElement('small');
-        sm.textContent = `${money(w.priceGlass)} / glass`;
-        price.appendChild(sm);
-      }
+    const chips = document.createElement('div');
+    chips.className = 'chips';
+    const chipItems = buildCardChips(w);
+    for (const c of chipItems) {
+      const chip = document.createElement('div');
+      chip.className = 'chipTag';
+      chip.textContent = c;
+      chips.appendChild(chip);
     }
-
-    head.appendChild(left);
-    head.appendChild(price);
-
-    const tags = document.createElement('div');
-    tags.className = 'tags';
-
-    const tag1 = document.createElement('div');
-    tag1.className = 'tag';
-    tag1.textContent = labelForSectionKey(w.sectionKey);
-
-    const tag2 = document.createElement('div');
-    tag2.className = 'tag';
-    tag2.textContent = safe(w.style);
-
-    tags.appendChild(tag1);
-    if (safe(w.style)) tags.appendChild(tag2);
-
-    const desc = document.createElement('div');
-    desc.className = 'desc';
-    desc.textContent = safe(w.description);
 
     const notes = document.createElement('div');
     notes.className = 'notes';
-
-    const chips = parseNotesChips(w.notes);
-    if (chips.length) {
-      notes.textContent = '';
-      for (const c of chips) {
-        const tokenData = getTokenDisplay(c, state.lang);
-        const noteTag = buildNoteTag(tokenData);
-        notes.appendChild(noteTag);
-      }
-    } else {
-      notes.textContent = '';
+    const noteTokens = getNoteTokensForWine(w);
+    for (const c of noteTokens) {
+      const tokenData = getTokenDisplay(c, state.lang);
+      const noteTag = buildNoteTag(tokenData);
+      notes.appendChild(noteTag);
     }
 
     meta.appendChild(head);
-    meta.appendChild(tags);
-    meta.appendChild(desc);
+    meta.appendChild(sub);
+    meta.appendChild(styleLine);
+    if (chipItems.length) meta.appendChild(chips);
     meta.appendChild(notes);
 
-    row.appendChild(img);
-    row.appendChild(meta);
-    card.appendChild(row);
+    layout.appendChild(bottleWrap);
+    layout.appendChild(meta);
+    card.appendChild(layout);
 
     const btn = document.createElement('button');
     btn.className = 'cardBtn';
@@ -1812,7 +2091,7 @@ function openWineModal(wineId, pushHistory = true) {
   state.modalWineId = wineId;
 
   const top = $('modalTopText');
-  top.textContent = labelForSectionKey(w.sectionKey) + (w.available ? '' : ' • Out of stock');
+  top.textContent = labelForSectionKey(w.sectionKey) + (w.available ? '' : ' • 86');
 
   const mb = $('modalBottle');
   mb.src = resolveBottleSrc(w.imageUrl);
@@ -1823,72 +2102,86 @@ function openWineModal(wineId, pushHistory = true) {
 
   const modalPrice = $('modalPrice');
   modalPrice.innerHTML = '';
-  
-  if (!w.available) {
-    modalPrice.textContent = 'Out of stock';
-    modalPrice.style.opacity = '0.85';
-    modalPrice.style.fontWeight = '800';
-  } else {
-    modalPrice.style.opacity = '1';
-    modalPrice.style.fontWeight = 'normal';
-    
-    if (safe(w.priceBottle)) {
-      const bottleText = document.createElement('div');
-      bottleText.textContent = `${money(w.priceBottle)} / bottle`;
-      modalPrice.appendChild(bottleText);
-      
-      const bottleVolume = document.createElement('small');
-      bottleVolume.textContent = '750 ml';
-      bottleVolume.style.display = 'block';
-      bottleVolume.style.opacity = '0.6';
-      bottleVolume.style.fontSize = '12px';
-      bottleVolume.style.marginTop = '2px';
-      modalPrice.appendChild(bottleVolume);
-    }
-    if (safe(w.priceGlass)) {
-      const glassText = document.createElement('div');
-      glassText.textContent = `${money(w.priceGlass)} / glass`;
-      glassText.style.marginTop = '8px';
-      modalPrice.appendChild(glassText);
-      
-      const glassVolume = document.createElement('small');
-      glassVolume.textContent = '150 ml / 5 oz';
-      glassVolume.style.display = 'block';
-      glassVolume.style.opacity = '0.6';
-      glassVolume.style.fontSize = '12px';
-      glassVolume.style.marginTop = '2px';
-      modalPrice.appendChild(glassVolume);
-    }
+
+  const hasBottle = !!safe(w.priceBottle);
+  const hasGlass = !!safe(w.priceGlass);
+
+  if (hasBottle) {
+    const bottleText = document.createElement('div');
+    bottleText.textContent = `Bottle · ${money(w.priceBottle)} · 750 ml`;
+    modalPrice.appendChild(bottleText);
   }
 
-  const tags = $('modalTags');
-  tags.innerHTML = '';
-  const t1 = document.createElement('div');
-  t1.className = 'tag';
-  t1.textContent = labelForSectionKey(w.sectionKey);
-  tags.appendChild(t1);
-
-  if (safe(w.style)) {
-    const t2 = document.createElement('div');
-    t2.className = 'tag';
-    t2.textContent = w.style;
-    tags.appendChild(t2);
+  if (hasGlass) {
+    const glassText = document.createElement('div');
+    glassText.textContent = `Glass · ${money(w.priceGlass)} · 150 ml / 5 oz`;
+    modalPrice.appendChild(glassText);
   }
 
-  $('modalDesc').textContent = safe(w.description);
+  const modalChips = $('modalChips');
+  modalChips.innerHTML = '';
+  const chipItems = buildCardChips(w);
+  modalChips.style.display = chipItems.length ? 'flex' : 'none';
+  for (const c of chipItems) {
+    const chip = document.createElement('div');
+    chip.className = 'chipTag';
+    chip.textContent = c;
+    modalChips.appendChild(chip);
+  }
+
+  const modalProfile = $('modalProfile');
+  modalProfile.innerHTML = '';
+  const profile = getWineProfile(w);
+  const rows = [
+    { label: 'Body', left: 'Light', right: 'Full', value: profile.body },
+    { label: 'Acidity', left: 'Soft', right: 'Bright', value: profile.acidity },
+    { label: 'Sweetness', left: 'Dry', right: 'Sweet', value: profile.sweetness },
+    { label: 'Texture', left: profile.textureLabel[0], right: profile.textureLabel[1], value: profile.texture }
+  ];
+  for (const r of rows) {
+    const row = document.createElement('div');
+    row.className = 'profileRow';
+
+    const label = document.createElement('div');
+    label.className = 'profileLabel';
+    const name = document.createElement('span');
+    name.textContent = r.label;
+    const range = document.createElement('span');
+    range.textContent = `${r.left} — ${r.right}`;
+    label.appendChild(name);
+    label.appendChild(range);
+
+    const track = document.createElement('div');
+    track.className = 'profileTrack';
+
+    const marker = document.createElement('div');
+    marker.className = 'profileMarker';
+    marker.style.left = `${Math.max(0, Math.min(100, r.value))}%`;
+
+    track.appendChild(marker);
+    row.appendChild(label);
+    row.appendChild(track);
+    modalProfile.appendChild(row);
+  }
+
+  const descText = buildShortDescription(w.description);
+  const modalDesc = $('modalDesc');
+  modalDesc.textContent = descText;
+  modalDesc.style.display = descText ? 'block' : 'none';
 
   // Pairing только для PeopleTalk (Task 5.1)
   const pairingEl = $('modalPairing');
   if (state.restaurantId === 'peopletalk' && safe(w.pairing)) {
-    pairingEl.textContent = `🍽️ Pairing: ${w.pairing}`;
-    pairingEl.style.display = 'block';
+    const items = buildPairingList(w.pairing);
+    pairingEl.textContent = items.length ? `🍽️ Pairing: ${items.join(' · ')}` : '';
+    pairingEl.style.display = items.length ? 'block' : 'none';
   } else {
     pairingEl.style.display = 'none';
   }
 
   const mn = $('modalNotes');
   mn.innerHTML = '';
-  const chips = parseNotesChips(w.notes);
+  const chips = getNoteTokensForWine(w);
 
   if (!chips.length) mn.style.display = 'none';
   else mn.style.display = 'flex';

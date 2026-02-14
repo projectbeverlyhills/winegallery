@@ -6,27 +6,48 @@
   <title>WineGallery</title>
   <style>
     :root{
-      --bg1:#F7F4EE;
+      --bg1:#FAFAFA;
       --bg2:#F7F4EE;
-      --card:#FFFFFF;
+      --card:rgba(255, 255, 255, 0.95);
       --card2:#FFFFFF;
-      --stroke:#E8E2D8;
-      --stroke2:#D8D1C6;
-      --text:#121212;
-      --muted:#6E6A63;
-      --muted2:#8A847B;
-      --chip:#F2EEE6;
-      --chipActive:#F6ECEE;
+      --stroke:#E0E0E0;
+      --stroke2:#CCCCCC;
+      --text:#000000;
+      --muted:#666666;
+      --muted2:#999999;
+      --chip:#F5F5F5;
+      --chipActive:#E8F5E9;
       --good:#2f9d6a;
-      --accent:#6F1D2B;
-      --accentSoft:#B46A74;
+      --accent:#2f9d6a;
+      --accentSoft:#4CAF50;
       --track:#EFE7DE;
-      --shadow:0 6px 20px rgba(18,18,18,0.08);
-      --radius:22px;
-      --radius2:16px;
-      --pad:20px;
+      --shadow:0 2px 8px rgba(0,0,0,0.06);
+      --radius:16px;
+      --radius2:12px;
+      --pad:24px;
       --gap:16px;
-      --font: 'Proxima Nova', 'Helvetica Neue', sans-serif;
+      --font: 'Proxima Nova', sans-serif;
+    }
+    :root[data-theme="dark"]{
+      --bg1:#121212;
+      --bg2:#1E1E1E;
+      --card:rgba(30, 30, 30, 0.95);
+      --card2:#2C2C2C;
+      --stroke:#333333;
+      --stroke2:#444444;
+      --text:#FFFFFF;
+      --muted:#B0B0B0;
+      --muted2:#808080;
+      --chip:#2C2C2C;
+      --chipActive:#1B3A1F;
+      --good:#4CAF50;
+      --accent:#4CAF50;
+      --accentSoft:#66BB6A;
+      --track:#2C2C2C;
+      --shadow:0 2px 8px rgba(0,0,0,0.3);
+    }
+    *{
+      font-family: var(--font);
     }
     body{
       margin:0;
@@ -42,7 +63,9 @@
       padding:22px 18px 70px;
     }
     .topbar{
-      position: static;
+      position: sticky;
+      top: 0;
+      z-index: 100;
       display:flex;
       align-items:center;
       justify-content:space-between;
@@ -51,6 +74,8 @@
       margin-bottom:14px;
       border:1px solid var(--stroke);
       background: var(--card);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border-radius: 22px;
       box-shadow: var(--shadow);
     }
@@ -96,20 +121,10 @@
       color: var(--text);
       padding: 7px 10px;
       font-size: 12px;
+      min-width: 100px;
     }
     .btn:hover{
       border-color: var(--stroke2);
-    }
-    .pill{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      padding:7px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--stroke);
-      background: var(--chip);
-      font-size: 12px;
-      color: var(--muted);
     }
     select, input{
       background: var(--card);
@@ -119,6 +134,7 @@
       border-radius: 12px;
       padding: 7px 10px;
       font-size: 12px;
+      min-width: 100px;
     }
     .iconBtn{
       cursor:pointer;
@@ -135,8 +151,6 @@
       border-color: var(--stroke2);
     }
 
-    select{ padding-right: 28px; }
-    input{ min-width: 220px; }
 
     .status{
       font-size: 12px;
@@ -160,10 +174,14 @@
     }
 
     .tabs{
+      position: sticky;
+      top: 85px;
+      z-index: 99;
       display:flex;
       gap:10px;
       flex-wrap:wrap;
       margin: 12px 0 12px;
+      padding: 12px 0;
     }
 
     /* chip as button (a11y) */
@@ -204,26 +222,22 @@
       input{ min-width: 160px; }
 
       .card{ padding: 16px; }
-      .cardLayout{ grid-template-columns: 32% 68%; gap: 12px; }
-      .bottleWrap{ height: 155px; }
-      .bottleImg{ max-height: 145px; }
+      .cardLayout{ grid-template-columns: 1fr; gap: 16px; }
+      .bottleWrap{ min-height: 180px; padding: 12px; }
+      .bottleImg{ max-height: 160px; }
 
-      .name{ font-size: 17px; }
-      .producer{ font-size: 17px; }
-      .sub{ font-size: 13px; }
-      .styleLine{ font-size: 13px; }
-
-      .priceBottle{ font-size: 16px; }
-      .priceGlass{ font-size: 13px; }
-
-      .chipTag{ font-size: 11px; padding: 4px 8px; }
-      .noteLabel{ font-size: 11px; }
+      .name{ font-size: 13px; margin-bottom: 12px; }
+      .infoRow{ grid-template-columns: 75px 1fr; gap: 8px; margin-bottom: 6px; }
+      .infoLabel{ font-size: 9px; }
+      .infoValue{ font-size: 11px; }
     }
     @media (max-width: 680px){
-      .cardLayout{ grid-template-columns: 1fr; }
-      .bottleWrap{ width: 100%; height: 175px; }
-      .priceStack{ text-align:left; }
-      .head{ gap: 8px; align-items: flex-start; }
+      .card{ padding: 14px; }
+      .cardLayout{ grid-template-columns: 1fr; gap: 14px; }
+      .bottleWrap{ width: 100%; min-height: 160px; padding: 10px; }
+      .bottleImg{ max-height: 140px; }
+      .name{ font-size: 12px; }
+      .infoRow{ grid-template-columns: 1fr; gap: 2px; margin-bottom: 6px; }
     }
 
     .card{
@@ -231,66 +245,79 @@
       border-radius: var(--radius);
       border:1px solid var(--stroke);
       background: var(--card);
-      box-shadow: var(--shadow);
-      padding: 18px 20px;
-      min-height: 176px;
+      box-shadow: none;
+      padding: 14px;
+      min-height: auto;
       overflow:hidden;
+      transition: border-color 0.2s ease;
     }
     .card:hover{ border-color: var(--stroke2); }
     .cardLayout{
       display:grid;
-      grid-template-columns: 28% 72%;
-      gap: 16px;
-      align-items:center;
+      grid-template-columns: 17% 83%;
+      gap: 40px;
+      align-items:start;
     }
     .bottleWrap{
       width: 100%;
-      height: 175px;
-      border-radius: 12px;
-      border: 1px solid var(--stroke);
-      background: var(--chip);
+      height: auto;
+      min-height: 200px;
+      border-radius: var(--radius2);
+      border: none;
+      background: var(--bg2);
       display:flex;
       align-items:center;
       justify-content:center;
+      padding: 8px;
     }
     .bottleImg{
-      max-height: 165px;
-      max-width: 90%;
+      max-height: 192px;
+      max-width: 100%;
       object-fit: contain;
-      filter: drop-shadow(0 6px 12px rgba(18,18,18,0.12));
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08));
     }
     .meta{
       flex:1;
       min-width:0;
       display:flex;
       flex-direction:column;
-      gap:10px;
+      gap:0;
     }
     .head{
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
       gap:12px;
+      margin-bottom: 24px;
     }
     .name{
       font-weight: 600;
-      font-size: 19px;
-      letter-spacing:0.2px;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 14px;
+      letter-spacing:0.3px;
+      text-align: left;
+      text-transform: uppercase;
+      line-height: 1.25;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .titleProducer{
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+    .titleWine{
+      font-weight: 400;
+      font-size: 12px;
+      letter-spacing: 0.2px;
+      color: var(--muted);
       line-height: 1.3;
+      margin-bottom: 10px;
     }
     .producer{
-      font-size: 19px;
-      font-weight: 600;
-      color: var(--muted);
-      margin-bottom: 4px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      display: none;
     }
     .sub{
       font-size: 14px;
@@ -298,6 +325,34 @@
       white-space: nowrap;
       overflow:hidden;
       text-overflow: ellipsis;
+    }
+    .infoRow{
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      gap: 8px;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+    .infoLabel{
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .infoValue{
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text);
+      letter-spacing: 0.2px;
+      line-height: 1.35;
+    }
+    .countryFlag{
+      width: 28px;
+      height: 20px;
+      object-fit: cover;
+      border: 1px solid #CCCCCC;
+      margin-right: 8px;
     }
     .styleLine{
       font-size: 14px;
@@ -339,7 +394,7 @@
     }
     .notes{
       display:flex;
-      gap:8px;
+      gap:50px;
       flex-wrap:wrap;
       align-items:center;
     }
@@ -347,14 +402,14 @@
       display:flex;
       align-items:center;
       gap:6px;
-      padding: 6px 10px;
+      padding: 0;
       border-radius: 999px;
-      border: 1px solid var(--stroke);
-      background: var(--card);
+      border: none;
+      background: transparent;
     }
     .noteIcon{
-      width: 28px;
-      height: 28px;
+      width: 36px;
+      height: 36px;
       object-fit: contain;
     }
     .noteLabel{
@@ -527,13 +582,13 @@
     :focus { outline: none; }
 
     :focus-visible{
-      outline: 2px solid #000;
+      outline: 2px solid var(--text);
       outline-offset: 3px;
       border-radius: 12px;
     }
 
     .card:focus-within{
-      border-color: #000;
+      border-color: var(--text);
     }
 
     /* ===== Start screen ===== */
@@ -600,7 +655,7 @@
       opacity: 0.5;
     }
     .formError{
-      color: #000;
+      color: var(--text);
       font-size: 12px;
     }
     .noteContainer { display:none; }
@@ -649,13 +704,8 @@
         <input id="searchInput" placeholder="Search..." aria-label="Search wines" />
 
         <button id="clearSearchBtn" class="iconBtn" type="button" title="Clear search" aria-label="Clear search">×</button>
+        <button id="themeToggleBtn" class="btn" type="button" title="Toggle theme">🌙</button>
         <button id="logoutBtn" class="btn" type="button">Logout</button>
-
-        <!-- (4) aria-live status -->
-        <div class="status" id="statusPill" role="status" aria-live="polite">
-          <span class="dot" id="statusDot"></span>
-          <span id="statusText">Idle</span>
-        </div>
       </div>
     </div>
 
@@ -838,24 +888,103 @@ function money(v) {
   if (!isFinite(n)) return '';
   const currency = state.config?.currency || 'USD';
   try {
-    return new Intl.NumberFormat('en-US', {
+    const formatted = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: currency,
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(n);
+    return formatted.replace('$', '$ ');
   } catch (e) {
-    return `$${n}`;
+    return `$ ${n}`;
   }
 }
 
 function setStatus(text, type='idle') {
   state.status = text;
   state.statusType = type;
-  $('statusText').textContent = text;
-  const dot = $('statusDot');
-  dot.classList.remove('good');
-  if (type === 'good') dot.classList.add('good');
+  const statusText = $('statusText');
+  const statusDot = $('statusDot');
+  if (statusText) statusText.textContent = text;
+  if (statusDot) {
+    statusDot.classList.remove('good');
+    if (type === 'good') statusDot.classList.add('good');
+  }
+}
+
+/**
+ * =========================
+ * Theme Toggle
+ * =========================
+ */
+const lightTheme = {
+  '--bg1': '#FAFAFA',
+  '--bg2': '#F7F4EE',
+  '--card': 'rgba(255, 255, 255, 0.95)',
+  '--card2': '#FFFFFF',
+  '--stroke': '#E0E0E0',
+  '--stroke2': '#CCCCCC',
+  '--text': '#000000',
+  '--muted': '#666666',
+  '--muted2': '#999999',
+  '--chip': '#F5F5F5',
+  '--chipActive': '#E8F5E9',
+  '--good': '#2f9d6a',
+  '--accent': '#2f9d6a',
+  '--accentSoft': '#4CAF50',
+  '--track': '#EFE7DE',
+  '--shadow': '0 2px 8px rgba(0,0,0,0.06)'
+};
+
+const darkTheme = {
+  '--bg1': '#121212',
+  '--bg2': '#1E1E1E',
+  '--card': 'rgba(30, 30, 30, 0.95)',
+  '--card2': '#2C2C2C',
+  '--stroke': '#333333',
+  '--stroke2': '#444444',
+  '--text': '#FFFFFF',
+  '--muted': '#B0B0B0',
+  '--muted2': '#808080',
+  '--chip': '#2C2C2C',
+  '--chipActive': '#1B3A1F',
+  '--good': '#4CAF50',
+  '--accent': '#4CAF50',
+  '--accentSoft': '#66BB6A',
+  '--track': '#2C2C2C',
+  '--shadow': '0 2px 8px rgba(0,0,0,0.3)'
+};
+
+function applyTheme(theme) {
+  const themeVars = theme === 'dark' ? darkTheme : lightTheme;
+  const root = document.documentElement;
+  for (const [key, value] of Object.entries(themeVars)) {
+    root.style.setProperty(key, value);
+  }
+}
+
+function initTheme() {
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  applyTheme(savedTheme);
+  updateThemeButton(savedTheme);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const newTheme = current === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  applyTheme(newTheme);
+  localStorage.setItem('theme', newTheme);
+  updateThemeButton(newTheme);
+}
+
+function updateThemeButton(theme) {
+  const btn = $('themeToggleBtn');
+  if (btn) {
+    btn.textContent = theme === 'light' ? '🌙' : '☀️';
+    btn.title = theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode';
+  }
 }
 
 /**
@@ -1736,12 +1865,14 @@ async function loadWinesForCurrentMenu() {
         const available = toBool(x.is_available);
 
         const producer = String(x.producer ?? '').trim();
+        const country = String(x.country ?? '').trim();
         const region = String(x.region ?? '').trim();
         const grape = String(x.grape ?? '').trim();
 
         const hay = buildSearchHaystack([
           buildTitle(x),
           producer,
+          country,
           region,
           grape
         ]);
@@ -1755,6 +1886,7 @@ async function loadWinesForCurrentMenu() {
           sectionKey,
 
           producer,
+          country,
           region,
           grape,
           searchHaystack: hay,
@@ -1936,88 +2068,155 @@ function renderGrid(list) {
     const meta = document.createElement('div');
     meta.className = 'meta';
 
-    const head = document.createElement('div');
-    head.className = 'head';
-
-    const left = document.createElement('div');
-    left.style.minWidth = '0';
-
+    // Producer on first line
     if (w.producer) {
-      const producer = document.createElement('div');
-      producer.className = 'producer';
-      producer.textContent = w.producer;
-      left.appendChild(producer);
+      const producerDiv = document.createElement('div');
+      producerDiv.className = 'titleProducer';
+      producerDiv.textContent = w.producer;
+      meta.appendChild(producerDiv);
+    }
+    
+    // Name + Vintage on second line
+    const wineNameText = [w.raw?.name, w.raw?.vintage]
+      .filter(Boolean)
+      .map(v => String(v).trim())
+      .filter(Boolean)
+      .join(' ');
+    
+    if (wineNameText) {
+      const wineNameDiv = document.createElement('div');
+      wineNameDiv.className = 'titleWine';
+      wineNameDiv.textContent = wineNameText;
+      meta.appendChild(wineNameDiv);
     }
 
-    const name = document.createElement('div');
-    name.className = 'name';
-    const nameVintage = [w.raw?.name, w.raw?.vintage].filter(Boolean).map(v => String(v).trim()).filter(Boolean).join(' ');
-    name.textContent = nameVintage || w.title;
+    // Country row
+    if (w.country) {
+      const countryRow = document.createElement('div');
+      countryRow.className = 'infoRow';
+      
+      const countryLabel = document.createElement('div');
+      countryLabel.className = 'infoLabel';
+      countryLabel.textContent = 'COUNTRY';
+      
+      const countryValue = document.createElement('div');
+      countryValue.className = 'infoValue';
+      countryValue.textContent = w.country;
+      
+      countryRow.appendChild(countryLabel);
+      countryRow.appendChild(countryValue);
+      meta.appendChild(countryRow);
+    }
 
-    left.appendChild(name);
+    // Region row
+    if (w.region) {
+      const regionRow = document.createElement('div');
+      regionRow.className = 'infoRow';
+      
+      const regionLabel = document.createElement('div');
+      regionLabel.className = 'infoLabel';
+      regionLabel.textContent = 'REGION';
+      
+      const regionValue = document.createElement('div');
+      regionValue.className = 'infoValue';
+      regionValue.textContent = w.region;
+      
+      regionRow.appendChild(regionLabel);
+      regionRow.appendChild(regionValue);
+      meta.appendChild(regionRow);
+    }
 
-    const priceStack = document.createElement('div');
-    priceStack.className = 'priceStack';
+    // Grape row
+    if (w.grape) {
+      const grapeRow = document.createElement('div');
+      grapeRow.className = 'infoRow';
+      
+      const grapeLabel = document.createElement('div');
+      grapeLabel.className = 'infoLabel';
+      grapeLabel.textContent = 'GRAPE';
+      
+      const grapeValue = document.createElement('div');
+      grapeValue.className = 'infoValue';
+      grapeValue.textContent = w.grape;
+      
+      grapeRow.appendChild(grapeLabel);
+      grapeRow.appendChild(grapeValue);
+      meta.appendChild(grapeRow);
+    }
 
+    // Vintage row
+    if (w.vintage) {
+      const vintageRow = document.createElement('div');
+      vintageRow.className = 'infoRow';
+      
+      const vintageLabel = document.createElement('div');
+      vintageLabel.className = 'infoLabel';
+      vintageLabel.textContent = 'VINTAGE';
+      
+      const vintageValue = document.createElement('div');
+      vintageValue.className = 'infoValue';
+      vintageValue.textContent = w.vintage;
+      
+      vintageRow.appendChild(vintageLabel);
+      vintageRow.appendChild(vintageValue);
+      meta.appendChild(vintageRow);
+    }
+
+    // Bottle price row
     const hasBottle = !!safe(w.priceBottle);
-    const hasGlass = !!safe(w.priceGlass);
-
     if (hasBottle) {
-      const bottlePrice = document.createElement('div');
-      bottlePrice.className = 'priceBottle';
-      bottlePrice.textContent = money(w.priceBottle);
-      priceStack.appendChild(bottlePrice);
+      const bottleRow = document.createElement('div');
+      bottleRow.className = 'infoRow';
+      
+      const bottleLabel = document.createElement('div');
+      bottleLabel.className = 'infoLabel';
+      bottleLabel.textContent = 'BOTTLE';
+      
+      const bottleValue = document.createElement('div');
+      bottleValue.className = 'infoValue';
+      bottleValue.textContent = money(w.priceBottle);
+      
+      bottleRow.appendChild(bottleLabel);
+      bottleRow.appendChild(bottleValue);
+      meta.appendChild(bottleRow);
     }
 
-    if (hasGlass) {
-      const glassPrice = document.createElement('small');
-      glassPrice.className = 'priceGlass';
-      glassPrice.textContent = money(w.priceGlass);
-      priceStack.appendChild(glassPrice);
+    // Glass price row
+    const hasGlass = !!safe(w.priceGlass);
+    const glassRow = document.createElement('div');
+    glassRow.className = 'infoRow';
+    
+    const glassLabel = document.createElement('div');
+    glassLabel.className = 'infoLabel';
+    glassLabel.textContent = 'GLASS';
+    
+    const glassValue = document.createElement('div');
+    glassValue.className = 'infoValue';
+    glassValue.textContent = hasGlass ? money(w.priceGlass) : 'Bottle only';
+    
+    glassRow.appendChild(glassLabel);
+    glassRow.appendChild(glassValue);
+    meta.appendChild(glassRow);
+
+    // Notes row with icons
+    if (w.notes) {
+      const notesValueWrap = document.createElement('div');
+      notesValueWrap.className = 'notes';
+      notesValueWrap.style.gap = '24px';
+      notesValueWrap.style.marginTop = '8px';
+      notesValueWrap.style.marginLeft = '0';
+      
+      const tokens = parseNotesChips(w.notes);
+      tokens.forEach(tokenStr => {
+        const tokenData = getTokenDisplay(tokenStr);
+        if (tokenData) {
+          const tag = buildNoteTag(tokenData);
+          notesValueWrap.appendChild(tag);
+        }
+      });
+      
+      meta.appendChild(notesValueWrap);
     }
-
-    if (!w.available) {
-      const badge = document.createElement('div');
-      badge.className = 'badge86';
-      badge.textContent = '86';
-      priceStack.appendChild(badge);
-    }
-
-    head.appendChild(left);
-    head.appendChild(priceStack);
-
-    const sub = document.createElement('div');
-    sub.className = 'sub';
-    sub.textContent = w.sub;
-
-    const styleLine = document.createElement('div');
-    styleLine.className = 'styleLine';
-    styleLine.textContent = buildStyleLine(w);
-
-    const chips = document.createElement('div');
-    chips.className = 'chips';
-    const chipItems = buildCardChips(w);
-    for (const c of chipItems) {
-      const chip = document.createElement('div');
-      chip.className = 'chipTag';
-      chip.textContent = c;
-      chips.appendChild(chip);
-    }
-
-    const notes = document.createElement('div');
-    notes.className = 'notes';
-    const noteTokens = getNoteTokensForWine(w);
-    for (const c of noteTokens) {
-      const tokenData = getTokenDisplay(c, state.lang);
-      const noteTag = buildNoteTag(tokenData);
-      notes.appendChild(noteTag);
-    }
-
-    meta.appendChild(head);
-    meta.appendChild(sub);
-    meta.appendChild(styleLine);
-    if (chipItems.length) meta.appendChild(chips);
-    meta.appendChild(notes);
 
     layout.appendChild(bottleWrap);
     layout.appendChild(meta);
@@ -2054,6 +2253,28 @@ function filterAndRender() {
     });
   }
 
+  // Sort by section order and then by price (ascending)
+  const sectionOrder = ['sparkling', 'champagne', 'white', 'rose', 'red', 'dessert'];
+  list.sort((a, b) => {
+    const sectionA = String(a.sectionKey || '').toLowerCase();
+    const sectionB = String(b.sectionKey || '').toLowerCase();
+    
+    const orderA = sectionOrder.indexOf(sectionA);
+    const orderB = sectionOrder.indexOf(sectionB);
+    
+    const indexA = orderA >= 0 ? orderA : 999;
+    const indexB = orderB >= 0 ? orderB : 999;
+    
+    if (indexA !== indexB) {
+      return indexA - indexB;
+    }
+    
+    // Within same section, sort by price (ascending)
+    const priceA = Number(a.priceBottle) || 0;
+    const priceB = Number(b.priceBottle) || 0;
+    return priceA - priceB;
+  });
+
   renderSectionButtons();
   renderGrid(list);
 }
@@ -2070,6 +2291,9 @@ function setActiveSection(sectionKey) {
   syncUrl();
   closeModal(false);
   filterAndRender();
+  
+  // Scroll to top when changing section
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 /**
@@ -2303,6 +2527,7 @@ function clearSearch() {
 }
 
 $('clearSearchBtn').addEventListener('click', clearSearch);
+$('themeToggleBtn').addEventListener('click', toggleTheme);
 
 /* (1) removed the duplicated input listener here */
 
@@ -2313,6 +2538,7 @@ $('clearSearchBtn').addEventListener('click', clearSearch);
  */
 async function boot() {
   try {
+    initTheme();
     setStatus(t('loading'), 'idle');
 
     state.configsIndex = await loadConfigsIndex();

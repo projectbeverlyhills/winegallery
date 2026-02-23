@@ -362,13 +362,6 @@
       border: 1px solid #CCCCCC;
       margin-right: 8px;
     }
-    .styleLine{
-      font-size: 14px;
-      color: var(--muted2);
-      white-space: nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
-    }
     .priceStack{
       text-align:right;
       min-width: 88px;
@@ -1177,112 +1170,6 @@ function parseNotesChips(s) {
   return unique.slice(0, 3);
 }
 
-function wordsFromText(text) {
-  return String(text || '')
-    .replace(/[“”"'()]/g, '')
-    .replace(/[^\p{L}\s-]/gu, ' ')
-    .split(/\s+/)
-    .map(x => x.trim())
-    .filter(Boolean)
-    .filter(w => !['this','wine','and','with','from','the','a','an','of'].includes(w.toLowerCase()));
-}
-
-const STYLE_TEMPLATES = {
-  champagne: [
-    'Fresh, elegant, balanced',
-    'Crisp, refined, celebratory',
-    'Classic brut, food-friendly'
-  ],
-  sparkling: [
-    'Fresh, elegant, balanced',
-    'Crisp, refined, celebratory',
-    'Classic brut, food-friendly'
-  ],
-  sauvignon: [
-    'Crisp, zesty, mineral-driven',
-    'Light, clean, refreshing'
-  ],
-  chardonnay: [
-    'Creamy, round, structured',
-    'Rich texture, subtle oak'
-  ],
-  pinot: [
-    'Silky, delicate, aromatic',
-    'Elegant red fruit profile'
-  ],
-  cabernet: [
-    'Bold, structured, powerful',
-    'Dark fruit, firm tannins'
-  ],
-  rose: [
-    'Fresh, dry, easy-drinking',
-    'Light, vibrant, refreshing'
-  ],
-  red: [
-    'Elegant, structured, savory',
-    'Smooth tannins, dark fruit'
-  ],
-  white: [
-    'Crisp, clean, food-friendly',
-    'Fresh, bright, mineral'
-  ],
-  dessert: [
-    'Lush, layered, indulgent',
-    'Sweet, rich, dessert-friendly'
-  ]
-};
-
-function pickTemplate(key, id = '') {
-  const list = STYLE_TEMPLATES[key] || [];
-  if (!list.length) return '';
-  const seed = String(id || key || '').split('')
-    .reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
-  const idx = seed % list.length;
-  return list[idx];
-}
-
-function buildStyleLine(w) {
-  const sectionKey = String(w.sectionKey || '').toLowerCase();
-  const grape = String(w.grape || '').toLowerCase();
-
-  const keyOrder = [
-    grape.includes('sauvignon') ? 'sauvignon' : null,
-    grape.includes('chardonnay') ? 'chardonnay' : null,
-    grape.includes('pinot') ? 'pinot' : null,
-    grape.includes('cabernet') ? 'cabernet' : null,
-    sectionKey.includes('champagne') ? 'champagne' : null,
-    sectionKey.includes('sparkling') ? 'sparkling' : null,
-    sectionKey.includes('rose') ? 'rose' : null,
-    sectionKey.includes('red') ? 'red' : null,
-    sectionKey.includes('white') ? 'white' : null,
-    sectionKey.includes('dessert') ? 'dessert' : null
-  ].filter(Boolean);
-
-  for (const k of keyOrder) {
-    const tpl = pickTemplate(k, w.id);
-    if (tpl) return tpl;
-  }
-
-  const candidates = [];
-  if (safe(w.style)) candidates.push(...wordsFromText(w.style));
-  if (safe(w.description)) candidates.push(...wordsFromText(w.description));
-  if (safe(w.grape)) candidates.push(...wordsFromText(w.grape));
-  if (safe(w.region)) candidates.push(...wordsFromText(w.region));
-
-  const seen = new Set();
-  const words = [];
-  for (const word of candidates) {
-    const key = word.toLowerCase();
-    if (seen.has(key)) continue;
-    seen.add(key);
-    words.push(word);
-    if (words.length >= 6) break;
-  }
-
-  const fallback = ['Balanced', 'elegant', 'food-friendly'];
-  const final = words.length >= 3 ? words.slice(0, 6) : [...words, ...fallback].slice(0, 3);
-  return final.join(' ');
-}
 
 function buildShortDescription(text) {
   const raw = String(text || '').replace(/\s+/g, ' ').trim();
@@ -1296,7 +1183,6 @@ function buildCardChips(w) {
   const chips = [];
   const section = labelForSectionKey(w.sectionKey);
   if (section) chips.push(section);
-  if (safe(w.style)) chips.push(w.style);
   if (chips.length < 2 && safe(w.grape)) chips.push(w.grape);
 
   const seen = new Set();
@@ -1884,7 +1770,7 @@ async function loadWinesForCurrentMenu() {
 
     state.wines = raw
       .map(x => {
-        const section = String(x.section ?? '').trim();
+        const section = String(x.section ?? x.section_key ?? '').trim();
         const sectionKeyRaw = String(x.section_key ?? '').trim();
         const sectionKey = normalizeSectionKey(sectionKeyRaw || section);
 
@@ -1905,7 +1791,7 @@ async function loadWinesForCurrentMenu() {
         ]);
 
         return {
-          id: String(x.id ?? '').trim(),
+          id: String(x.id ?? x.wine_id ?? '').trim(),
           title: buildTitle(x),
           sub: buildSub(x),
 
@@ -1918,12 +1804,11 @@ async function loadWinesForCurrentMenu() {
           grape,
           searchHaystack: hay,
 
-          style: String(x.style ?? '').trim(),
           description: String(x.story ?? '').trim(),
           notes: String(x.notes ?? '').trim(),
           pairing: String(x.pairing ?? '').trim(),
 
-          imageUrl: String(x.bottle_img ?? '').trim(),
+          imageUrl: String(x.bottle_img ?? x.primary_image_url ?? '').trim(),
           priceGlass: x.btg_price ?? '',
           priceBottle: x.bottle_price ?? '',
 
@@ -2692,7 +2577,7 @@ async function boot() {
 
     state.wines = raw
       .map(x => {
-        const section = String(x.section ?? '').trim();
+        const section = String(x.section ?? x.section_key ?? '').trim();
         const sectionKeyRaw = String(x.section_key ?? '').trim();
         const sectionKey = normalizeSectionKey(sectionKeyRaw || section);
 
@@ -2713,7 +2598,7 @@ async function boot() {
         ]);
 
         return {
-          id: String(x.id ?? '').trim(),
+          id: String(x.id ?? x.wine_id ?? '').trim(),
           title: buildTitle(x),
           sub: buildSub(x),
 
@@ -2726,12 +2611,11 @@ async function boot() {
           grape,
           searchHaystack,
 
-          style: String(x.style ?? '').trim(),
           description: String(x.story ?? '').trim(),
           notes: String(x.notes ?? '').trim(),
           pairing: String(x.pairing ?? '').trim(),
 
-          imageUrl: String(x.bottle_img ?? '').trim(),
+          imageUrl: String(x.bottle_img ?? x.primary_image_url ?? '').trim(),
           priceGlass: x.btg_price ?? '',
           priceBottle: x.bottle_price ?? '',
 

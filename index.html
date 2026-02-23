@@ -68,30 +68,32 @@
       z-index: 100;
       display:flex;
       align-items:center;
-      justify-content:space-between;
-      gap:14px;
-      padding:14px 16px;
+      justify-content:flex-start;
+      height: 80px;
+      gap:24px;
+      padding:0 18px;
       margin-bottom:14px;
       border:1px solid var(--stroke);
-      background: var(--card);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-radius: 22px;
-      box-shadow: var(--shadow);
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: var(--radius);
+      box-shadow: none;
     }
     .brand{
       display:flex;
       align-items:center;
-      gap:12px;
-      min-width:210px;
+      gap:24px;
+      min-width:auto;
+      flex-shrink:0;
     }
     .brand img{
-      width:42px;
-      height:42px;
+      width:60px;
+      height:60px;
       border-radius: 12px;
       object-fit:contain;
-      background: var(--bg1);
-      border:1px solid var(--stroke);
+      background: #ECE7E1;
+      border:none;
+      padding:0;
+      box-sizing: border-box;
     }
     .brand .title{
       display:flex;
@@ -99,19 +101,161 @@
       line-height:1.1;
     }
     .brand .title b{
-      font-size: 14px;
+      font-size: 22px;
+      font-weight: 600;
+      color: #1D1D1F;
       letter-spacing:0.2px;
     }
     .brand .title span{
       font-size: 12px;
       color: var(--muted);
     }
+    .topMenuNav{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      overflow-x:auto;
+      scrollbar-width:none;
+      flex-shrink:0;
+      margin-right:24px;
+    }
+    .topMenuNav::-webkit-scrollbar{
+      display:none;
+    }
+    .topMenuItem{
+      height:36px;
+      padding:0 16px;
+      border:none;
+      border-radius:999px;
+      background: transparent;
+      color:#3A3A3C;
+      font-size:16px;
+      font-weight:450;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      white-space:nowrap;
+      cursor:pointer;
+      transition: background-color 180ms ease, color 180ms ease;
+    }
+    .topMenuItem:hover:not([disabled]):not(.active){
+      background: rgba(0,0,0,0.04);
+    }
+    .topMenuItem.active{
+      background:#EDE6DD;
+      color:#1D1D1F;
+      font-weight:500;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+    .topMenuItem[disabled]{
+      opacity:0.5;
+      cursor:not-allowed;
+    }
     .controls{
       display:flex;
       align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
+      gap:16px;
+      flex-wrap:nowrap;
       justify-content:flex-end;
+      position:relative;
+      flex-shrink:0;
+    }
+    .searchWrap{
+      position:relative;
+      width:96px;
+      height:36px;
+      border-radius: var(--radius);
+      background:#EFEAE4;
+      border:1px solid #D5CFC7;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:0 8px;
+      box-sizing:border-box;
+    }
+    .searchWrap:focus-within{
+      background:#E8E2DA;
+      border-color:#CCBDB3;
+    }
+    .searchWrap #searchInput{
+      width:100%;
+      height:100%;
+      border:none;
+      background:transparent;
+      outline:none;
+      color:var(--text);
+      font-size:16px;
+      font-weight:450;
+      padding:0;
+      box-sizing:border-box;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      text-align:center;
+    }
+    .searchWrap #searchInput::placeholder{
+      color:#8E8E93;
+      opacity:1;
+    }
+    .searchIcon{
+      display:none;
+    }
+    .settingsBtn{
+      height:36px;
+      border-radius: var(--radius);
+      border:1px solid #D5CFC7;
+      background:#EFEAE4;
+      color:#6E6E73;
+      font-size:16px;
+      font-weight:450;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:0 16px;
+      cursor:pointer;
+      transition: background-color 120ms ease, border-color 120ms ease;
+    }
+    .settingsBtn:hover{
+      background:#E8E2DA;
+      border-color:#CCBDB3;
+    }
+    .settingsBtn:active{
+      background:#DDD5CC;
+    }
+    .settingsPanel{
+      position:absolute;
+      top: calc(100% + 8px);
+      right:0;
+      min-width:150px;
+      padding:8px;
+      display:none;
+      flex-direction:column;
+      gap:4px;
+      border-radius:12px;
+      border:1px solid var(--stroke);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      z-index:120;
+    }
+    .settingsPanel.open{
+      display:flex;
+    }
+    .settingsAction{
+      height:34px;
+      border:none;
+      border-radius:8px;
+      background:transparent;
+      color:var(--text);
+      font-size:14px;
+      text-align:left;
+      padding:0 10px;
+      cursor:pointer;
+    }
+    .settingsAction:hover{
+      background: var(--chip);
+    }
+    .hiddenControl{
+      display:none !important;
     }
     .btn{
       cursor:pointer;
@@ -175,13 +319,28 @@
 
     .tabs{
       position: sticky;
-      top: 85px;
+      top: 80px;
       z-index: 99;
       display:flex;
       gap:10px;
       flex-wrap:wrap;
       margin: 12px 0 12px;
       padding: 12px 0;
+    }
+
+    [data-theme="dark"] .topbar{
+      background: rgba(30, 30, 30, 0.85);
+    }
+
+    @media (max-width: 1024px){
+      .searchWrap{ width:220px; }
+    }
+    @media (max-width: 767px){
+      .topbar{ padding:0 18px; gap:12px; }
+      .brand{ gap:12px; }
+      .brand .title b{ font-size:18px; }
+      .topMenuItem{ font-size:16px; }
+      .searchWrap{ width:170px; }
     }
 
     /* chip as button (a11y) */
@@ -217,6 +376,7 @@
       gap: 16px;
       justify-items: center;
       margin-top: 10px;
+      padding: 0 18px;
     }
     @media (max-width: 930px){
       .grid{ grid-template-columns: 1fr; }
@@ -583,8 +743,8 @@
     :focus { outline: none; }
 
     :focus-visible{
-      outline: 2px solid var(--text);
-      outline-offset: 3px;
+      outline: none;
+      outline-offset: 0;
       border-radius: 12px;
     }
 
@@ -700,13 +860,24 @@
         </div>
       </div>
 
-      <div class="controls">
-        <select id="menuSelect" title="Menu" aria-label="Menu"></select>
-        <input id="searchInput" placeholder="Search..." aria-label="Search wines" />
+      <nav id="topMenuNav" class="topMenuNav" aria-label="Top menu" style="margin-left: auto;"></nav>
 
-        <button id="clearSearchBtn" class="iconBtn" type="button" title="Clear search" aria-label="Clear search">×</button>
-        <button id="themeToggleBtn" class="btn" type="button" title="Toggle theme">🌙</button>
-        <button id="logoutBtn" class="btn" type="button">Logout</button>
+      <div class="controls" style="display:flex; gap:12px; align-items:center;">
+          <div class="searchWrap">
+            <input id="searchInput" placeholder="Search" aria-label="Search wines" />
+          </div>
+
+          <button id="settingsBtn" class="settingsBtn" type="button" title="Settings" aria-label="Settings" aria-expanded="false">⋮</button>
+        <div id="settingsPanel" class="settingsPanel" aria-hidden="true">
+          <button id="settingsThemeBtn" class="settingsAction" type="button">Theme</button>
+          <button id="settingsLogoutBtn" class="settingsAction" type="button">Logout</button>
+        </div>
+
+        <select id="menuSelect" class="hiddenControl" title="Menu" aria-label="Menu"></select>
+
+        <button id="clearSearchBtn" class="iconBtn hiddenControl" type="button" title="Clear search" aria-label="Clear search">×</button>
+        <button id="themeToggleBtn" class="btn hiddenControl" type="button" title="Toggle theme">🌙</button>
+        <button id="logoutBtn" class="btn hiddenControl" type="button">Logout</button>
       </div>
     </div>
 
@@ -778,6 +949,7 @@ const state = {
 
 const PLACEHOLDER_BOTTLE = 'assets/placeholder-bottle.svg';
 let logoutHandlerBound = false;
+let settingsMenuBound = false;
 
 const UI_STRINGS = {
   en: {
@@ -823,6 +995,99 @@ function applyLanguageUI() {
 
   const logoutBtn = $('logoutBtn');
   if (logoutBtn) logoutBtn.textContent = t('logout');
+
+  const settingsLogoutBtn = $('settingsLogoutBtn');
+  if (settingsLogoutBtn) settingsLogoutBtn.textContent = t('logout');
+}
+
+function hasMenuCsv(menu) {
+  return !!(menu?.csvUrl?.[state.lang] || menu?.csvUrl?.en);
+}
+
+function topMenuLabel(menu) {
+  if (!menu) return '';
+  const title = String(menu.title || menu.key || '').trim();
+  if (/wine\s+list/i.test(title)) return 'Wine';
+  return title;
+}
+
+function renderTopMenuNav() {
+  const nav = $('topMenuNav');
+  if (!nav) return;
+  nav.innerHTML = '';
+
+  for (const menu of state.menus || []) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'topMenuItem' + (menu.key === state.menuKey ? ' active' : '');
+    button.textContent = topMenuLabel(menu);
+
+    const enabled = hasMenuCsv(menu);
+    if (!enabled) {
+      button.disabled = true;
+      button.title = t('comingSoon');
+    } else {
+      button.onclick = async () => {
+        await setMenu(menu.key);
+      };
+    }
+
+    nav.appendChild(button);
+  }
+}
+
+function closeSettingsMenu() {
+  const panel = $('settingsPanel');
+  const btn = $('settingsBtn');
+  if (panel) {
+    panel.classList.remove('open');
+    panel.setAttribute('aria-hidden', 'true');
+  }
+  if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+
+function bindSettingsMenu() {
+  if (settingsMenuBound) return;
+
+  const settingsBtn = $('settingsBtn');
+  const settingsPanel = $('settingsPanel');
+  const settingsThemeBtn = $('settingsThemeBtn');
+  const settingsLogoutBtn = $('settingsLogoutBtn');
+  if (!settingsBtn || !settingsPanel || !settingsThemeBtn || !settingsLogoutBtn) return;
+
+  settingsBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    const isOpen = settingsPanel.classList.contains('open');
+    if (isOpen) {
+      closeSettingsMenu();
+      return;
+    }
+    settingsPanel.classList.add('open');
+    settingsPanel.setAttribute('aria-hidden', 'false');
+    settingsBtn.setAttribute('aria-expanded', 'true');
+  });
+
+  settingsThemeBtn.addEventListener('click', () => {
+    toggleTheme();
+    closeSettingsMenu();
+  });
+
+  settingsLogoutBtn.addEventListener('click', () => {
+    closeSettingsMenu();
+    const logoutBtn = $('logoutBtn');
+    if (logoutBtn) logoutBtn.click();
+  });
+
+  document.addEventListener('click', (e) => {
+    const panel = $('settingsPanel');
+    const btn = $('settingsBtn');
+    if (!panel || !btn) return;
+    if (!panel.classList.contains('open')) return;
+    if (panel.contains(e.target) || btn.contains(e.target)) return;
+    closeSettingsMenu();
+  });
+
+  settingsMenuBound = true;
 }
 
 function resolveBottleSrc(url) {
@@ -836,6 +1101,7 @@ function bindLogoutHandler() {
   if (!logoutBtnEl) return;
   logoutBtnEl.addEventListener('click', (e) => {
     e.preventDefault();
+    closeSettingsMenu();
     clearAuthState();
     state.restaurantId = null;
     state.config = null;
@@ -1573,6 +1839,8 @@ function renderMenuSelect() {
     if (menu.key === state.menuKey) opt.selected = true;
     ms.appendChild(opt);
   }
+
+  renderTopMenuNav();
 }
 
 function renderGlobalLoginForm() {
@@ -1671,6 +1939,7 @@ function renderGlobalLoginForm() {
       renderStartBranding();
 
       renderMenuSelect();
+      bindSettingsMenu();
       
       renderMenuList();
 
@@ -1851,6 +2120,8 @@ async function setMenu(nextMenuKey, opts = {}) {
   state.menuKey = nextMenuKey;
   state.menuConfig = nextMenu;
   state.activeSection = 'all';
+
+  renderMenuSelect();
 
   showAppScreen();
 
@@ -2479,6 +2750,7 @@ async function boot() {
     applyLanguageUI();
 
     renderMenuSelect();
+    bindSettingsMenu();
 
     const brandLogo = state.config?.branding?.logo || state.config?.logoUrl || '';
     
@@ -2723,6 +2995,7 @@ window.addEventListener('popstate', () => {
   }
 
   syncClearButton();
+  renderTopMenuNav();
   filterAndRender();
 });
 

@@ -33,22 +33,39 @@
   "hide86": false,
   "menus": [
     {
+      "key": "bar",
+      "title": "Bar",
+      "type": "bar",
+      "layout": "list",
+      "csvUrl": {
+        "en": ""
+      }
+    },
+    {
+      "key": "coffee",
+      "title": "Coffee",
+      "type": "coffee",
+      "layout": "list",
+      "csvUrl": {
+        "en": ""
+      }
+    },
+    {
+      "key": "pastry",
+      "title": "Pastry",
+      "type": "pastry",
+      "layout": "list",
+      "csvUrl": {
+        "en": ""
+      }
+    },
+    {
       "key": "wine",
-      "title": "Wine List",
+      "title": "Wine",
       "type": "wine",
       "layout": "cards",
       "csvUrl": {
         "en": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=938845198&single=true&output=csv"
-      }
-    },
-    {
-      "key": "desserts",
-      "title": "Desserts",
-      "type": "desserts",
-      "layout": "list",
-      "csvUrl": {
-        "en": "",
-        "es": ""
       }
     }
   ],

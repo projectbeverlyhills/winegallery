@@ -470,19 +470,20 @@
     }
     .titleProducer{
       font-weight: 600;
-      font-size: 14px;
-      letter-spacing: 0.3px;
+      font-size: 20px;
+      letter-spacing: 0;
       text-transform: uppercase;
-      color: #000;
-      margin-bottom: 3px;
+      color: #1d1d1f;
+      margin-bottom: 6px;
+      line-height: 1.2;
     }
     .titleWine{
       font-weight: 400;
-      font-size: 12px;
-      letter-spacing: 0.2px;
-      color: #666;
+      font-size: 16px;
+      letter-spacing: 0;
+      color: #86868b;
       line-height: 1.3;
-      margin-bottom: 10px;
+      margin-bottom: 0;
     }
     .producer{
       display: none;
@@ -514,6 +515,38 @@
       color: #000;
       letter-spacing: 0.2px;
       line-height: 1.35;
+    }
+    .infoLine{
+      font-size: 16px;
+      font-weight: 400;
+      color: #1d1d1f;
+      line-height: 1.4;
+      margin-bottom: 0;
+    }
+    .infoLine .sep{
+      color: #d2d2d7;
+      margin: 0 8px;
+    }
+    .priceLine{
+      font-size: 16px;
+      font-weight: 600;
+      color: #1d1d1f;
+      line-height: 1.4;
+      margin-bottom: 0;
+      margin-top: 12px;
+    }
+    .priceLine .label{
+      font-weight: 400;
+      color: #1d1d1f;
+    }
+    .priceLine .value{
+      font-size: 16px;
+      font-weight: 600;
+      color: #1d1d1f;
+    }
+    .priceLine .sep{
+      color: #d2d2d7;
+      margin: 0 10px;
     }
     .countryFlag{
       width: 28px;
@@ -555,28 +588,44 @@
     }
     .notes{
       display:flex;
-      gap:50px;
+      gap:0;
       flex-wrap:wrap;
       align-items:center;
+      margin-top: 0;
+    }
+    .divider{
+      height: 1px;
+      background: #e5e5e7;
+      margin: 12px 0;
+      width: calc(100% - 20px);
     }
     .noteTag{
       display:flex;
+      flex-direction: column;
       align-items:center;
-      gap:6px;
-      padding: 0;
-      border-radius: 999px;
+      gap:10px;
+      padding: 0 20px;
+      border-radius: 0;
       border: none;
+      border-right: 1px solid #e5e5e7;
       background: transparent;
     }
+    .noteTag:last-child{
+      border-right: none;
+    }
+    .noteTag:first-child{
+      padding-left: 0;
+    }
     .noteIcon{
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
       object-fit: contain;
     }
     .noteLabel{
-      font-size: 12px;
+      font-size: 14px;
+      font-weight: 400;
       text-transform: capitalize;
-      color: #000;
+      color: #6e6e73;
       white-space: nowrap;
     }
 
@@ -2259,135 +2308,98 @@ function renderGrid(list) {
       meta.appendChild(producerDiv);
     }
     
-    // Name + Vintage on second line
-    const wineNameText = [w.raw?.name, w.raw?.vintage]
-      .filter(Boolean)
-      .map(v => String(v).trim())
-      .filter(Boolean)
-      .join(' ');
-    
-    if (wineNameText) {
+    // Name on second line (without vintage)
+    if (w.raw?.name) {
       const wineNameDiv = document.createElement('div');
       wineNameDiv.className = 'titleWine';
-      wineNameDiv.textContent = wineNameText;
+      wineNameDiv.textContent = w.raw.name;
       meta.appendChild(wineNameDiv);
+      
+      // Divider after wine name
+      const divider1 = document.createElement('div');
+      divider1.className = 'divider';
+      meta.appendChild(divider1);
     }
 
-    // Country row
-    if (w.country) {
-      const countryRow = document.createElement('div');
-      countryRow.className = 'infoRow';
+    // Info line: Italy | Region | 2024
+    const infoParts = [];
+    if (w.country) infoParts.push(w.country);
+    if (w.region) infoParts.push(w.region);
+    if (w.raw?.vintage || w.vintage) infoParts.push(w.raw?.vintage || w.vintage);
+    
+    if (infoParts.length > 0) {
+      const infoLine = document.createElement('div');
+      infoLine.className = 'infoLine';
       
-      const countryLabel = document.createElement('div');
-      countryLabel.className = 'infoLabel';
-      countryLabel.textContent = 'COUNTRY';
+      infoParts.forEach((part, idx) => {
+        if (idx > 0) {
+          const sep = document.createElement('span');
+          sep.className = 'sep';
+          sep.textContent = '|';
+          infoLine.appendChild(sep);
+        }
+        const textNode = document.createTextNode(part);
+        infoLine.appendChild(textNode);
+      });
       
-      const countryValue = document.createElement('div');
-      countryValue.className = 'infoValue';
-      countryValue.textContent = w.country;
-      
-      countryRow.appendChild(countryLabel);
-      countryRow.appendChild(countryValue);
-      meta.appendChild(countryRow);
+      meta.appendChild(infoLine);
     }
 
-    // Region row
-    if (w.region) {
-      const regionRow = document.createElement('div');
-      regionRow.className = 'infoRow';
-      
-      const regionLabel = document.createElement('div');
-      regionLabel.className = 'infoLabel';
-      regionLabel.textContent = 'REGION';
-      
-      const regionValue = document.createElement('div');
-      regionValue.className = 'infoValue';
-      regionValue.textContent = w.region;
-      
-      regionRow.appendChild(regionLabel);
-      regionRow.appendChild(regionValue);
-      meta.appendChild(regionRow);
-    }
-
-    // Grape row
-    if (w.grape) {
-      const grapeRow = document.createElement('div');
-      grapeRow.className = 'infoRow';
-      
-      const grapeLabel = document.createElement('div');
-      grapeLabel.className = 'infoLabel';
-      grapeLabel.textContent = 'GRAPE';
-      
-      const grapeValue = document.createElement('div');
-      grapeValue.className = 'infoValue';
-      grapeValue.textContent = w.grape;
-      
-      grapeRow.appendChild(grapeLabel);
-      grapeRow.appendChild(grapeValue);
-      meta.appendChild(grapeRow);
-    }
-
-    // Vintage row
-    if (w.vintage) {
-      const vintageRow = document.createElement('div');
-      vintageRow.className = 'infoRow';
-      
-      const vintageLabel = document.createElement('div');
-      vintageLabel.className = 'infoLabel';
-      vintageLabel.textContent = 'VINTAGE';
-      
-      const vintageValue = document.createElement('div');
-      vintageValue.className = 'infoValue';
-      vintageValue.textContent = w.vintage;
-      
-      vintageRow.appendChild(vintageLabel);
-      vintageRow.appendChild(vintageValue);
-      meta.appendChild(vintageRow);
-    }
-
-    // Bottle price row
+    // Price line: Bottle $54 | Glass $15
     const hasBottle = !!safe(w.priceBottle);
-    if (hasBottle) {
-      const bottleRow = document.createElement('div');
-      bottleRow.className = 'infoRow';
+    const hasGlass = !!safe(w.priceGlass);
+    
+    if (hasBottle || hasGlass) {
+      const priceLine = document.createElement('div');
+      priceLine.className = 'priceLine';
       
-      const bottleLabel = document.createElement('div');
-      bottleLabel.className = 'infoLabel';
-      bottleLabel.textContent = 'BOTTLE';
+      if (hasBottle) {
+        const bottleLabel = document.createElement('span');
+        bottleLabel.className = 'label';
+        bottleLabel.textContent = 'Bottle';
+        priceLine.appendChild(bottleLabel);
+        
+        priceLine.appendChild(document.createTextNode(' '));
+        
+        const bottleValue = document.createElement('span');
+        bottleValue.className = 'value';
+        bottleValue.textContent = money(w.priceBottle);
+        priceLine.appendChild(bottleValue);
+      }
       
-      const bottleValue = document.createElement('div');
-      bottleValue.className = 'infoValue';
-      bottleValue.textContent = money(w.priceBottle);
+      if (hasBottle && hasGlass) {
+        const sep = document.createElement('span');
+        sep.className = 'sep';
+        sep.textContent = '|';
+        priceLine.appendChild(sep);
+      }
       
-      bottleRow.appendChild(bottleLabel);
-      bottleRow.appendChild(bottleValue);
-      meta.appendChild(bottleRow);
+      if (hasGlass) {
+        const glassLabel = document.createElement('span');
+        glassLabel.className = 'label';
+        glassLabel.textContent = 'Glass';
+        priceLine.appendChild(glassLabel);
+        
+        priceLine.appendChild(document.createTextNode(' '));
+        
+        const glassValue = document.createElement('span');
+        glassValue.className = 'value';
+        glassValue.textContent = money(w.priceGlass);
+        priceLine.appendChild(glassValue);
+      }
+      
+      meta.appendChild(priceLine);
+      
+      // Divider after price line
+      const divider3 = document.createElement('div');
+      divider3.className = 'divider';
+      meta.appendChild(divider3);
     }
 
-    // Glass price row
-    const hasGlass = !!safe(w.priceGlass);
-    const glassRow = document.createElement('div');
-    glassRow.className = 'infoRow';
-    
-    const glassLabel = document.createElement('div');
-    glassLabel.className = 'infoLabel';
-    glassLabel.textContent = 'GLASS';
-    
-    const glassValue = document.createElement('div');
-    glassValue.className = 'infoValue';
-    glassValue.textContent = hasGlass ? money(w.priceGlass) : 'Bottle only';
-    
-    glassRow.appendChild(glassLabel);
-    glassRow.appendChild(glassValue);
-    meta.appendChild(glassRow);
-
-    // Notes row with icons
+    // Notes with icons
     if (w.notes) {
       const notesValueWrap = document.createElement('div');
       notesValueWrap.className = 'notes';
-      notesValueWrap.style.gap = '24px';
-      notesValueWrap.style.marginTop = '8px';
-      notesValueWrap.style.marginLeft = '0';
       
       const tokens = parseNotesChips(w.notes);
       tokens.forEach(tokenStr => {

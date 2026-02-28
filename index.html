@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>WineGallery</title>
+  <title>HOSTERA</title>
   <style>
     :root{
       --bg1:#FAFAFA;
@@ -816,16 +816,24 @@
       background: var(--card);
       border: 1px solid var(--stroke);
       border-radius: 22px;
-      padding: 24px;
+      padding: 28px;
       box-shadow: var(--shadow);
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
     }
     .startBrand{
       display: flex;
       align-items: center;
       gap: 14px;
+      justify-content: center;
+    }
+    .startBrand > div{
+      text-align: center;
+      width: min(390px, 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     .startBrand img{
       width: 56px;
@@ -836,18 +844,53 @@
       border: 1px solid var(--stroke);
     }
     .startTitle{
-      font-size: 18px;
+      font-size: 43px;
       font-weight: 700;
+      line-height: 1.04;
+      letter-spacing: 0.3px;
+      text-align: center;
+      width: 100%;
     }
     .startSubtitle{
-      font-size: 13px;
+      font-size: 15px;
+      line-height: 1.35;
+      letter-spacing: 0.2px;
       color: var(--muted);
+      margin-top: 6px;
+      text-transform: lowercase;
+      text-align: center;
+      width: 100%;
     }
     .loginForm,
     .menuList{
       display: flex;
       flex-direction: column;
       gap: 10px;
+    }
+    .loginForm input,
+    .loginForm .btn{
+      height: 36px;
+      font-size: 14px;
+      padding: 0 12px;
+    }
+    .loginForm .btn{
+      margin-top: 2px;
+      font-weight: 500;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+    .loginForm .btn:hover{
+      background: #ececec;
+      border-color: var(--stroke2);
+    }
+    .loginForm .btn:active{
+      background: #e2e2e2;
+      border-color: #cfcfcf;
+    }
+    .loginHint{
+      margin-top: 2px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
     }
     .menuBtn{
       width: 100%;
@@ -884,8 +927,8 @@
       <div class="startBrand">
         <img id="startLogo" alt="logo" src="" />
         <div>
-          <div class="startTitle" id="startTitle">Wine Gallery</div>
-          <div class="startSubtitle" id="startSubtitle"></div>
+          <div class="startTitle" id="startTitle">HOSTERA</div>
+          <div class="startSubtitle" id="startSubtitle">a new era of hospitality</div>
         </div>
       </div>
 
@@ -893,6 +936,7 @@
         <input id="loginInput" placeholder="Login" aria-label="Login" />
         <input id="passwordInput" placeholder="Password" type="password" aria-label="Password" />
         <button class="btn" type="submit">Sign in</button>
+        <div class="loginHint">For authorized staff only</div>
         <div id="loginError" class="formError"></div>
       </form>
 
@@ -905,7 +949,7 @@
       <div class="brand">
         <img id="logo" alt="logo" src="" />
         <div class="title">
-          <b id="restaurantName">WineGallery</b>
+          <b id="restaurantName">HOSTERA</b>
         </div>
       </div>
 
@@ -1837,15 +1881,15 @@ function renderStartBranding() {
   if (loginForm && !loginForm.classList.contains('hidden')) {
     // Global login form is visible - don't show restaurant branding yet
     if (startLogo) startLogo.style.display = 'none';
-    if (startTitle) startTitle.textContent = 'Wine Gallery';
-    if (startSubtitle) startSubtitle.textContent = '';
+    if (startTitle) startTitle.textContent = 'HOSTERA';
+    if (startSubtitle) startSubtitle.textContent = 'a new era of hospitality';
   } else {
     // Restaurant is loaded - show branding
     if (startLogo) {
       startLogo.src = normalizedLogo;
       startLogo.style.display = 'inline-block';
     }
-    if (startTitle) startTitle.textContent = state.config?.name || state.restaurantId || 'Wine Gallery';
+    if (startTitle) startTitle.textContent = state.config?.name || state.restaurantId || 'HOSTERA';
     if (startSubtitle) startSubtitle.textContent = state.config?.branding?.subtitle || '';
   }
   
@@ -1910,10 +1954,10 @@ function renderGlobalLoginForm() {
   if (startLogo) startLogo.style.display = 'none';
   
   const startTitle = $('startTitle');
-  if (startTitle) startTitle.textContent = 'Wine Gallery';
+  if (startTitle) startTitle.textContent = 'HOSTERA';
   
   const startSubtitle = $('startSubtitle');
-  if (startSubtitle) startSubtitle.textContent = '';
+  if (startSubtitle) startSubtitle.textContent = 'a new era of hospitality';
   
   loginError.textContent = '';
   loginInput.value = '';

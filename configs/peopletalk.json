@@ -29,6 +29,12 @@
   "logoUrl": "assets/peopletalk-logo.png",
   "defaultLanguage": "en",
   "enabledLanguages": ["en"],
+  "features": {
+    "inventory": {
+      "enabled": false,
+      "route": "inventory"
+    }
+  },
   "currency": "USD",
   "hide86": false,
   "menus": [

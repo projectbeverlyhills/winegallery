@@ -29,6 +29,15 @@
   "logoUrl": "assets/novikov-logo.png",
   "defaultLanguage": "en",
   "enabledLanguages": ["en"],
+  "features": {
+    "inventory": {
+      "enabled": true,
+      "route": "inventory",
+      "profile": "pastry-default",
+      "apiNamespace": "pastry",
+      "title": "Inventory Mode"
+    }
+  },
   "currency": "USD",
   "hide86": false,
   "menus": [

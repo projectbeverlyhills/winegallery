@@ -1,0 +1,142 @@
+.inventoryView{
+  border:1px solid var(--stroke);
+  border-radius: var(--radius);
+  background: var(--card);
+  padding: 16px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.inventoryTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.inventoryTitle{
+  font-size:20px;
+  font-weight:600;
+  color:var(--text);
+}
+.inventoryControls{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.inventoryControls input,
+.inventoryControls select,
+.inventoryControls .btn{
+  height:34px;
+  min-width:auto;
+  font-size:13px;
+}
+.inventoryMeta{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.inventorySummary,
+.inventoryConfirm,
+.inventoryRange{
+  border:1px solid var(--stroke);
+  border-radius:12px;
+  background:var(--bg1);
+  padding:10px;
+}
+.inventorySummary{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  color:var(--muted);
+  font-size:13px;
+}
+.inventoryTableWrap,
+.inventoryRangeTableWrap{
+  border:1px solid var(--stroke);
+  border-radius:12px;
+  overflow:auto;
+  background:var(--bg1);
+}
+.inventoryTable,
+.inventoryRangeTable{
+  width:100%;
+  border-collapse:collapse;
+  min-width:900px;
+}
+.inventoryTable th,
+.inventoryTable td,
+.inventoryRangeTable th,
+.inventoryRangeTable td{
+  border-bottom:1px solid var(--stroke);
+  padding:8px;
+  text-align:left;
+  font-size:13px;
+  vertical-align:middle;
+  color:var(--text);
+}
+.inventoryTable th,
+.inventoryRangeTable th{
+  color:var(--muted);
+  font-weight:600;
+  white-space:nowrap;
+  background:var(--card);
+  position:sticky;
+  top:0;
+  z-index:1;
+}
+.inventoryTable td input,
+.inventoryTable td select{
+  width:100%;
+  min-width:90px;
+  font-size:12px;
+  padding:6px 8px;
+  border-radius:8px;
+  box-sizing:border-box;
+}
+.inventoryActions{
+  display:flex;
+  gap:6px;
+  white-space:nowrap;
+}
+.inventoryMiniBtn{
+  cursor:pointer;
+  border-radius:8px;
+  border:1px solid var(--stroke);
+  background:var(--chip);
+  color:var(--text);
+  padding:5px 8px;
+  font-size:11px;
+}
+.inventoryMiniBtn[disabled]{
+  opacity:0.5;
+  cursor:not-allowed;
+}
+.inventoryHint{
+  font-size:12px;
+  color:var(--muted);
+}
+.inventoryLocked{
+  color:var(--accent);
+  font-size:12px;
+  font-weight:600;
+}
+.inventoryError{
+  color:var(--accent);
+  font-size:12px;
+}
+.inventoryRangeHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:8px;
+  flex-wrap:wrap;
+}
+@media (max-width: 900px){
+  .inventoryView{ padding:12px; }
+  .inventoryTable,
+  .inventoryRangeTable{ min-width:760px; }
+}

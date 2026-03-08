@@ -160,6 +160,9 @@
       position:relative;
       flex-shrink:0;
     }
+    .topbar.inventoryModeTopbar .controls{
+      margin-left:auto;
+    }
     .searchWrap{
       position:relative;
       width:96px;
@@ -953,6 +956,7 @@
     }
     .hidden{ display:none !important; }
   </style>
+  <link rel="stylesheet" href="assets/css/inventory-mode.css" />
 </head>
 <body>
   <div class="startScreen" id="startScreen" aria-hidden="true">
@@ -991,13 +995,14 @@
       <nav id="topMenuNav" class="topMenuNav" aria-label="Top menu" style="margin-left: auto;"></nav>
 
       <div class="controls" style="display:flex; gap:12px; align-items:center;">
-          <div class="searchWrap">
+          <div class="searchWrap" id="searchWrap">
             <input id="searchInput" placeholder="Search" aria-label="Search wines" />
           </div>
 
           <button id="settingsBtn" class="settingsBtn" type="button" title="Settings" aria-label="Settings" aria-expanded="false">⋮</button>
         <div id="settingsPanel" class="settingsPanel" aria-hidden="true">
           <button id="settingsThemeBtn" class="settingsAction" type="button">Theme</button>
+          <button id="settingsBackToMenuBtn" class="settingsAction" type="button">Back to Menu</button>
           <button id="settingsLogoutBtn" class="settingsAction" type="button">Logout</button>
         </div>
 
@@ -1039,6 +1044,12 @@
     </div>
   </div>
 
+<script src="assets/js/inventory-i18n.js"></script>
+<script src="assets/js/inventory-data-provider.js"></script>
+<script src="assets/js/inventory-storage.js"></script>
+<script src="assets/js/inventory-actions.js"></script>
+<script src="assets/js/inventory-render.js"></script>
+<script src="assets/js/inventory-mode-module.js"></script>
 <script>
 /**
  * =========================
@@ -1073,11 +1084,23 @@ const state = {
   },
   modalWineId: null,
   sectionLabels: {}, // key -> human label
+  inventory: {
+    byDate: {},
+    selectedDate: null,
+    rangeFrom: null,
+    rangeTo: null,
+    draftRows: [],
+    pastryProducts: [],
+  },
 };
 
 const PLACEHOLDER_BOTTLE = 'assets/placeholder-bottle.svg';
 let logoutHandlerBound = false;
 let settingsMenuBound = false;
+const INVENTORY_MENU_KEY = 'inventory_pastry';
+const INVENTORY_STORAGE_PREFIX = 'wg_inventory_pastry_';
+const INVENTORY_UNITS = ['g', 'kg', 'pcs', 'portions'];
+const INVENTORY_REASONS = ['Human error', 'Guest return', 'Damaged', 'Expired', 'Other'];
 
 const UI_STRINGS = {
   en: {
@@ -1086,18 +1109,191 @@ const UI_STRINGS = {
     login: 'Login',
     password: 'Password',
     signIn: 'Sign in',
+    backToMenu: 'Back to Menu',
     logout: 'Logout',
     ready: 'Ready',
     loading: 'Loading...',
     loadingWines: 'Loading wines...',
     menuNotConfigured: 'Menu not configured',
     wineNotFound: 'Wine not found',
-    comingSoon: 'coming soon'
+    comingSoon: 'coming soon',
+    inventory: {
+      title: 'Pastry Inventory',
+      date: 'Date',
+      rowNumber: '#',
+      product: 'Product',
+      quantity: 'Quantity',
+      unit: 'Unit',
+      reason: 'Reason',
+      staff: 'Staff',
+      actions: 'Actions',
+      addRow: '+ Add row',
+      downloadXlsx: 'Download XLSX',
+      shiftSurname: 'On-duty surname',
+      surnamePlaceholder: 'Surname',
+      enterToSave: 'Press Enter in row fields to save',
+      confirmSurname: 'Confirm surname',
+      confirmDay: 'Confirm day',
+      history: 'History',
+      from: 'From',
+      to: 'To',
+      confirmedByHeader: 'Confirmed by',
+      notConfirmed: 'Not confirmed',
+      dayNotConfirmed: 'Day is not confirmed',
+      confirmedBy: 'Confirmed',
+      confirmedByAt: 'Confirmed by {name} at {time}',
+      entries: 'Entries',
+      totalsByUnit: 'Totals by unit',
+      topProducts: 'Top products',
+      noRowsYet: 'No rows yet. Click + Add row.',
+      noRangeRows: 'No records in selected range.',
+      remove: 'Remove',
+      save: 'Save',
+      cancel: 'Cancel',
+      edit: 'Edit',
+      del: 'Delete',
+      exportSheet: 'Pastry Inventory',
+      xlsxDate: 'Date',
+      xlsxRecord: 'Record',
+      xlsxProduct: 'Product',
+      xlsxQuantity: 'Quantity',
+      xlsxUnit: 'Unit',
+      xlsxReason: 'Reason',
+      xlsxStaff: 'Staff',
+      xlsxConfirmedBy: 'Confirmed by',
+      errFillRequired: 'Fill all required fields: date, product, quantity, unit, reason, staff.',
+      errQty: 'Quantity must be a valid number.',
+      errShiftSurname: 'On-duty surname is required before saving rows.',
+      errDayLocked: 'Day is confirmed and locked for edits.',
+      errNoExportRows: 'No rows available for export in selected range.',
+      errNoXlsx: 'XLSX library is not loaded. Check internet connection and retry.',
+      errConfirmSurname: 'Enter surname to confirm day.',
+      errConfirmNoRows: 'Add at least one row before confirmation.'
+    }
+  },
+  ru: {
+    all: 'Все',
+    search: 'Поиск...',
+    login: 'Логин',
+    password: 'Пароль',
+    signIn: 'Войти',
+    backToMenu: 'Назад в меню',
+    logout: 'Выйти',
+    ready: 'Готово',
+    loading: 'Загрузка...',
+    loadingWines: 'Загрузка вин...',
+    menuNotConfigured: 'Меню не настроено',
+    wineNotFound: 'Вино не найдено',
+    comingSoon: 'скоро',
+    inventory: {
+      title: 'Инвентаризация десертов',
+      date: 'Дата',
+      rowNumber: '#',
+      product: 'Продукт',
+      quantity: 'Количество',
+      unit: 'Ед.',
+      reason: 'Причина',
+      staff: 'Сотрудник',
+      actions: 'Действия',
+      addRow: '+ Добавить строку',
+      downloadXlsx: 'Скачать XLSX',
+      shiftSurname: 'Фамилия сотрудника',
+      surnamePlaceholder: 'Фамилия',
+      enterToSave: 'Нажмите Enter в строке для сохранения',
+      confirmSurname: 'Фамилия подтверждающего',
+      confirmDay: 'Подтвердить день',
+      history: 'История',
+      from: 'С',
+      to: 'По',
+      confirmedByHeader: 'Подтвердил(а)',
+      notConfirmed: 'Не подтверждено',
+      dayNotConfirmed: 'День не подтвержден',
+      confirmedBy: 'Подтверждено',
+      confirmedByAt: 'Подтвердил(а): {name} в {time}',
+      entries: 'Записей',
+      totalsByUnit: 'Итоги по единицам',
+      topProducts: 'Топ продуктов',
+      noRowsYet: 'Записей пока нет. Нажмите + Добавить строку.',
+      noRangeRows: 'Нет записей в выбранном диапазоне.',
+      remove: 'Удалить',
+      save: 'Сохранить',
+      cancel: 'Отмена',
+      edit: 'Изменить',
+      del: 'Удалить',
+      exportSheet: 'Инвентаризация десертов',
+      xlsxDate: 'Дата',
+      xlsxRecord: 'Запись №',
+      xlsxProduct: 'Продукт',
+      xlsxQuantity: 'Количество',
+      xlsxUnit: 'Ед.',
+      xlsxReason: 'Причина',
+      xlsxStaff: 'Сотрудник',
+      xlsxConfirmedBy: 'Подтвердил(а)',
+      errFillRequired: 'Заполните обязательные поля: дата, продукт, количество, единица, причина, сотрудник.',
+      errQty: 'Количество должно быть корректным числом.',
+      errShiftSurname: 'Перед сохранением укажите фамилию сотрудника.',
+      errDayLocked: 'День уже подтвержден и закрыт для редактирования.',
+      errNoExportRows: 'Нет строк для экспорта в выбранном диапазоне.',
+      errNoXlsx: 'Библиотека XLSX не загружена. Проверьте интернет и повторите.',
+      errConfirmSurname: 'Укажите фамилию для подтверждения дня.',
+      errConfirmNoRows: 'Добавьте хотя бы одну строку перед подтверждением.'
+    }
   }
 };
 
 function t(key) {
-  return UI_STRINGS.en[key] || key;
+  const lang = state?.lang || 'en';
+  return UI_STRINGS[lang]?.[key] || UI_STRINGS.en?.[key] || key;
+}
+
+function inventoryStringsForLang(lang) {
+  const locale = UI_STRINGS[lang]?.inventory || {};
+  const fallback = UI_STRINGS.en.inventory || {};
+  return { ...fallback, ...locale };
+}
+
+function validateInventoryI18nCoverage() {
+  const placeholderTokens = (value) => {
+    const tokens = new Set();
+    String(value || '').replace(/\{(\w+)\}/g, (_, token) => {
+      tokens.add(token);
+      return _;
+    });
+    return Array.from(tokens).sort();
+  };
+
+  const enBase = UI_STRINGS.en?.inventory || {};
+  const expectedKeys = Object.keys(enBase);
+  const locales = Object.keys(UI_STRINGS || {}).filter((lang) => lang !== 'en');
+
+  for (const lang of locales) {
+    const locale = UI_STRINGS[lang]?.inventory || {};
+    const missing = expectedKeys.filter((key) => {
+      const value = locale[key];
+      return value === undefined || value === null || value === '';
+    });
+
+    if (missing.length) {
+      console.warn(`[Inventory i18n] Missing keys for ${lang}:`, missing);
+    }
+
+    const extra = Object.keys(locale).filter((key) => !expectedKeys.includes(key));
+    if (extra.length) {
+      console.warn(`[Inventory i18n] Extra keys for ${lang}:`, extra);
+    }
+
+    const placeholderMismatch = [];
+    for (const key of expectedKeys) {
+      const enTokens = placeholderTokens(enBase[key]);
+      const localeTokens = placeholderTokens(locale[key]);
+      if (enTokens.join('|') !== localeTokens.join('|')) {
+        placeholderMismatch.push({ key, en: enTokens, locale: localeTokens });
+      }
+    }
+    if (placeholderMismatch.length) {
+      console.warn(`[Inventory i18n] Placeholder mismatch for ${lang}:`, placeholderMismatch);
+    }
+  }
 }
 
 function menuTitleForLang(menu) {
@@ -1124,16 +1320,23 @@ function applyLanguageUI() {
   const logoutBtn = $('logoutBtn');
   if (logoutBtn) logoutBtn.textContent = t('logout');
 
+  const settingsBackToMenuBtn = $('settingsBackToMenuBtn');
+  if (settingsBackToMenuBtn) settingsBackToMenuBtn.textContent = t('backToMenu');
+
   const settingsLogoutBtn = $('settingsLogoutBtn');
   if (settingsLogoutBtn) settingsLogoutBtn.textContent = t('logout');
 }
 
 function hasMenuCsv(menu) {
+  if (menu?.key === INVENTORY_MENU_KEY || menu?.type === 'inventory') {
+    return isInventoryFeatureEnabled();
+  }
   return !!(menu?.csvUrl?.[state.lang] || menu?.csvUrl?.en);
 }
 
 function topMenuLabel(menu) {
   if (!menu) return '';
+  if (menu.key === INVENTORY_MENU_KEY || menu.type === 'inventory') return 'Inventory';
   const title = String(menu.title || menu.key || '').trim();
   if (/wine\s+list/i.test(title)) return 'Wine';
   return title;
@@ -1145,6 +1348,8 @@ function renderTopMenuNav() {
   nav.innerHTML = '';
 
   for (const menu of state.menus || []) {
+    if (isInventoryMenu(menu)) continue;
+
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'topMenuItem' + (menu.key === state.menuKey ? ' active' : '');
@@ -1174,14 +1379,30 @@ function closeSettingsMenu() {
   if (btn) btn.setAttribute('aria-expanded', 'false');
 }
 
+function goBackToMenuSelection() {
+  state.menuKey = null;
+  state.menuConfig = null;
+  state.activeSection = 'all';
+  closeModal(false);
+  state.modalWineId = null;
+  renderStartBranding();
+  showStartScreen();
+  $('loginForm').classList.add('hidden');
+  $('menuList').classList.remove('hidden');
+  renderMenuSelect();
+  renderMenuList();
+  writeUrlParams({ menu: null, w: null, section: 'all' }, 'push');
+}
+
 function bindSettingsMenu() {
   if (settingsMenuBound) return;
 
   const settingsBtn = $('settingsBtn');
   const settingsPanel = $('settingsPanel');
   const settingsThemeBtn = $('settingsThemeBtn');
+  const settingsBackToMenuBtn = $('settingsBackToMenuBtn');
   const settingsLogoutBtn = $('settingsLogoutBtn');
-  if (!settingsBtn || !settingsPanel || !settingsThemeBtn || !settingsLogoutBtn) return;
+  if (!settingsBtn || !settingsPanel || !settingsThemeBtn || !settingsBackToMenuBtn || !settingsLogoutBtn) return;
 
   settingsBtn.addEventListener('click', (e) => {
     e.preventDefault();
@@ -1198,6 +1419,11 @@ function bindSettingsMenu() {
   settingsThemeBtn.addEventListener('click', () => {
     toggleTheme();
     closeSettingsMenu();
+  });
+
+  settingsBackToMenuBtn.addEventListener('click', () => {
+    closeSettingsMenu();
+    goBackToMenuSelection();
   });
 
   settingsLogoutBtn.addEventListener('click', () => {
@@ -1305,6 +1531,13 @@ function setStatus(text, type='idle') {
     statusDot.classList.remove('good');
     if (type === 'good') statusDot.classList.add('good');
   }
+}
+
+function resetWineSearchState() {
+  state.search = '';
+  const searchInput = $('searchInput');
+  if (searchInput) searchInput.value = '';
+  syncClearButton();
 }
 
 /**
@@ -1423,7 +1656,7 @@ function readRoute() {
 
   return {
     r: pathRestaurant || p.get('r'),
-    menu: pathMenu || p.get('menu'),
+    menu: (pathMenu === 'inventory' ? INVENTORY_MENU_KEY : pathMenu) || p.get('menu'),
     section: normalizeSectionKey(p.get('section')),
     w: p.get('w')
   };
@@ -1434,12 +1667,14 @@ function buildPath(r, menu) {
     const bp = getBasePath();
     const base = bp.endsWith('/') ? bp : `${bp}/`;
     if (!r) return base;
-    const suffix = menu ? `${r}/${menu}` : `${r}`;
+    const routeMenu = menu === INVENTORY_MENU_KEY ? 'inventory' : menu;
+    const suffix = routeMenu ? `${r}/${routeMenu}` : `${r}`;
     return `${base}#/${suffix}`;
   }
   if (!r) return '/';
-  if (!menu) return `/${r}`;
-  return `/${r}/${menu}`;
+  const routeMenu = menu === INVENTORY_MENU_KEY ? 'inventory' : menu;
+  if (!routeMenu) return `/${r}`;
+  return `/${r}/${routeMenu}`;
 }
 
 function writeUrlParams(next, mode = 'replace') {
@@ -1827,16 +2062,47 @@ function applyThemeFromConfig(config) {
   if (config?.theme?.font) root.style.setProperty('--font', config.theme.font);
 }
 
+function getInventoryFeatureConfig(config = state.config) {
+  return config?.features?.inventory || null;
+}
+
+function isInventoryFeatureEnabled(config = state.config) {
+  return !!getInventoryFeatureConfig(config)?.enabled;
+}
+
+function isInventoryRouteKey(menuKey) {
+  return menuKey === INVENTORY_MENU_KEY;
+}
+
 function normalizeMenus(config) {
-  if (Array.isArray(config?.menus) && config.menus.length) return config.menus;
+  if (Array.isArray(config?.menus) && config.menus.length) {
+    const inventoryEnabled = isInventoryFeatureEnabled(config);
+    const menus = [...config.menus].filter((menu) => {
+      if (!inventoryEnabled && isInventoryMenu(menu)) return false;
+      return true;
+    });
+
+    const hasInventory = menus.some(m => m?.key === INVENTORY_MENU_KEY);
+    if (inventoryEnabled && !hasInventory) {
+      const inventoryFeature = getInventoryFeatureConfig(config) || {};
+      menus.push({
+        key: INVENTORY_MENU_KEY,
+        title: inventoryFeature.title || 'Inventory Mode',
+        type: 'inventory',
+        layout: 'inventory'
+      });
+    }
+    return menus;
+  }
   if (config?.csvUrl) {
-    return [{
+    const menus = [{
       key: 'wine',
       title: 'Wine List',
       type: 'wine',
       layout: 'cards',
       csvUrl: config.csvUrl
     }];
+    return menus;
   }
   return [];
 }
@@ -1850,6 +2116,93 @@ function getCsvUrlForLang(lang) {
   const fallbackCsv = state.config?.csvUrl;
   const source = menuCsv || fallbackCsv || {};
   return source?.[lang] || source?.en || null;
+}
+
+function isInventoryMenu(menu) {
+  return !!menu && (menu.key === INVENTORY_MENU_KEY || menu.type === 'inventory' || menu.layout === 'inventory');
+}
+
+function isInventoryMode() {
+  return isInventoryMenu(state.menuConfig);
+}
+
+let inventoryModeModule = null;
+
+function showInventoryShell() {
+  const tabs = $('sectionTabs');
+  const grid = $('grid');
+  const topMenuNav = $('topMenuNav');
+  const topbar = document.querySelector('.topbar');
+  if (tabs) tabs.classList.add('hidden');
+  if (grid) grid.classList.add('hidden');
+  if (topMenuNav) topMenuNav.classList.add('hidden');
+  if (topbar) topbar.classList.add('inventoryModeTopbar');
+  const searchWrap = $('searchWrap');
+  if (searchWrap) searchWrap.classList.add('hiddenControl');
+  const inventoryView = $('inventoryView');
+  if (inventoryView) inventoryView.classList.remove('hidden');
+}
+
+function hideInventoryShell() {
+  const tabs = $('sectionTabs');
+  const grid = $('grid');
+  const topMenuNav = $('topMenuNav');
+  const topbar = document.querySelector('.topbar');
+  if (tabs) tabs.classList.remove('hidden');
+  if (grid) grid.classList.remove('hidden');
+  if (topMenuNav) topMenuNav.classList.remove('hidden');
+  if (topbar) topbar.classList.remove('inventoryModeTopbar');
+  const searchWrap = $('searchWrap');
+  if (searchWrap) searchWrap.classList.remove('hiddenControl');
+  const inventoryView = $('inventoryView');
+  if (inventoryView) inventoryView.classList.add('hidden');
+}
+
+function getInventoryModeModule() {
+  if (inventoryModeModule) return inventoryModeModule;
+  if (typeof window.createInventoryModeModule !== 'function') {
+    throw new Error('Inventory module factory is not available');
+  }
+
+  inventoryModeModule = window.createInventoryModeModule({
+    getState: () => state,
+    byId: $,
+    loadCSV,
+    csvToObjects,
+    getMenuByKey,
+    setStatus,
+    t,
+    getStrings: () => inventoryStringsForLang(state.lang),
+    constants: {
+      menuKey: INVENTORY_MENU_KEY,
+      storagePrefix: INVENTORY_STORAGE_PREFIX,
+      units: INVENTORY_UNITS,
+      reasons: INVENTORY_REASONS
+    }
+  });
+
+  return inventoryModeModule;
+}
+
+function showWineView() {
+  if (inventoryModeModule && typeof inventoryModeModule.unmount === 'function') {
+    inventoryModeModule.unmount();
+  }
+  hideInventoryShell();
+}
+
+function hideWineView() {
+  showInventoryShell();
+}
+
+async function renderInventoryMode() {
+  hideWineView();
+  closeModal(false);
+  state.modalWineId = null;
+
+  const module = getInventoryModeModule();
+  await module.mount();
+  showInventoryShell();
 }
 
 function authStorageKey() {
@@ -1971,31 +2324,37 @@ function renderMenuList() {
   
   list.innerHTML = '';
 
-  if (state.restaurantId === 'novikov_bh') {
+  const inventoryMenu = state.menus.find((m) => m?.key === INVENTORY_MENU_KEY);
+  const regularMenus = (state.menus || []).filter((m) => !isInventoryMenu(m));
+
+  if (inventoryMenu) {
     const openMenuBtn = document.createElement('button');
     openMenuBtn.type = 'button';
     openMenuBtn.className = 'menuBtn';
     openMenuBtn.textContent = 'Open Menu';
 
-    const menuToOpen = state.menus.find((m) => m?.key === 'wine')
-      || state.menus.find((m) => !!(m?.csvUrl?.en || m?.csvUrl?.[state.lang]))
-      || state.menus[0];
+    const menuToOpen = regularMenus.find((m) => m?.key === 'wine')
+      || regularMenus.find((m) => !!(m?.csvUrl?.en || m?.csvUrl?.[state.lang]))
+      || regularMenus[0];
 
-    openMenuBtn.onclick = () => {
-      if (menuToOpen?.key) enterMenu(menuToOpen.key);
-    };
+    if (menuToOpen?.key) {
+      openMenuBtn.onclick = () => enterMenu(menuToOpen.key);
+    } else {
+      openMenuBtn.disabled = true;
+      openMenuBtn.textContent = `Open Menu (${t('comingSoon')})`;
+    }
     list.appendChild(openMenuBtn);
 
     const inventoryBtn = document.createElement('button');
     inventoryBtn.type = 'button';
     inventoryBtn.className = 'menuBtn';
-    inventoryBtn.disabled = true;
-    inventoryBtn.textContent = 'Inventory Mode';
+    inventoryBtn.textContent = inventoryMenu.title || 'Inventory Mode';
+    inventoryBtn.onclick = () => enterMenu(INVENTORY_MENU_KEY);
     list.appendChild(inventoryBtn);
     return;
   }
 
-  for (const menu of state.menus) {
+  for (const menu of regularMenus) {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'menuBtn';
@@ -2176,8 +2535,27 @@ function validateCredentials(login, password) {
 }
 
 async function enterMenu(menuKey) {
+  if (!menuKey) return;
+  const wasInventoryMode = isInventoryMode();
+  const nextMenu = getMenuByKey(menuKey);
+  const nextIsInventoryMode = isInventoryMenu(nextMenu);
+  if (!wasInventoryMode && nextIsInventoryMode) {
+    resetWineSearchState();
+  }
+  if (isInventoryRouteKey(menuKey) && !isInventoryFeatureEnabled()) {
+    showStartScreen();
+    renderMenuList();
+    return;
+  }
+
+  if (!nextMenu) {
+    showStartScreen();
+    renderMenuList();
+    return;
+  }
+
   state.menuKey = menuKey;
-  state.menuConfig = getMenuByKey(menuKey);
+  state.menuConfig = nextMenu;
 
   renderMenuSelect();
 
@@ -2189,7 +2567,19 @@ async function enterMenu(menuKey) {
   
   showAppScreen();
 
-  writeUrlParams({ menu: menuKey }, 'push');
+  writeUrlParams({ menu: menuKey, w: null, section: 'all' }, 'push');
+
+  if (isInventoryMode()) {
+    await renderInventoryMode();
+    renderTopMenuNav();
+    return;
+  }
+
+  if (wasInventoryMode) {
+    resetWineSearchState();
+  }
+
+  showWineView();
   
   // Форсируем загрузку данных, даже если язык не изменился
   state.wines = [];
@@ -2197,6 +2587,11 @@ async function enterMenu(menuKey) {
 }
 
 async function loadWinesForCurrentMenu() {
+  if (isInventoryMode()) {
+    await renderInventoryMode();
+    return;
+  }
+
   if (!state.menuKey) {
     return;
   }
@@ -2303,8 +2698,23 @@ async function loadWinesForCurrentMenu() {
 async function setMenu(nextMenuKey, opts = {}) {
   const { fromPopstate = false } = opts;
   if (!nextMenuKey || nextMenuKey === state.menuKey) return;
-
+  const wasInventoryMode = isInventoryMode();
   const nextMenu = getMenuByKey(nextMenuKey);
+  const nextIsInventoryMode = isInventoryMenu(nextMenu);
+  if (!wasInventoryMode && nextIsInventoryMode) {
+    resetWineSearchState();
+  }
+
+  if (isInventoryRouteKey(nextMenuKey) && !isInventoryFeatureEnabled()) {
+    state.menuKey = null;
+    state.menuConfig = null;
+    showStartScreen();
+    $('menuList').classList.remove('hidden');
+    renderMenuList();
+    if (!fromPopstate) writeUrlParams({ menu: null, w: null, section: 'all' }, 'push');
+    return;
+  }
+
   if (!nextMenu) {
     state.menuKey = null;
     state.menuConfig = null;
@@ -2328,6 +2738,17 @@ async function setMenu(nextMenuKey, opts = {}) {
   if (!fromPopstate) {
     writeUrlParams({ menu: nextMenuKey, w: null, section: 'all' }, 'push');
   }
+
+  if (isInventoryMode()) {
+    await renderInventoryMode();
+    return;
+  }
+
+  if (wasInventoryMode) {
+    resetWineSearchState();
+  }
+
+  showWineView();
 
   await loadWinesForCurrentMenu();
 }
@@ -2577,6 +2998,8 @@ function renderGrid(list) {
 }
 
 function filterAndRender() {
+  if (isInventoryMode()) return;
+
   let list = state.wines.slice();
   if (state.config?.hide86) {
     list = list.filter(w => w.available);
@@ -2883,6 +3306,7 @@ async function boot() {
   try {
     initTheme();
     setStatus(t('loading'), 'idle');
+    validateInventoryI18nCoverage();
 
     state.configsIndex = await loadConfigsIndex();
     const url = readRoute();
@@ -2975,6 +3399,14 @@ async function boot() {
     }
 
     showAppScreen();
+
+    if (isInventoryMode()) {
+      await renderInventoryMode();
+      syncUrl();
+      return;
+    }
+
+    showWineView();
 
     const csvUrl = getCsvUrlForLang(state.lang);
     if (!csvUrl) {
@@ -3140,6 +3572,13 @@ window.addEventListener('popstate', () => {
     return;
   }
 
+  if (isInventoryMode()) {
+    renderInventoryMode();
+    return;
+  }
+
+  showWineView();
+
   const nextSection = url.section || 'all';
   if (nextSection === 'all' || state.sectionsEffective.includes(nextSection)) {
     state.activeSection = nextSection;
@@ -3161,5 +3600,6 @@ window.addEventListener('popstate', () => {
 
 boot();
 </script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </body>
 </html>

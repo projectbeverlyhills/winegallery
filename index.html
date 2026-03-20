@@ -734,7 +734,7 @@
       height: 1px;
       background: #e5e5e7;
       margin: 12px 0;
-      width: calc(100% - 70px);
+      width: calc(100% - 5px);
     }
     .noteTag{
       display:flex;
@@ -787,7 +787,7 @@
       align-items:center;
       justify-content:center;
       padding: 18px;
-      z-index: 50;
+      z-index: 300;
     }
     .modal{
       width: min(980px, 100%);
@@ -3306,40 +3306,34 @@ function renderGrid(list) {
     if (hasBottle || hasGlass) {
       const priceLine = document.createElement('div');
       priceLine.className = 'priceLine';
-      
-      if (hasBottle) {
-        const bottleLabel = document.createElement('span');
-        bottleLabel.className = 'label';
-        bottleLabel.textContent = 'Bottle';
-        priceLine.appendChild(bottleLabel);
-        
+
+      const appendPrice = (labelText, value) => {
+        const label = document.createElement('span');
+        label.className = 'label';
+        label.textContent = labelText;
+        priceLine.appendChild(label);
+
         priceLine.appendChild(document.createTextNode(' '));
-        
-        const bottleValue = document.createElement('span');
-        bottleValue.className = 'value';
-        bottleValue.textContent = money(w.priceBottle);
-        priceLine.appendChild(bottleValue);
+
+        const valueEl = document.createElement('span');
+        valueEl.className = 'value';
+        valueEl.textContent = money(value);
+        priceLine.appendChild(valueEl);
+      };
+
+      if (hasGlass) {
+        appendPrice('Glass', w.priceGlass);
       }
-      
+
       if (hasBottle && hasGlass) {
         const sep = document.createElement('span');
         sep.className = 'sep';
         sep.textContent = '|';
         priceLine.appendChild(sep);
       }
-      
-      if (hasGlass) {
-        const glassLabel = document.createElement('span');
-        glassLabel.className = 'label';
-        glassLabel.textContent = 'Glass';
-        priceLine.appendChild(glassLabel);
-        
-        priceLine.appendChild(document.createTextNode(' '));
-        
-        const glassValue = document.createElement('span');
-        glassValue.className = 'value';
-        glassValue.textContent = money(w.priceGlass);
-        priceLine.appendChild(glassValue);
+
+      if (hasBottle) {
+        appendPrice('Bottle', w.priceBottle);
       }
       
       meta.appendChild(priceLine);
@@ -3465,6 +3459,36 @@ function setActiveSection(sectionKey) {
  */
 let searchTimer = null;
 let lastFocusEl = null;
+let scrollLockY = 0;
+
+function lockBodyScroll() {
+  if (document.body.classList.contains('modalOpen')) return;
+  scrollLockY = window.scrollY || window.pageYOffset || 0;
+
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${scrollLockY}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  document.body.style.width = '100%';
+  document.body.style.overflowY = 'scroll';
+  document.body.classList.add('modalOpen');
+}
+
+function unlockBodyScroll() {
+  if (!document.body.classList.contains('modalOpen')) return;
+
+  const top = document.body.style.top;
+  document.body.classList.remove('modalOpen');
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  document.body.style.width = '';
+  document.body.style.overflowY = '';
+
+  const restoreY = top ? Math.abs(parseInt(top, 10) || 0) : scrollLockY;
+  window.scrollTo(0, restoreY);
+}
 
 function openWineModal(wineId, pushHistory = true) {
   if (isPastryMode()) {
@@ -3586,6 +3610,7 @@ function openWineModal(wineId, pushHistory = true) {
   }
 
   $('modalBack').style.display = 'flex';
+  lockBodyScroll();
 
   setTimeout(() => {
     $('closeModalBtn').focus();
@@ -3600,6 +3625,7 @@ function openWineModal(wineId, pushHistory = true) {
 function closeModal(sync=true) {
   const wasOpen = $('modalBack').style.display === 'flex';
   $('modalBack').style.display = 'none';
+  unlockBodyScroll();
 
   if (sync) {
     state.modalWineId = null;

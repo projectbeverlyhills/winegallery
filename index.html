@@ -760,14 +760,16 @@
       object-fit: contain;
     }
     .noteLabel{
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 400;
       text-transform: capitalize;
       color: #6e6e73;
-      white-space: normal;
+      white-space: nowrap;
       text-align: center;
       line-height: 1.2;
-      overflow-wrap: anywhere;
+      display: block;
+      overflow: visible;
+      text-overflow: clip;
     }
 
     .cardBtn{
@@ -1956,16 +1958,31 @@ function parseNotesChips(s) {
     .map(x => x.trim().replace(/_/g, ' '))
     .filter(Boolean);
 
-  const seen = new Set();
-  const unique = [];
-  for (const item of raw) {
-    const key = item.toLowerCase();
-    if (seen.has(key)) continue;
-    seen.add(key);
-    unique.push(item);
-  }
+  const seenRaw = new Set();
+  const resolved = [];
 
-  return unique.slice(0, 3);
+  raw.forEach((item, sourceOrder) => {
+    const rawKey = item.toLowerCase();
+    if (seenRaw.has(rawKey)) return;
+    seenRaw.add(rawKey);
+
+    const token = resolveTokenEntry(item);
+    if (!token || !token.icon) return;
+    if (resolved.some(x => x.key === token.key)) return;
+
+    const priority = NOTE_PRIORITY_INDEX.has(token.key)
+      ? NOTE_PRIORITY_INDEX.get(token.key)
+      : Number.MAX_SAFE_INTEGER;
+
+    resolved.push({ key: token.key, priority, sourceOrder });
+  });
+
+  resolved.sort((a, b) => {
+    if (a.priority !== b.priority) return a.priority - b.priority;
+    return a.sourceOrder - b.sourceOrder;
+  });
+
+  return resolved.slice(0, 3).map(x => x.key);
 }
 
 
@@ -2004,13 +2021,7 @@ function buildPairingList(text) {
 }
 
 function getNoteTokensForWine(w) {
-  const tokens = parseNotesChips(w.notes);
-  const fallback = ['Fresh', 'Balanced', 'Elegant'];
-  for (const f of fallback) {
-    if (tokens.length >= 3) break;
-    if (!tokens.some(t => t.toLowerCase() === f.toLowerCase())) tokens.push(f);
-  }
-  return tokens.slice(0, 3);
+  return parseNotesChips(w.notes);
 }
 
 function readProfileValue(raw, keys) {
@@ -2055,28 +2066,28 @@ function getWineProfile(w) {
 
 // Словарь токенов для notes (иконки PNG + названия из файлов)
 const NOTE_ICON_FILES = [
-  'BUTTERY.png',  
   'BLACK FRUIT.png',
-  'BROWN SPICE.png',
   'BURNT.png',
-  'CARAMELIZED.png',
+  'BUTTERY.png',
   'CHEMICAL.png',
   'CITRUS.png',
   'COCOA.png',
   'DRIED FRUIT.png',
   'FLORAL.png',
-  'FRESH GREEN.png',
   'GRASSY.png',
-  'METHOXY-PYRAZINES.png',
+  'GREEN PEPPER.png',
+  'HERBAL.png',
+  'HONEYED.png',
   'MINERAL.png',
   'NUTTY.png',
   'OAKY.png',
   'PEPPER.png',
   'PUNGENT.png',
   'RED FRUIT.png',
-  'RESINOUS HERBS.png',
   'SAFFRON.png',
+  'SAVORY HERB.png',
   'SOIL.png',
+  'SPICE.png',
   'SULFUR.png',
   'TEA.png',
   'TOBACCO.png',
@@ -2092,6 +2103,56 @@ const TOKEN_DICTIONARY = NOTE_ICON_FILES.reduce((acc, file) => {
   acc[raw] = { label, icon: file };
   return acc;
 }, {});
+
+// Единый глобальный приоритет показа нот для всех карточек и языков.
+// Базируется на текущих данных меню: сначала фруктовый профиль,
+// затем цветочные/травяные/пряные, затем минерально-землистые и выдержка.
+const NOTE_PRIORITY_ORDER = [
+  'citrus',
+  'tree fruit',
+  'tropical fruit',
+  'floral',
+  'red fruit',
+  'black fruit',
+  'dried fruit',
+  'herbal',
+  'savory herb',
+  'green pepper',
+  'spice',
+  'pepper',
+  'saffron',
+  'tea',
+  'tobacco',
+  'mineral',
+  'soil',
+  'oaky',
+  'nutty',
+  'vanilla',
+  'honeyed',
+  'buttery',
+  'cocoa',
+  'grassy',
+  'umami',
+  'pungent',
+  'burnt',
+  'chemical',
+  'sulfur',
+];
+
+const NOTE_PRIORITY_INDEX = new Map(
+  NOTE_PRIORITY_ORDER.map((key, idx) => [key, idx])
+);
+
+function resolveTokenEntry(tokenStr) {
+  const normalized = String(tokenStr || '').toLowerCase().trim();
+  if (!normalized) return null;
+
+  if (TOKEN_DICTIONARY[normalized]) {
+    return { key: normalized, ...TOKEN_DICTIONARY[normalized] };
+  }
+
+  return null;
+}
 
 function buildNoteTag(tokenData) {
   const container = document.createElement('div');
@@ -2118,44 +2179,11 @@ function buildNoteTag(tokenData) {
 }
 
 function getTokenDisplay(tokenStr, lang = 'en') {
-  const normalized = tokenStr.toLowerCase().trim();
-  const greenPepperVariants = new Set([
-    'methoxy-pyrazines',
-    'methoxypyrazines',
-    'green pepper',
-    'greenpepper'
-  ]);
-  if (greenPepperVariants.has(normalized)) {
-    const iconData = TOKEN_DICTIONARY['methoxy-pyrazines'] || {};
-    return {
-      label: 'Greenpepper',
-      icon: iconData.icon || null
-    };
-  }
-  
-  // Точный поиск
-  if (TOKEN_DICTIONARY[normalized]) {
-    const token = TOKEN_DICTIONARY[normalized];
-    return {
-      label: token.label,
-      icon: token.icon
-    };
-  }
-  
-  // Частичный поиск (если токен содержит несколько слов)
-  for (const [key, data] of Object.entries(TOKEN_DICTIONARY)) {
-    if (normalized.includes(key.split(' ')[0])) {
-      return {
-        label: data.label,
-        icon: data.icon
-      };
-    }
-  }
-  
-  // Fallback - просто вернуть оригинальный текст
+  const token = resolveTokenEntry(tokenStr);
+  if (!token) return null;
   return {
-    label: tokenStr,
-    icon: null
+    label: token.label,
+    icon: token.icon
   };
 }
 
@@ -3330,7 +3358,7 @@ function renderGrid(list) {
       const tokens = parseNotesChips(w.notes);
       tokens.forEach(tokenStr => {
         const tokenData = getTokenDisplay(tokenStr);
-        if (tokenData) {
+        if (tokenData && tokenData.icon) {
           const tag = buildNoteTag(tokenData);
           notesValueWrap.appendChild(tag);
         }
@@ -3552,6 +3580,7 @@ function openWineModal(wineId, pushHistory = true) {
 
   for (const c of chips) {
     const tokenData = getTokenDisplay(c, state.lang);
+    if (!tokenData || !tokenData.icon) continue;
     const noteTag = buildNoteTag(tokenData);
     mn.appendChild(noteTag);
   }

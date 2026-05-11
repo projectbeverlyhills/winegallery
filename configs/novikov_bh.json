@@ -74,15 +74,15 @@
       "type": "wine",
       "layout": "cards",
       "csvUrl": {
-        "en": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=938845198&single=true&output=csv"
+        "en": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=302607169&single=true&output=csv"
       }
     }
   ],
-  "sectionsOrder": ["Sparkling","Champagne","White","Rosé","Red","Dessert wines"],
+  "sectionsOrder": ["By the Glass", "Champagne and sparkling wine", "White wine", "Rose wine", "Red wine", "Dessert wine", "Half bottles", "Kosher wine", "Large format", "Non alcoholic"],
   "sectionsOrderByLang": {
-  "en": ["Sparkling", "Champagne", "White", "Rosé", "Red", "Dessert wines"]
-},
+    "en": ["By the Glass", "Champagne and sparkling wine", "White wine", "Rose wine", "Red wine", "Dessert wine", "Half bottles", "Kosher wine", "Large format", "Non alcoholic"]
+  },
   "csvUrl": {
-    "en": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=938845198&single=true&output=csv"
+    "en": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=302607169&single=true&output=csv"
   }
 }

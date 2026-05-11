@@ -330,9 +330,53 @@
       margin: 12px 0 12px;
       padding: 12px 0;
     }
+    .subsectionTabs{
+      top: 136px;
+      margin-top: -8px;
+      margin-bottom: 4px;
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+    .subsectionTabs .chip{
+      font-size: 11px;
+      padding: 5px 10px;
+      color: var(--muted2, #8A847B);
+    }
 
     [data-theme="dark"] .topbar{
       background: rgba(30, 30, 30, 0.85);
+    }
+
+    [data-theme="dark"] .card{
+      background: rgba(30, 30, 30, 0.95);
+      border-color: #333333;
+    }
+
+    [data-theme="dark"] .card .titleProducer,
+    [data-theme="dark"] .card .titleWine,
+    [data-theme="dark"] .card .infoLine,
+    [data-theme="dark"] .card .priceLine,
+    [data-theme="dark"] .card .priceLine .label,
+    [data-theme="dark"] .card .priceLine .value,
+    [data-theme="dark"] .card .noteLabel{
+      color: #fff;
+    }
+
+    [data-theme="dark"] .card .infoLine .sep,
+    [data-theme="dark"] .card .priceLine .sep,
+    [data-theme="dark"] .card .divider,
+    [data-theme="dark"] .card .noteTag{
+      border-color: rgba(255,255,255,0.28);
+      color: rgba(255,255,255,0.72);
+    }
+
+    [data-theme="dark"] .card .divider{
+      background: rgba(255,255,255,0.28);
+    }
+
+    [data-theme="dark"] .card .infoLine .sep,
+    [data-theme="dark"] .card .priceLine .sep{
+      color: rgba(255,255,255,0.45);
     }
 
     @media (max-width: 1024px){
@@ -393,6 +437,7 @@
       input{ min-width: 160px; }
 
       .card{ padding: 16px; }
+      .card:not(.pastryCard){ height: auto; }
       .cardLayout{ grid-template-columns: 1fr; gap: 16px; }
       .card:not(.pastryCard) .cardLayout{ width: 100%; max-width: none; }
       .bottleWrap{ min-height: 180px; padding: 12px; }
@@ -413,6 +458,7 @@
     }
     @media (max-width: 680px){
       .card{ padding: 14px; }
+      .card:not(.pastryCard){ height: auto; }
       .cardLayout{ grid-template-columns: 1fr; gap: 14px; }
       .bottleWrap{ width: 100%; min-height: 160px; padding: 10px; }
       .bottleImg{ max-height: 140px; }
@@ -442,19 +488,22 @@
       overflow:hidden;
       transition: border-color 0.2s ease;
     }
+    .card:not(.pastryCard){
+      height: auto;
+    }
     .card:hover{ border-color: var(--stroke2); }
     .cardLayout{
       display:grid;
-      grid-template-columns: 88px 1fr;
-      gap: 40px;
+      grid-template-columns: 84px 1fr;
+      gap: 28px;
       align-items:start;
       width: 100%;
       max-width: 520px;
       margin: 0 auto;
     }
     .card:not(.pastryCard) .cardLayout{
-      width: calc(100% - 24px);
-      max-width: 408px;
+      width: calc(100% - 12px);
+      max-width: 424px;
       margin: 0 auto;
     }
     .bottleWrap{
@@ -509,6 +558,8 @@
       color: #1d1d1f;
       margin-bottom: 6px;
       line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
     }
     .titleWine{
       font-weight: 400;
@@ -517,6 +568,8 @@
       color: #86868b;
       line-height: 1.3;
       margin-bottom: 0;
+      white-space: nowrap;
+      overflow: hidden;
     }
     .producer{
       display: none;
@@ -790,7 +843,10 @@
       z-index: 300;
     }
     .modal{
-      width: min(980px, 100%);
+      position:relative;
+      width: min(783px, 100%);
+      height: auto;
+      max-height: 88vh;
       border-radius: 22px;
       border: 1px solid var(--stroke);
       background: var(--bg1);
@@ -798,50 +854,138 @@
       overflow:hidden;
       color: var(--text);
     }
-    .modalTop{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--stroke);
-      color: var(--muted);
-      font-size: 12px;
+    .modal > .closeBtn{
+      position:absolute;
+      top:12px;
+      right:12px;
+      z-index:10;
     }
     .modalBody{
-      padding: 20px;
+      padding: 22px;
       display:grid;
-      grid-template-columns: 38% 62%;
-      gap:24px;
-      align-items:flex-start;
+      grid-template-columns: minmax(220px, 250px) 1fr;
+      gap:22px;
+      align-items:stretch;
       color: var(--text);
+      box-sizing: border-box;
     }
     .modalLeft{
+      position: relative;
+      overflow: visible;
       display:flex;
       flex-direction:column;
+      align-items: center;
       gap:14px;
+      min-height: 0;
     }
     .modalBottleWrap{
-      height: 260px;
+      height: 100%;
+      min-height: 324px;
+      width: 100%;
+      transform: none;
+      padding: 0;
+      display:flex;
+      align-items: stretch;
+      justify-content: center;
+    }
+    .modalBottleWrap .bottleImg,
+    #modalBottle{
+      width: auto;
+      height: 100%;
+      max-height: 100%;
+      max-width: 100%;
+      object-fit: contain;
+      object-position: center top;
+      transform: none;
+      transform-origin: center top;
     }
     .modalText{
       min-width:0;
+      padding-left: 0;
+      padding-right: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .modalProducer{
+      margin: 0 0 6px 0;
+      font-size: 28px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text);
+      opacity: 0.94;
     }
     .modalText h2{
-      margin: 0 0 8px 0;
-      font-size: 27px;
+      margin: 0 0 12px 0;
+      font-size: 15px;
       font-weight: 600;
       letter-spacing:0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      opacity: 0.95;
     }
-    .modalText .sub{
+    .modalVintage{
       margin-bottom: 12px;
+      font-size: 14px;
+      color: var(--muted);
+      display: none;
+    }
+    .modalCountry,
+    .modalRegion{
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    .modalGrape{
+      margin-bottom: 30px;
+      font-size: 14px;
+      color: var(--text);
+      opacity: 0.8;
+      line-height: 1.2;
       white-space: normal;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      line-clamp: 2;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .modalSectionTitle{
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--text);
+      opacity: 0.72;
+      margin: 0 0 6px 0;
+      line-height: 1.2;
+      flex: 0 0 auto;
+    }
+    .modalSectionTitle.forDescription{
+      margin-bottom: 3px;
+    }
+    .modalSectionDivider{
+      width: 100%;
+      height: 1px;
+      background: color-mix(in srgb, var(--stroke) 82%, var(--text) 18%);
+      margin: 8px 0 16px 0;
+      opacity: 0.76;
+      flex: 0 0 auto;
+    }
+    .modalSectionDivider.afterProfile{
+      margin: 8px 0 6px 0;
     }
     .modalText .price{
       font-size: 19px;
       font-weight: 500;
-      margin-bottom: 16px;
+      margin-bottom: 0;
       letter-spacing: 0.2px;
       line-height: 1.5;
+      display:none;
     }
     .modalText .price > div{
       font-size: 19px;
@@ -858,7 +1002,9 @@
       display:flex;
       flex-direction:column;
       gap:10px;
-      margin-bottom: 16px;
+      margin-bottom: 30px;
+      max-width: 100%;
+      flex: 0 0 auto;
     }
     .profileRow{
       display:flex;
@@ -867,34 +1013,57 @@
     }
     .profileLabel{
       font-size: 12px;
-      color: var(--muted);
+      color: var(--text);
       display:flex;
       justify-content:space-between;
       align-items:center;
+      gap: 8px;
+      padding-right: 10px;
+    }
+    .profileLabel span:first-child{
+      color: var(--text);
+      opacity: 0.8;
+    }
+    .profileLabel span:last-child{
+      opacity: 0.92;
     }
     .profileTrack{
       position:relative;
-      height: 6px;
-      background: var(--track);
+      height: 5px;
+      background: color-mix(in srgb, var(--track) 80%, var(--text) 20%);
       border-radius: 999px;
+      margin-right: 10px;
     }
     .profileMarker{
       position:absolute;
       top: 50%;
-      width: 12px;
-      height: 12px;
+      width: 11px;
+      height: 11px;
       border-radius: 999px;
       background: var(--accent);
       transform: translate(-50%, -50%);
-      box-shadow: 0 0 0 4px rgba(111,29,43,0.12);
+      box-shadow: 0 0 0 3px rgba(111,29,43,0.1);
     }
     .modalText .desc{
       max-height: none;
-      overflow: visible;
+      overflow-y: auto;
+      overflow-x: hidden;
       font-size: 15px;
       line-height: 1.45;
-      color: var(--muted);
+      color: color-mix(in srgb, var(--text) 76%, var(--muted) 24%);
+      text-align: justify;
+      text-justify: auto;
+      text-align-last: left;
+      -webkit-hyphens: auto;
+      hyphens: auto;
+      margin-top: 4px;
       margin-bottom: 12px;
+      max-width: 100%;
+      flex: 1 1 auto;
+      min-height: 84px;
+      max-height: 220px;
+      padding-right: 8px;
+      scrollbar-width: thin;
     }
     .modalText .pairing{
       font-size: 13px;
@@ -906,16 +1075,20 @@
     }
     .closeBtn{
       cursor:pointer;
-      border-radius: 12px;
-      border: 1px solid var(--stroke);
-      padding: 7px 10px;
-      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid color-mix(in srgb, var(--stroke) 74%, transparent);
+      padding: 6px 12px;
+      background: color-mix(in srgb, var(--bg1) 88%, white 12%);
       color: var(--text);
       font-size: 12px;
-      min-height: 36px;
+      font-weight: 500;
+      min-height: 34px;
+      transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
     }
     .closeBtn:hover{
-      border-color: rgba(255,255,255,0.22);
+      border-color: color-mix(in srgb, var(--stroke) 52%, var(--text) 48%);
+      background: color-mix(in srgb, var(--bg1) 80%, white 20%);
+      transform: translateY(-1px);
     }
 
     .card.is86{ opacity: 1; }
@@ -1121,8 +1294,37 @@
     }
     .noteContainer { display:none; }
     @media (max-width: 900px){
-      .modalBody{ grid-template-columns: 1fr; }
-      .modalBottleWrap{ height: 220px; }
+      .modalBody{
+        grid-template-columns: 1fr;
+        align-items:flex-start;
+      }
+      .modalBottleWrap{
+        height: 272px;
+        min-height: 272px;
+      }
+      .modal{
+        width: min(748px, 100%);
+        height: auto;
+        max-height: 92vh;
+      }
+      .modalBottleWrap{ transform: none; }
+      .modalProfile,
+      .modalText .desc{ max-width: 100%; }
+    }
+    @media (max-width: 680px){
+      .modalBack{ padding: 10px; }
+      .modal{
+        width: 100%;
+        height: auto;
+        max-height: 94vh;
+      }
+      .modalBody{ padding: 14px; gap: 14px; }
+      .modalBottleWrap{
+        height: 234px;
+        min-height: 234px;
+        transform: none;
+      }
+      .modalText .desc{ min-height: 72px; }
     }
     .hidden{ display:none !important; }
   </style>
@@ -1186,15 +1388,13 @@
     </div>
 
     <div class="tabs" id="sectionTabs"></div>
+    <div class="tabs subsectionTabs hidden" id="subsectionTabs"></div>
     <div class="grid" id="grid"></div>
   </div>
 
   <div class="modalBack" id="modalBack">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalName" aria-describedby="modalDesc" tabindex="-1">
-      <div class="modalTop">
-        <div id="modalTopText">Wine</div>
-        <button class="closeBtn" id="closeModalBtn" aria-label="Close modal">Close</button>
-      </div>
+      <button class="closeBtn" id="closeModalBtn" aria-label="Close modal">Close</button>
       <div class="modalBody">
         <div class="modalLeft">
           <div class="bottleWrap modalBottleWrap">
@@ -1204,10 +1404,18 @@
           <div class="notes" id="modalNotes"></div>
         </div>
         <div class="modalText">
+          <div class="modalProducer" id="modalProducer"></div>
           <h2 id="modalName"></h2>
-          <div class="sub" id="modalSub"></div>
+          <div class="modalVintage" id="modalVintage"></div>
+          <div class="modalCountry" id="modalCountry"></div>
+          <div class="modalRegion" id="modalRegion"></div>
+          <div class="modalGrape" id="modalGrape"></div>
+          <div class="modalSectionTitle">PROFILE</div>
+          <div class="modalSectionDivider" aria-hidden="true"></div>
           <div class="price" id="modalPrice"></div>
           <div class="modalProfile" id="modalProfile"></div>
+          <div class="modalSectionTitle forDescription">ABOUT</div>
+          <div class="modalSectionDivider afterProfile" aria-hidden="true"></div>
           <div class="desc" id="modalDesc"></div>
           <div class="pairing" id="modalPairing" style="display:none;"></div>
         </div>
@@ -1239,7 +1447,8 @@ const state = {
   configsIndex: null,
   wines: [],
   sectionsEffective: [],
-  activeSection: 'all',
+  activeSection: '',
+  activeSubsection: '',
   search: '',
   isLoading: false,
   status: 'Idle',
@@ -1255,6 +1464,9 @@ const state = {
   },
   modalWineId: null,
   sectionLabels: {}, // key -> human label
+  isSearchMode: false, // Track if we're in search mode
+  sectionBeforeSearch: '', // Store which section was active before search started
+  currentDisplaySection: '', // Current section being displayed (can differ from activeSection when searching)
   inventory: {
     byDate: {},
     selectedDate: null,
@@ -1553,7 +1765,8 @@ function closeSettingsMenu() {
 function goBackToMenuSelection() {
   state.menuKey = null;
   state.menuConfig = null;
-  state.activeSection = 'all';
+  state.activeSection = '';
+  state.activeSubsection = '';
   closeModal(false);
   state.modalWineId = null;
   renderStartBranding();
@@ -1562,7 +1775,7 @@ function goBackToMenuSelection() {
   $('menuList').classList.remove('hidden');
   renderMenuSelect();
   renderMenuList();
-  writeUrlParams({ menu: null, w: null, section: 'all' }, 'push');
+  writeUrlParams({ menu: null, w: null, section: null }, 'push');
 }
 
 function bindSettingsMenu() {
@@ -1633,8 +1846,9 @@ function bindLogoutHandler() {
     state.menus = [];
     state.menuKey = null;
     state.menuConfig = null;
-    state.activeSection = 'all';
-    writeUrlParams({ r: null, menu: null, w: null, section: 'all' }, 'push');
+    state.activeSection = '';
+    state.activeSubsection = '';
+    writeUrlParams({ r: null, menu: null, w: null, section: null }, 'push');
     showStartScreen();
     renderGlobalLoginForm();
     $('logoutBtn').style.display = 'none';
@@ -1673,6 +1887,98 @@ function normalizeSectionKey(input) {
 function safe(v) {
   if (v === null || v === undefined) return '';
   return String(v);
+}
+
+function normalizePriceRaw(v) {
+  return String(v ?? '')
+    .replace(/\u00A0/g, ' ')
+    .trim();
+}
+
+function isMissingPrice(v) {
+  const raw = normalizePriceRaw(v);
+  if (!raw) return true;
+  const key = raw.toLowerCase();
+  return key === 'n/a' || key === 'na' || key === 'null' || key === 'none' || key === '-' || key === '--';
+}
+
+function getDisplayPrice(v) {
+  if (isMissingPrice(v)) return '';
+  return money(normalizePriceRaw(v));
+}
+
+function hasDisplayPrice(v) {
+  return !!getDisplayPrice(v);
+}
+
+function hasAnyDisplayPrice(w) {
+  return hasDisplayPrice(w?.priceBottle) || hasDisplayPrice(w?.priceGlass);
+}
+
+let wineNameFitRaf = null;
+
+function fitSingleLineElements(elements, maxFont, preferredMin, floorMin) {
+  for (const el of elements) {
+    el.style.fontSize = `${maxFont}px`;
+    el.style.letterSpacing = '0px';
+    el.style.whiteSpace = 'nowrap';
+
+    let size = maxFont;
+    while (el.scrollWidth > el.clientWidth && size > preferredMin) {
+      size -= 0.5;
+      el.style.fontSize = `${size}px`;
+    }
+
+    let spacing = 0;
+    while (el.scrollWidth > el.clientWidth && spacing > -0.8) {
+      spacing -= 0.1;
+      el.style.letterSpacing = `${spacing.toFixed(1)}px`;
+    }
+
+    while (el.scrollWidth > el.clientWidth && size > floorMin) {
+      size -= 0.25;
+      el.style.fontSize = `${size}px`;
+    }
+  }
+}
+
+function fitWineNameSingleLine() {
+  const isMobile = window.matchMedia('(max-width: 767px)').matches;
+  fitSingleLineElements(
+    document.querySelectorAll('#grid .card:not(.pastryCard) .titleWine'),
+    16,
+    isMobile ? 10 : 11,
+    8
+  );
+  fitSingleLineElements(
+    document.querySelectorAll('#grid .card:not(.pastryCard) .titleProducer'),
+    16,
+    isMobile ? 10 : 11,
+    8
+  );
+
+  const modalProducer = document.querySelector('#modalProducer');
+  if (modalProducer && modalProducer.textContent.trim()) {
+    fitSingleLineElements([modalProducer], 27, 17, 11);
+  }
+
+  const modalName = document.querySelector('#modalName');
+  if (modalName && modalName.textContent.trim()) {
+    fitSingleLineElements([modalName], 16, 11, 8);
+  }
+
+  const modalCountry = document.querySelector('#modalCountry');
+  if (modalCountry && modalCountry.textContent.trim()) {
+    fitSingleLineElements([modalCountry], 14, 10, 8);
+  }
+}
+
+function scheduleWineNameFit() {
+  if (wineNameFitRaf) cancelAnimationFrame(wineNameFitRaf);
+  wineNameFitRaf = requestAnimationFrame(() => {
+    wineNameFitRaf = null;
+    fitWineNameSingleLine();
+  });
 }
 
 function money(v) {
@@ -1858,7 +2164,7 @@ function writeUrlParams(next, mode = 'replace') {
   p.delete('r');
   p.delete('menu');
   if (next.section !== undefined) {
-    if (next.section && next.section !== 'all') p.set('section', next.section); else p.delete('section');
+    if (next.section) p.set('section', next.section); else p.delete('section');
   }
   if (next.w !== undefined) {
     if (next.w) p.set('w', next.w); else p.delete('w');
@@ -1878,6 +2184,25 @@ function syncUrl(mode = 'replace') {
     section: state.activeSection,
     w: state.modalWineId
   }, mode);
+}
+
+function getDefaultSection() {
+  return state.sectionsEffective?.[0] || '';
+}
+
+function getDefaultSubsection(sectionKey) {
+  const subsections = sectionKey ? getSubsectionsForSection(sectionKey, state.wines) : [];
+  return subsections.length ? subsections[0].key : '';
+}
+
+function applyDefaultSectionSelection(preferredSection) {
+  const fallbackSection = getDefaultSection();
+  const nextSection = preferredSection && state.sectionsEffective.includes(preferredSection)
+    ? preferredSection
+    : fallbackSection;
+
+  state.activeSection = nextSection || '';
+  state.activeSubsection = nextSection ? (getDefaultSubsection(nextSection) || '') : '';
 }
 
 /**
@@ -2846,7 +3171,7 @@ async function enterMenu(menuKey) {
   
   showAppScreen();
 
-  writeUrlParams({ menu: menuKey, w: null, section: 'all' }, 'push');
+  writeUrlParams({ menu: menuKey, w: null, section: null }, 'push');
 
   if (isInventoryMode()) {
     await renderInventoryMode();
@@ -2917,8 +3242,10 @@ async function loadWinesForCurrentMenu() {
     function buildSub(x) {
       const country = String(x.country ?? '').trim();
       const region = String(x.region ?? '').trim();
+      const subregion = String(x['sub-region'] ?? x.subregion ?? '').trim();
       const grape = String(x.grape ?? '').trim();
-      return [country, region, grape].filter(Boolean).join(' • ');
+      const regionDisplay = [region, subregion].filter(Boolean).join(' | ');
+      return [country, regionDisplay, grape].filter(Boolean).join(' • ');
     }
 
     state.wines = raw
@@ -2933,6 +3260,7 @@ async function loadWinesForCurrentMenu() {
         const producer = String(x.producer ?? '').trim();
         const country = String(x.country ?? '').trim();
         const region = String(x.region ?? '').trim();
+        const subregion = String(x['sub-region'] ?? x.subregion ?? '').trim();
         const grape = String(x.grape ?? '').trim();
 
         const hay = buildSearchHaystack([
@@ -2940,11 +3268,12 @@ async function loadWinesForCurrentMenu() {
           producer,
           country,
           region,
+          subregion,
           grape
         ]);
 
         return {
-          id: String(x.id ?? x.wine_id ?? '').trim(),
+          id: String(x['№'] ?? x.id ?? x.wine_id ?? '').trim(),
           title: buildTitle(x),
           sub: buildSub(x),
 
@@ -2954,16 +3283,21 @@ async function loadWinesForCurrentMenu() {
           producer,
           country,
           region,
+          subregion,
           grape,
           searchHaystack: hay,
 
-          description: String(x.story ?? '').trim(),
-          notes: String(x.notes ?? '').trim(),
+          description: String(x.story ?? x.description ?? '').trim(),
+          notes: String(x.notes ?? x.notes_profile ?? '').trim(),
           pairing: String(x.pairing ?? '').trim(),
 
           imageUrl: String(x.bottle_img ?? x.primary_image_url ?? '').trim(),
           priceGlass: x.btg_price ?? '',
           priceBottle: x.bottle_price ?? '',
+
+          subsectionKey: normalizeSectionKey(String(x['subsection_key '] ?? x.subsection_key ?? '').trim()),
+          subsectionLabel: String((x['subsection_key '] ?? x.subsection_key ?? '')).trim(),
+          btg: String(x.btg ?? '').trim(),
 
           order: toNum(x.order),
           raw: x,
@@ -2976,7 +3310,7 @@ async function loadWinesForCurrentMenu() {
       .filter(w => w.visible);
 
     state.sectionsEffective = computeSectionsEffective(state.wines, state.config, state.lang);
-    state.activeSection = 'all';
+    applyDefaultSectionSelection();
 
     setStatus(t('ready'), 'good');
     filterAndRender();
@@ -3003,7 +3337,7 @@ async function setMenu(nextMenuKey, opts = {}) {
     showStartScreen();
     $('menuList').classList.remove('hidden');
     renderMenuList();
-    if (!fromPopstate) writeUrlParams({ menu: null, w: null, section: 'all' }, 'push');
+    if (!fromPopstate) writeUrlParams({ menu: null, w: null, section: null }, 'push');
     return;
   }
 
@@ -3018,7 +3352,15 @@ async function setMenu(nextMenuKey, opts = {}) {
 
   state.menuKey = nextMenuKey;
   state.menuConfig = nextMenu;
-  state.activeSection = 'all';
+  state.activeSection = '';
+  state.activeSubsection = '';
+  
+  // Clear search mode when switching menus
+  state.isSearchMode = false;
+  state.search = '';
+  state.currentDisplaySection = '';
+  $('searchInput').value = '';
+  syncClearButton();
 
   renderMenuSelect();
 
@@ -3028,7 +3370,7 @@ async function setMenu(nextMenuKey, opts = {}) {
   state.modalWineId = null;
 
   if (!fromPopstate) {
-    writeUrlParams({ menu: nextMenuKey, w: null, section: 'all' }, 'push');
+    writeUrlParams({ menu: nextMenuKey, w: null, section: null }, 'push');
   }
 
   if (isInventoryMode()) {
@@ -3050,6 +3392,9 @@ async function setMenu(nextMenuKey, opts = {}) {
  * 5) Sections logic (Sprint 2.1)
  * =========================
  */
+const BTG_KEY = 'by_the_glass';
+const BTG_SUBSECTION_ORDER = ['Sparkling wine and Champagne', 'White wine', 'Rose wine', 'Red wine', 'Dessert wine'];
+
 function computeSectionsEffective(wines, config, lang) {
   const labelsFromData = {};
   const keysInData = new Set();
@@ -3085,7 +3430,8 @@ function computeSectionsEffective(wines, config, lang) {
   }
 
   if (normalizedOrder.length) {
-    const effective = normalizedOrder.filter(k => keysInData.has(k));
+    const hasBtgWines = wines.some(w => w.btg && w.btg !== 'N/A' && w.btg !== '');
+    const effective = normalizedOrder.filter(k => k === BTG_KEY ? hasBtgWines : keysInData.has(k));
     if (effective.length === 0 && keysInData.size > 0) {
       console.warn('[WineGallery] sectionsOrder задан, но не совпал ни с одной секцией в CSV. Показываю fallback (All + секции из данных). Проверь названия секций.');
       return Array.from(keysInData);
@@ -3106,6 +3452,36 @@ function labelForSectionKey(k) {
   return state.sectionLabels?.[k] || k;
 }
 
+function getSubsectionsForSection(sectionKey, wines) {
+  if (sectionKey === BTG_KEY) {
+    const seen = new Set();
+    const result = [];
+    for (const w of wines) {
+      if (!w.btg || w.btg === 'N/A' || w.btg === '') continue;
+      const key = normalizeSectionKey(w.btg);
+      if (!seen.has(key)) { seen.add(key); result.push({ key, label: w.btg }); }
+    }
+    result.sort((a, b) => {
+      const ia = BTG_SUBSECTION_ORDER.indexOf(a.label);
+      const ib = BTG_SUBSECTION_ORDER.indexOf(b.label);
+      return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib);
+    });
+    return result;
+  }
+  const seen = new Set();
+  const result = [];
+  for (const w of wines) {
+    if (w.sectionKey !== sectionKey) continue;
+    if (!w.subsectionKey) continue;
+    if (seen.has(w.subsectionKey)) continue;
+    seen.add(w.subsectionKey);
+    result.push({ key: w.subsectionKey, label: w.subsectionLabel });
+  }
+  // Если одна подсекция совпадает с самой секцией — не показываем строку
+  if (result.length === 1 && result[0].key === sectionKey) return [];
+  return result;
+}
+
 /**
  * =========================
  * 6) Rendering
@@ -3113,16 +3489,18 @@ function labelForSectionKey(k) {
  */
 function renderSectionButtons() {
   const tabs = $('sectionTabs');
+  const subTabs = $('subsectionTabs');
   if (isPastryMode()) {
     tabs.innerHTML = '';
     tabs.classList.add('hidden');
+    subTabs.innerHTML = '';
+    subTabs.classList.add('hidden');
     return;
   }
   tabs.classList.remove('hidden');
   tabs.innerHTML = '';
 
   const addChip = (key, label, active) => {
-    // (3) button instead of div
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'chip' + (active ? ' active' : '');
@@ -3132,10 +3510,78 @@ function renderSectionButtons() {
     tabs.appendChild(b);
   };
 
-  addChip('all', t('all'), state.activeSection === 'all');
+  // Add "Search" button only if in search mode
+  if (state.isSearchMode) {
+    const searchBtn = document.createElement('button');
+    searchBtn.type = 'button';
+    searchBtn.className = 'chip' + (state.currentDisplaySection === 'search' ? ' active' : '');
+    searchBtn.textContent = 'Search';
+    searchBtn.setAttribute('aria-pressed', state.currentDisplaySection === 'search' ? 'true' : 'false');
+    searchBtn.onclick = () => {
+      state.currentDisplaySection = 'search';
+      filterAndRender();
+    };
+    tabs.appendChild(searchBtn);
 
-  for (const secKey of state.sectionsEffective) {
-    addChip(secKey, labelForSectionKey(secKey), state.activeSection === secKey);
+    // Show all sections in search mode but not highlighted
+    for (const secKey of state.sectionsEffective) {
+      addChip(secKey, labelForSectionKey(secKey), state.currentDisplaySection === secKey);
+    }
+  } else {
+    // Normal mode: show sections and apply section filters
+    for (const secKey of state.sectionsEffective) {
+      addChip(secKey, labelForSectionKey(secKey), state.activeSection === secKey);
+    }
+  }
+
+  // Subsection row
+  let subsections = [];
+  let sectionForSubsections = '';
+  
+  if (state.isSearchMode) {
+    // In search mode: only show subsections if displaying a specific section (not 'search')
+    if (state.currentDisplaySection && state.currentDisplaySection !== 'search') {
+      sectionForSubsections = state.currentDisplaySection;
+      subsections = getSubsectionsForSection(sectionForSubsections, state.wines);
+    }
+  } else {
+    // Normal mode: show subsections based on active section
+    sectionForSubsections = state.activeSection;
+    subsections = state.activeSection
+      ? getSubsectionsForSection(state.activeSection, state.wines)
+      : [];
+  }
+
+  if (subsections.length > 1) {
+    subTabs.classList.remove('hidden');
+    subTabs.innerHTML = '';
+
+    const addSubChip = (key, label, active) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip' + (active ? ' active' : '');
+      b.textContent = label;
+      b.setAttribute('aria-pressed', active ? 'true' : 'false');
+      if (state.isSearchMode) {
+        // In search mode: clicking subsection updates display
+        b.onclick = () => {
+          state.activeSubsection = key;
+          filterAndRender();
+        };
+      } else {
+        // Normal mode: use regular setActiveSubsection
+        b.onclick = () => setActiveSubsection(key);
+      }
+      subTabs.appendChild(b);
+    };
+
+    for (const sub of subsections) {
+      const isActive = state.isSearchMode ? state.activeSubsection === sub.key : state.activeSubsection === sub.key;
+      addSubChip(sub.key, sub.label, isActive);
+    }
+  } else {
+    subTabs.innerHTML = '';
+    subTabs.classList.add('hidden');
   }
 }
 
@@ -3300,14 +3746,16 @@ function renderGrid(list) {
     }
 
     // Price line: Bottle $54 | Glass $15
-    const hasBottle = !!safe(w.priceBottle);
-    const hasGlass = !!safe(w.priceGlass);
+    const bottlePrice = getDisplayPrice(w.priceBottle);
+    const glassPrice = getDisplayPrice(w.priceGlass);
+    const hasBottle = !!bottlePrice;
+    const hasGlass = !!glassPrice;
     
     if (hasBottle || hasGlass) {
       const priceLine = document.createElement('div');
       priceLine.className = 'priceLine';
 
-      const appendPrice = (labelText, value) => {
+      const appendPrice = (labelText, displayValue) => {
         const label = document.createElement('span');
         label.className = 'label';
         label.textContent = labelText;
@@ -3317,12 +3765,12 @@ function renderGrid(list) {
 
         const valueEl = document.createElement('span');
         valueEl.className = 'value';
-        valueEl.textContent = money(value);
+        valueEl.textContent = displayValue;
         priceLine.appendChild(valueEl);
       };
 
       if (hasGlass) {
-        appendPrice('Glass', w.priceGlass);
+        appendPrice('Glass', glassPrice);
       }
 
       if (hasBottle && hasGlass) {
@@ -3333,7 +3781,7 @@ function renderGrid(list) {
       }
 
       if (hasBottle) {
-        appendPrice('Bottle', w.priceBottle);
+        appendPrice('Bottle', bottlePrice);
       }
       
       meta.appendChild(priceLine);
@@ -3373,28 +3821,70 @@ function renderGrid(list) {
     card.appendChild(btn);
     grid.appendChild(card);
   }
+
+  if (!isPastryMode()) {
+    scheduleWineNameFit();
+  }
 }
 
 function filterAndRender() {
   if (isInventoryMode()) return;
 
   let list = state.wines.slice();
+  list = list.filter(w => hasAnyDisplayPrice(w));
+
   if (state.config?.hide86) {
     list = list.filter(w => w.available);
   }
 
-  list = list.filter(w => sectionAllowed(w.sectionKey));
+    // For Pastry mode, skip wine-specific filters and render directly
+    if (isPastryMode()) {
+      renderSectionButtons();
+      renderGrid(list);
+      return;
+    }
 
-  if (state.activeSection !== 'all') {
-    list = list.filter(w => w.sectionKey === state.activeSection);
-  }
+    list = list.filter(w => sectionAllowed(w.sectionKey));
 
   const q = (state.search || '').trim().toLowerCase();
-  if (q) {
-    list = list.filter(w => {
-      const hay = w.searchHaystack || '';
-      return hay.includes(q);
-    });
+  
+  if (state.isSearchMode) {
+    // In search mode
+    if (state.currentDisplaySection === 'search') {
+      // Display search results from all sections
+      if (q) {
+        list = list.filter(w => {
+          const hay = w.searchHaystack || '';
+          return hay.includes(q);
+        });
+      }
+    } else {
+      // Display all wines from the selected section (ignore search query)
+      if (state.currentDisplaySection === BTG_KEY) {
+        list = list.filter(w => w.btg && w.btg !== 'N/A' && w.btg !== '');
+        if (state.activeSubsection) {
+          list = list.filter(w => normalizeSectionKey(w.btg) === state.activeSubsection);
+        }
+      } else if (state.currentDisplaySection) {
+        list = list.filter(w => w.sectionKey === state.currentDisplaySection);
+        if (state.activeSubsection) {
+          list = list.filter(w => w.subsectionKey === state.activeSubsection);
+        }
+      }
+    }
+  } else {
+    // Normal mode: apply section/subsection filters
+    if (state.activeSection === BTG_KEY) {
+      list = list.filter(w => w.btg && w.btg !== 'N/A' && w.btg !== '');
+      if (state.activeSubsection) {
+        list = list.filter(w => normalizeSectionKey(w.btg) === state.activeSubsection);
+      }
+    } else if (state.activeSection) {
+      list = list.filter(w => w.sectionKey === state.activeSection);
+      if (state.activeSubsection) {
+        list = list.filter(w => w.subsectionKey === state.activeSubsection);
+      }
+    }
   }
 
   if (isPastryMode()) {
@@ -3436,19 +3926,44 @@ function filterAndRender() {
 }
 
 function setActiveSection(sectionKey) {
-  const key = sectionKey || 'all';
-  if (key !== 'all' && !state.sectionsEffective.includes(key)) {
-    state.activeSection = 'all';
-  } else {
+  const key = sectionKey || '';
+  
+  // If in search mode and clicking on a section
+  if (state.isSearchMode && key) {
+    state.currentDisplaySection = key;
     state.activeSection = key;
+    state.activeSubsection = key ? (getDefaultSubsection(key) || '') : '';
+    // Don't change state.search, keep the search query active
+  } else if (!state.isSearchMode) {
+    // Normal mode: apply regular section switching logic
+    if (key && !state.sectionsEffective.includes(key)) {
+      applyDefaultSectionSelection();
+    } else {
+      state.activeSection = key;
+      state.activeSubsection = key ? (getDefaultSubsection(key) || '') : '';
+    }
   }
-  state.search = $('searchInput').value || '';
+  
+  // Only read search from input if not in search mode (to preserve search in search mode)
+  if (!state.isSearchMode) {
+    state.search = $('searchInput').value || '';
+  }
+  
   state.modalWineId = null;
   syncUrl();
   closeModal(false);
   filterAndRender();
   
   // Scroll to top when changing section
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function setActiveSubsection(subKey) {
+  state.activeSubsection = subKey || getDefaultSubsection(state.activeSection) || '';
+  syncUrl();
+  filterAndRender();
+  
+  // Scroll to top when changing subsection
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -3502,48 +4017,48 @@ function openWineModal(wineId, pushHistory = true) {
     setStatus('Wine not found', 'idle');
     return;
   }
+  if (!hasAnyDisplayPrice(w)) {
+    setStatus('Wine has no price', 'idle');
+    return;
+  }
 
   lastFocusEl = document.activeElement;
   state.modalWineId = wineId;
-
-  const top = $('modalTopText');
-  top.textContent = labelForSectionKey(w.sectionKey) + (w.available ? '' : ' • 86');
 
   const mb = $('modalBottle');
   mb.src = resolveBottleSrc(w.imageUrl);
   mb.onerror = () => { mb.src = PLACEHOLDER_BOTTLE; };
 
-  $('modalName').textContent = w.title;
-  $('modalSub').textContent = w.sub;
+  $('modalProducer').textContent = w.producer || '';
+  const nameWithVintage = [safe(w.raw?.name), safe(w.raw?.vintage)].filter(Boolean).join(' ');
+  $('modalName').textContent = nameWithVintage;
+
+  const modalVintage = $('modalVintage');
+  if (modalVintage) {
+    modalVintage.textContent = '';
+    modalVintage.style.display = 'none';
+  }
+  
+  const country = String(w.country ?? '').trim();
+  const region = String(w.region ?? '').trim();
+  const subregion = String(w.subregion ?? '').trim();
+  const locationDisplay = [country, region, subregion].filter(Boolean).join(', ');
+  $('modalCountry').textContent = locationDisplay;
+  $('modalCountry').style.display = locationDisplay ? 'block' : 'none';
+
+  $('modalRegion').textContent = '';
+  $('modalRegion').style.display = 'none';
+  
+  $('modalGrape').textContent = String(w.grape ?? '').trim();
+  $('modalGrape').style.display = String(w.grape ?? '').trim() ? 'block' : 'none';
 
   const modalPrice = $('modalPrice');
   modalPrice.innerHTML = '';
-
-  const hasBottle = !!safe(w.priceBottle);
-  const hasGlass = !!safe(w.priceGlass);
-
-  if (hasBottle) {
-    const bottleText = document.createElement('div');
-    bottleText.textContent = `Bottle · ${money(w.priceBottle)} · 750 ml`;
-    modalPrice.appendChild(bottleText);
-  }
-
-  if (hasGlass) {
-    const glassText = document.createElement('div');
-    glassText.textContent = `Glass · ${money(w.priceGlass)} · 150 ml / 5 oz`;
-    modalPrice.appendChild(glassText);
-  }
+  modalPrice.style.display = 'none';
 
   const modalChips = $('modalChips');
   modalChips.innerHTML = '';
-  const chipItems = buildCardChips(w);
-  modalChips.style.display = chipItems.length ? 'flex' : 'none';
-  for (const c of chipItems) {
-    const chip = document.createElement('div');
-    chip.className = 'chipTag';
-    chip.textContent = c;
-    modalChips.appendChild(chip);
-  }
+  modalChips.style.display = 'none';
 
   const modalProfile = $('modalProfile');
   modalProfile.innerHTML = '';
@@ -3580,7 +4095,7 @@ function openWineModal(wineId, pushHistory = true) {
     modalProfile.appendChild(row);
   }
 
-  const descText = buildShortDescription(w.description);
+  const descText = String(w.description ?? '').trim();
   const modalDesc = $('modalDesc');
   modalDesc.textContent = descText;
   modalDesc.style.display = descText ? 'block' : 'none';
@@ -3597,17 +4112,7 @@ function openWineModal(wineId, pushHistory = true) {
 
   const mn = $('modalNotes');
   mn.innerHTML = '';
-  const chips = getNoteTokensForWine(w);
-
-  if (!chips.length) mn.style.display = 'none';
-  else mn.style.display = 'flex';
-
-  for (const c of chips) {
-    const tokenData = getTokenDisplay(c, state.lang);
-    if (!tokenData || !tokenData.icon) continue;
-    const noteTag = buildNoteTag(tokenData);
-    mn.appendChild(noteTag);
-  }
+  mn.style.display = 'none';
 
   $('modalBack').style.display = 'flex';
   lockBodyScroll();
@@ -3619,6 +4124,7 @@ function openWineModal(wineId, pushHistory = true) {
   if (pushHistory) syncUrl('push');
   else syncUrl('replace');
 
+  scheduleWineNameFit();
   filterAndRender();
 }
 
@@ -3697,11 +4203,41 @@ document.addEventListener('keydown', (e) => {
  * 8) Search debounce
  * =========================
  */
+function enterSearchMode() {
+  if (!state.isSearchMode) {
+    state.isSearchMode = true;
+    // Save current section before entering search mode
+    state.sectionBeforeSearch = state.activeSection;
+    state.currentDisplaySection = 'search';
+  }
+}
+
+function exitSearchMode() {
+  if (state.isSearchMode) {
+    state.isSearchMode = false;
+    state.search = '';
+    state.currentDisplaySection = '';
+    // Go back to default section with its first subsection
+    state.activeSection = state.sectionsEffective[0] || '';
+    state.activeSubsection = state.activeSection ? (getDefaultSubsection(state.activeSection) || '') : '';
+  }
+}
+
 function onSearchDebounced() {
   syncClearButton();
   if (searchTimer) clearTimeout(searchTimer);
   searchTimer = setTimeout(() => {
     state.search = $('searchInput').value || '';
+    const q = (state.search || '').trim();
+    
+    if (q) {
+      // Enter search mode when user types
+      enterSearchMode();
+    } else {
+      // Exit search mode when search is cleared
+      exitSearchMode();
+    }
+    
     filterAndRender();
   }, 250);
 }
@@ -3715,7 +4251,7 @@ function syncClearButton() {
 function clearSearch() {
   if (searchTimer) clearTimeout(searchTimer);
   $('searchInput').value = '';
-  state.search = '';
+  exitSearchMode();
   syncClearButton();
   filterAndRender();
   $('searchInput').focus();
@@ -3872,8 +4408,10 @@ async function boot() {
     function buildSub(x) {
       const country = String(x.country ?? '').trim();
       const region = String(x.region ?? '').trim();
+      const subregion = String(x['sub-region'] ?? x.subregion ?? '').trim();
       const grape = String(x.grape ?? '').trim();
-      return [country, region, grape].filter(Boolean).join(' • ');
+      const regionDisplay = [region, subregion].filter(Boolean).join(' | ');
+      return [country, regionDisplay, grape].filter(Boolean).join(' • ');
     }
 
     state.wines = raw
@@ -3888,6 +4426,7 @@ async function boot() {
         const producer = String(x.producer ?? '').trim();
         const country = String(x.country ?? '').trim();
         const region = String(x.region ?? '').trim();
+        const subregion = String(x['sub-region'] ?? x.subregion ?? '').trim();
         const grape = String(x.grape ?? '').trim();
 
         const searchHaystack = buildSearchHaystack([
@@ -3895,11 +4434,12 @@ async function boot() {
           producer,
           country,
           region,
+          subregion,
           grape
         ]);
 
         return {
-          id: String(x.id ?? x.wine_id ?? '').trim(),
+          id: String(x['№'] ?? x.id ?? x.wine_id ?? '').trim(),
           title: buildTitle(x),
           sub: buildSub(x),
 
@@ -3909,16 +4449,21 @@ async function boot() {
           producer,
           country,
           region,
+          subregion,
           grape,
           searchHaystack,
 
-          description: String(x.story ?? '').trim(),
-          notes: String(x.notes ?? '').trim(),
+          description: String(x.story ?? x.description ?? '').trim(),
+          notes: String(x.notes ?? x.notes_profile ?? '').trim(),
           pairing: String(x.pairing ?? '').trim(),
 
           imageUrl: String(x.bottle_img ?? x.primary_image_url ?? '').trim(),
           priceGlass: x.btg_price ?? '',
           priceBottle: x.bottle_price ?? '',
+
+          subsectionKey: normalizeSectionKey(String(x['subsection_key '] ?? x.subsection_key ?? '').trim()),
+          subsectionLabel: String((x['subsection_key '] ?? x.subsection_key ?? '')).trim(),
+          btg: String(x.btg ?? '').trim(),
 
           order: toNum(x.order),
           raw: x,
@@ -3935,12 +4480,7 @@ async function boot() {
     state.sectionsEffective = computeSectionsEffective(state.wines, state.config, state.lang);
 
     const urlSection = url.section;
-    if (urlSection && urlSection !== 'all') {
-      if (state.sectionsEffective.includes(urlSection)) state.activeSection = urlSection;
-      else state.activeSection = 'all';
-    } else {
-      state.activeSection = 'all';
-    }
+    applyDefaultSectionSelection(urlSection);
 
     setStatus(t('ready'), 'good');
     syncUrl();
@@ -4020,12 +4560,7 @@ window.addEventListener('popstate', () => {
 
   showWineView();
 
-  const nextSection = url.section || 'all';
-  if (nextSection === 'all' || state.sectionsEffective.includes(nextSection)) {
-    state.activeSection = nextSection;
-  } else {
-    state.activeSection = 'all';
-  }
+  applyDefaultSectionSelection(url.section);
 
   if (url.w) {
     if (state.modalWineId !== url.w) openWineModal(url.w, false);
@@ -4037,6 +4572,11 @@ window.addEventListener('popstate', () => {
   syncClearButton();
   renderTopMenuNav();
   filterAndRender();
+});
+
+window.addEventListener('resize', () => {
+  if (isInventoryMode() || isPastryMode()) return;
+  scheduleWineNameFit();
 });
 
 boot();

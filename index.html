@@ -20,6 +20,8 @@
       --good:#2f9d6a;
       --accent:#2f9d6a;
       --accentSoft:#4CAF50;
+      --navAccent:#2F9D6A;
+      --navActiveBg:#E8F5E9;
       --track:#EFE7DE;
       --shadow:0 2px 8px rgba(0,0,0,0.06);
       --radius:16px;
@@ -43,6 +45,7 @@
       --good:#4CAF50;
       --accent:#4CAF50;
       --accentSoft:#66BB6A;
+      --navActiveBg:#1B3A1F;
       --track:#2C2C2C;
       --shadow:0 2px 8px rgba(0,0,0,0.3);
     }
@@ -66,164 +69,271 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      display:flex;
+      display:grid;
+      grid-template-columns: 1fr auto 1fr;
       align-items:center;
-      justify-content:flex-start;
-      height: 80px;
-      gap:24px;
-      padding:0 18px;
+      gap:12px;
+      padding:8px 18px;
       margin-bottom:14px;
-      border:1px solid var(--stroke);
-      background: rgba(255, 255, 255, 0.85);
-      border-radius: var(--radius);
-      box-shadow: none;
+      background:transparent;
+      border:none;
+      box-shadow:none;
     }
-    .brand{
+    .topbar::before{
+      content:"";
+      position:absolute;
+      left:50%;
+      margin-left:-50vw;
+      width:100vw;
+      top:-40px;
+      bottom:-12px;
+      z-index:-1;
+      background: rgba(247,244,238,0.35);
+      backdrop-filter: blur(6px) saturate(120%);
+      -webkit-backdrop-filter: blur(6px) saturate(120%);
+      -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 85%, transparent 100%);
+      mask-image: linear-gradient(to bottom, #000 0%, #000 85%, transparent 100%);
+      pointer-events:none;
+    }
+    [data-theme="dark"] .topbar::before{
+      background: rgba(20,20,20,0.35);
+    }
+    [data-theme="dark"] .topbarBrand,
+    [data-theme="dark"] .topbarNav,
+    [data-theme="dark"] .topbarTools{
+      background:#1c1c1e;
+      border-color:rgba(255,255,255,0.08);
+      box-shadow:0 6px 20px rgba(0,0,0,0.55);
+    }
+    [data-theme="dark"] .topMenuItem:hover:not([disabled]):not(.active),
+    [data-theme="dark"] .toolBtn:hover,
+    [data-theme="dark"] .searchField:hover:not(.expanded),
+    [data-theme="dark"] .searchClearBtn:hover{
+      background:rgba(255,255,255,0.10);
+    }
+    .topbarBrand,
+    .topbarNav,
+    .topbarTools{
+      height:64px;
+      box-sizing:border-box;
+      background: var(--chip);
+      border:1px solid var(--stroke);
+      border-radius:20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    .topbarBrand{
       display:flex;
       align-items:center;
-      gap:24px;
-      min-width:auto;
+      gap:14px;
+      justify-self:start;
+      min-width:0;
+      padding:0 18px 0 6px;
+    }
+    .topbarBrand img{
+      width:52px;
+      height:52px;
+      border-radius:14px;
+      object-fit:contain;
+      background: #F2EEE6;
+      border:none;
       flex-shrink:0;
     }
-    .brand img{
-      width:60px;
-      height:60px;
-      border-radius: 12px;
-      object-fit:contain;
-      background: #ECE7E1;
-      border:none;
-      padding:0;
-      box-sizing: border-box;
-    }
-    .brand .title{
+    .topbarBrand .title{
       display:flex;
       flex-direction:column;
       line-height:1.1;
+      min-width:0;
     }
-    .brand .title b{
-      font-size: 22px;
-      font-weight: 600;
-      color: #1D1D1F;
+    .topbarBrand .title b{
+      font-size:20px;
+      font-weight:600;
+      color: var(--text);
       letter-spacing:0.2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
-    .brand .title span{
-      font-size: 12px;
-      color: var(--muted);
-    }
-    .topMenuNav{
+    .topbarNav{
       display:flex;
       align-items:center;
-      gap:8px;
+      gap:4px;
+      justify-self:center;
+      min-width:0;
+      padding:0 6px;
       overflow-x:auto;
       scrollbar-width:none;
-      flex-shrink:0;
-      margin-right:24px;
     }
-    .topMenuNav::-webkit-scrollbar{
+    .topbarNav::-webkit-scrollbar{
       display:none;
     }
     .topMenuItem{
-      height:36px;
-      padding:0 16px;
-      border:none;
-      border-radius:999px;
-      background: transparent;
-      color:#3A3A3C;
-      font-size:16px;
-      font-weight:450;
-      display:inline-flex;
+      display:flex;
+      flex-direction:column;
       align-items:center;
       justify-content:center;
-      white-space:nowrap;
+      gap:5px;
+      min-width:66px;
+      padding:8px 14px;
+      border:none;
+      border-radius:20px;
+      background:transparent;
+      color:var(--muted);
       cursor:pointer;
       transition: background-color 180ms ease, color 180ms ease;
     }
-    .topMenuItem:hover:not([disabled]):not(.active){
-      background: rgba(0,0,0,0.04);
+    .topMenuItem .menuIcon,
+    .topMenuItem .menuIcon svg{
+      width:24px;
+      height:24px;
     }
-    .topMenuItem.active{
-      background:#EDE6DD;
-      color:#1D1D1F;
-      font-weight:500;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-    }
-    .topMenuItem[disabled]{
-      opacity:0.5;
-      cursor:not-allowed;
-    }
-    .controls{
-      display:flex;
-      align-items:center;
-      gap:16px;
-      flex-wrap:nowrap;
-      justify-content:flex-end;
-      position:relative;
-      flex-shrink:0;
-    }
-    .topbar.inventoryModeTopbar .controls{
-      margin-left:auto;
-    }
-    .searchWrap{
-      position:relative;
-      width:96px;
-      height:36px;
-      border-radius: var(--radius);
-      background:#EFEAE4;
-      border:1px solid #D5CFC7;
+    .topMenuItem .menuIcon{
       display:flex;
       align-items:center;
       justify-content:center;
+    }
+    .topMenuItem .menuLabel{
+      font-size:12px;
+      font-weight:500;
+      white-space:nowrap;
+      line-height:1;
+    }
+    .topMenuItem:hover:not([disabled]):not(.active){
+      background: var(--card);
+      color: var(--text);
+    }
+    .topMenuItem.active{
+      background:var(--navActiveBg);
+      color:var(--navAccent);
+    }
+    .topMenuItem[disabled]{
+      opacity:0.4;
+      cursor:not-allowed;
+    }
+    .topMenuItem:focus-visible{
+      outline:2px solid var(--navAccent);
+      outline-offset:2px;
+    }
+    .topbarTools{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      justify-self:end;
+      position:relative;
       padding:0 8px;
+    }
+    .toolBtn{
+      width:48px;
+      height:48px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border:none;
+      border-radius:999px;
+      background:transparent;
+      color:var(--muted);
+      font-size:20px;
+      cursor:pointer;
+      padding:0;
+      transition: background-color 150ms ease, color 150ms ease;
+    }
+    .toolBtn:hover{
+      background:var(--card);
+      color:var(--text);
+    }
+    .toolBtn:focus-visible{
+      outline:2px solid var(--navAccent);
+      outline-offset:2px;
+    }
+    .toolBtn svg{
+      width:20px;
+      height:20px;
+    }
+    .searchField{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      width:48px;
+      height:48px;
+      border-radius:999px;
+      background:transparent;
+      cursor:pointer;
+      overflow:hidden;
       box-sizing:border-box;
+      transition: width 220ms ease, background-color 150ms ease;
     }
-    .searchWrap:focus-within{
-      background:#E8E2DA;
-      border-color:#CCBDB3;
+    .searchField:hover:not(.expanded){
+      background:var(--card);
     }
-    .searchWrap #searchInput{
-      width:100%;
+    .searchField.expanded{
+      width:240px;
+      justify-content:flex-start;
+      background:transparent;
+      padding:0 8px 0 14px;
+      cursor:text;
+    }
+    .searchField:focus-visible{
+      outline:2px solid var(--navAccent);
+      outline-offset:2px;
+    }
+    .searchIco,
+    .searchIco svg{
+      width:20px;
+      height:20px;
+    }
+    .searchIco{
+      flex-shrink:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+    }
+    .searchField #searchInput{
+      flex:1;
+      min-width:0;
       height:100%;
       border:none;
       background:transparent;
       outline:none;
       color:var(--text);
-      font-size:16px;
+      font-size:15px;
       font-weight:450;
       padding:0;
       box-sizing:border-box;
       overflow:hidden;
       text-overflow:ellipsis;
       white-space:nowrap;
-      text-align:center;
     }
-    .searchWrap #searchInput::placeholder{
-      color:#8E8E93;
-      opacity:1;
-    }
-    .searchIcon{
+    .searchField:not(.expanded) #searchInput{
       display:none;
     }
-    .settingsBtn{
-      height:36px;
-      border-radius: var(--radius);
-      border:1px solid #D5CFC7;
-      background:#EFEAE4;
-      color:#6E6E73;
+    .searchField #searchInput::placeholder{
+      color:var(--muted);
+      opacity:1;
+    }
+    .searchClearBtn{
+      flex-shrink:0;
+      width:26px;
+      height:26px;
+      border:none;
+      border-radius:999px;
+      background:transparent;
+      color:var(--muted);
       font-size:16px;
-      font-weight:450;
-      display:inline-flex;
+      line-height:1;
+      display:none;
       align-items:center;
       justify-content:center;
-      padding:0 16px;
       cursor:pointer;
-      transition: background-color 120ms ease, border-color 120ms ease;
+      padding:0;
     }
-    .settingsBtn:hover{
-      background:#E8E2DA;
-      border-color:#CCBDB3;
+    .searchClearBtn:hover{
+      background:var(--card);
+      color:var(--text);
     }
-    .settingsBtn:active{
-      background:#DDD5CC;
+    .searchClearBtn:focus-visible{
+      outline:2px solid var(--navAccent);
+      outline-offset:1px;
     }
     .settingsPanel{
       position:absolute;
@@ -262,7 +372,7 @@
     }
     .btn{
       cursor:pointer;
-      border-radius: 12px;
+      border-radius: var(--radius2);
       border: 1px solid var(--stroke);
       background: var(--chip);
       color: var(--text);
@@ -272,6 +382,10 @@
     }
     .btn:hover{
       border-color: var(--stroke2);
+    }
+    .btn:focus-visible{
+      outline:2px solid var(--accent);
+      outline-offset:2px;
     }
     select, input{
       background: var(--card);
@@ -283,22 +397,6 @@
       font-size: 12px;
       min-width: 100px;
     }
-    .iconBtn{
-      cursor:pointer;
-      border-radius: 12px;
-      border: 1px solid var(--stroke);
-      background: var(--card);
-      color: var(--text);
-      padding: 6px 10px;
-      font-size: 16px;
-      line-height: 1;
-      display: none; /* hidden by default */
-    }
-    .iconBtn:hover{
-      border-color: var(--stroke2);
-    }
-
-
     .status{
       font-size: 12px;
       color: var(--muted);
@@ -322,16 +420,18 @@
 
     .tabs{
       position: sticky;
-      top: 80px;
+      top: var(--topbar-h, 80px);
       z-index: 99;
       display:flex;
       gap:10px;
       flex-wrap:wrap;
       margin: 12px 0 12px;
       padding: 12px 0;
+      background: transparent;
     }
     .subsectionTabs{
-      top: 136px;
+      top: calc(var(--topbar-h, 80px) + var(--tabs-h, 56px));
+      z-index: 98;
       margin-top: -8px;
       margin-bottom: 4px;
       padding-top: 8px;
@@ -341,10 +441,6 @@
       font-size: 11px;
       padding: 5px 10px;
       color: var(--muted2, #8A847B);
-    }
-
-    [data-theme="dark"] .topbar{
-      background: rgba(30, 30, 30, 0.85);
     }
 
     [data-theme="dark"] .card{
@@ -380,14 +476,29 @@
     }
 
     @media (max-width: 1024px){
-      .searchWrap{ width:220px; }
+      .topbar{ gap:10px; }
     }
     @media (max-width: 767px){
-      .topbar{ padding:0 18px; gap:12px; }
-      .brand{ gap:12px; }
-      .brand .title b{ font-size:18px; }
-      .topMenuItem{ font-size:16px; }
-      .searchWrap{ width:170px; }
+      .topbar{
+        grid-template-columns: 1fr auto;
+        grid-template-areas: "brand tools" "nav nav";
+        gap:8px 10px;
+        border-radius:24px;
+      }
+      .topbarBrand{ grid-area:brand; }
+      .topbarBrand img{ width:44px; height:44px; }
+      .topbarBrand .title{ display:none; }
+      .topbarTools{ grid-area:tools; }
+      .topbarNav{
+        grid-area:nav;
+        justify-self:stretch;
+        margin-left:0;
+      }
+      .topMenuItem{
+        flex:1;
+        min-width:0;
+      }
+      .searchField.expanded{ width:180px; }
     }
 
     /* chip as button (a11y) */
@@ -412,9 +523,13 @@
       color: var(--text);
     }
     .chip.active{
-      background: var(--chipActive);
-      border-color: var(--accent);
-      color: var(--accent);
+      background: var(--navActiveBg);
+      border-color: var(--navAccent);
+      color: var(--navAccent);
+    }
+    .chip:focus-visible{
+      outline:2px solid var(--navAccent);
+      outline-offset:2px;
     }
 
     .grid{
@@ -1119,6 +1234,20 @@
 
     /* ===== Start screen ===== */
     .startScreen{
+      /* Экран логина всегда в светлой теме, независимо от data-theme */
+      --bg1:#FFFFFF;
+      --bg2:#FFFFFF;
+      --card:#FFFFFF;
+      --card2:#FFFFFF;
+      --stroke:#E0E0E0;
+      --stroke2:#CCCCCC;
+      --text:#121212;
+      --muted:#666666;
+      --muted2:#999999;
+      --chip:#F5F5F5;
+      --chipActive:#E8F5E9;
+      --track:#EFE7DE;
+      --shadow:0 2px 8px rgba(0,0,0,0.06);
       position: fixed;
       inset: 0;
       display: none;
@@ -1127,6 +1256,7 @@
       padding: 24px;
       z-index: 20;
       background: var(--bg1);
+      color: var(--text);
     }
     .startCard{
       width: min(560px, 92vw);
@@ -1281,13 +1411,6 @@
       cursor: not-allowed;
       opacity: 0.5;
     }
-    :root[data-theme="dark"] .menuBtn:hover:not([disabled]){
-      background: #121212;
-      border-color: #444444;
-    }
-    :root[data-theme="dark"] .menuBtn:active:not([disabled]){
-      background: #0b0b0b;
-    }
     .formError{
       color: var(--text);
       font-size: 12px;
@@ -1358,21 +1481,25 @@
 
   <div class="wrap" id="appWrap">
     <div class="topbar">
-      <div class="brand">
+      <div class="topbarBrand">
         <img id="logo" alt="logo" src="" />
         <div class="title">
           <b id="restaurantName">HOSTERA</b>
         </div>
       </div>
 
-      <nav id="topMenuNav" class="topMenuNav" aria-label="Top menu" style="margin-left: auto;"></nav>
+      <nav id="topMenuNav" class="topbarNav" aria-label="Top menu"></nav>
 
-      <div class="controls" style="display:flex; gap:12px; align-items:center;">
-          <div class="searchWrap" id="searchWrap">
-            <input id="searchInput" placeholder="Search" aria-label="Search wines" />
-          </div>
+      <div class="topbarTools">
+        <div class="searchField" id="searchWrap" role="button" tabindex="0" aria-label="Search" aria-expanded="false">
+          <span class="searchIco" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+          </span>
+          <input id="searchInput" placeholder="Search" aria-label="Search wines" tabindex="-1" />
+          <button id="clearSearchBtn" class="searchClearBtn" type="button" title="Clear search" aria-label="Clear search">×</button>
+        </div>
 
-          <button id="settingsBtn" class="settingsBtn" type="button" title="Settings" aria-label="Settings" aria-expanded="false">⋮</button>
+        <button id="settingsBtn" class="toolBtn" type="button" title="Settings" aria-label="Settings" aria-expanded="false">⋮</button>
         <div id="settingsPanel" class="settingsPanel" aria-hidden="true">
           <button id="settingsThemeBtn" class="settingsAction" type="button">Theme</button>
           <button id="settingsBackToMenuBtn" class="settingsAction" type="button">Back to Menu</button>
@@ -1381,7 +1508,6 @@
 
         <select id="menuSelect" class="hiddenControl" title="Menu" aria-label="Menu"></select>
 
-        <button id="clearSearchBtn" class="iconBtn hiddenControl" type="button" title="Clear search" aria-label="Clear search">×</button>
         <button id="themeToggleBtn" class="btn hiddenControl" type="button" title="Toggle theme">🌙</button>
         <button id="logoutBtn" class="btn hiddenControl" type="button">Logout</button>
       </div>
@@ -1725,6 +1851,18 @@ function topMenuLabel(menu) {
   return title;
 }
 
+const MENU_ICON_SVGS = {
+  bar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16l-8 8z"/><path d="M12 13v6"/><path d="M8 21h8"/></svg>',
+  coffee: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M17 9h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M8 3v2M12 3v2"/><path d="M4 21h13"/></svg>',
+  pastry: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11h12l-1.5 9h-9z"/><path d="M5 11a7 7 0 0 1 14 0"/><path d="M12 4v1.5"/></svg>',
+  wine: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h10l-1 6a4 4 0 0 1-8 0z"/><path d="M12 15v5"/><path d="M8 20h8"/></svg>',
+};
+
+function menuIconSvg(menu) {
+  const type = String(menu?.type || '').toLowerCase();
+  return MENU_ICON_SVGS[type] || MENU_ICON_SVGS.wine;
+}
+
 function renderTopMenuNav() {
   const nav = $('topMenuNav');
   if (!nav) return;
@@ -1733,10 +1871,20 @@ function renderTopMenuNav() {
   for (const menu of state.menus || []) {
     if (isInventoryMenu(menu)) continue;
 
+    const isActive = menu.key === state.menuKey;
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = 'topMenuItem' + (menu.key === state.menuKey ? ' active' : '');
-    button.textContent = topMenuLabel(menu);
+    button.className = 'topMenuItem' + (isActive ? ' active' : '');
+    if (isActive) button.setAttribute('aria-current', 'page');
+
+    const icon = document.createElement('span');
+    icon.className = 'menuIcon';
+    icon.innerHTML = menuIconSvg(menu);
+    const label = document.createElement('span');
+    label.className = 'menuLabel';
+    label.textContent = topMenuLabel(menu);
+    button.appendChild(icon);
+    button.appendChild(label);
 
     const enabled = hasMenuCsv(menu);
     if (!enabled) {
@@ -2090,6 +2238,37 @@ function updateThemeButton(theme) {
     btn.textContent = theme === 'light' ? '🌙' : '☀️';
     btn.title = theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode';
   }
+}
+
+/**
+ * Keeps sticky offsets for section tabs in sync with the actual
+ * topbar / tabs heights, so wrapped tabs or a wrapped mobile topbar
+ * never overlap the rows below them.
+ */
+function syncStickyOffsets() {
+  const root = document.documentElement;
+  const topbar = document.querySelector('.topbar');
+  const tabs = $('sectionTabs');
+  if (topbar) {
+    root.style.setProperty('--topbar-h', Math.round(topbar.getBoundingClientRect().height) + 'px');
+  }
+  if (tabs && !tabs.classList.contains('hidden')) {
+    root.style.setProperty('--tabs-h', Math.round(tabs.getBoundingClientRect().height) + 'px');
+  } else {
+    root.style.setProperty('--tabs-h', '0px');
+  }
+}
+
+function initStickyOffsets() {
+  syncStickyOffsets();
+  if (typeof ResizeObserver !== 'undefined') {
+    const ro = new ResizeObserver(() => syncStickyOffsets());
+    const topbar = document.querySelector('.topbar');
+    const tabs = $('sectionTabs');
+    if (topbar) ro.observe(topbar);
+    if (tabs) ro.observe(tabs);
+  }
+  window.addEventListener('resize', syncStickyOffsets);
 }
 
 /**
@@ -4246,18 +4425,59 @@ $('searchInput').addEventListener('input', onSearchDebounced);
 function syncClearButton() {
   const has = !!String($('searchInput').value || '').trim();
   $('clearSearchBtn').style.display = has ? 'inline-flex' : 'none';
+  const field = $('searchWrap');
+  if (field && !has && document.activeElement !== $('searchInput')) {
+    field.classList.remove('expanded');
+    field.setAttribute('aria-expanded', 'false');
+  }
+}
+
+function expandSearch() {
+  const field = $('searchWrap');
+  if (!field) return;
+  field.classList.add('expanded');
+  field.setAttribute('aria-expanded', 'true');
+  $('searchInput').focus();
 }
 
 function clearSearch() {
   if (searchTimer) clearTimeout(searchTimer);
   $('searchInput').value = '';
   exitSearchMode();
+  $('searchInput').focus();
   syncClearButton();
   filterAndRender();
-  $('searchInput').focus();
 }
 
-$('clearSearchBtn').addEventListener('click', clearSearch);
+$('clearSearchBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  clearSearch();
+});
+
+(() => {
+  const field = $('searchWrap');
+  const input = $('searchInput');
+  if (!field || !input) return;
+  field.addEventListener('click', () => {
+    if (field.classList.contains('expanded')) input.focus();
+    else expandSearch();
+  });
+  field.addEventListener('keydown', (e) => {
+    if ((e.key === 'Enter' || e.key === ' ') && !field.classList.contains('expanded')) {
+      e.preventDefault();
+      expandSearch();
+    }
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      input.value = '';
+      exitSearchMode();
+      filterAndRender();
+      input.blur();
+    }
+  });
+  input.addEventListener('blur', () => { syncClearButton(); });
+})();
 $('themeToggleBtn').addEventListener('click', toggleTheme);
 
 /* (1) removed the duplicated input listener here */
@@ -4270,6 +4490,7 @@ $('themeToggleBtn').addEventListener('click', toggleTheme);
 async function boot() {
   try {
     initTheme();
+    initStickyOffsets();
     setStatus(t('loading'), 'idle');
     validateInventoryI18nCoverage();
 

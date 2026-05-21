@@ -543,8 +543,9 @@
       padding: 0 18px;
     }
     .grid.pastryGrid{
-      align-items: start;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: 28px;
+      row-gap: 32px;
       justify-items: center;
     }
     @media (max-width: 930px){
@@ -563,13 +564,7 @@
       .infoLabel{ font-size: 9px; }
       .infoValue{ font-size: 11px; }
 
-      .pastryCard .cardLayout{ grid-template-columns: 1fr; gap: 16px; }
-      .pastryVisualWrap{ min-height: 240px; padding: 12px; }
-      .pastryVisual{ width: 180px; height: 210px; font-size: 11px; }
-      .pastryImg{ width: 180px; height: 210px; }
-      .pastryTitle{ font-size: 20px; }
-      .pastryDescription{ font-size: 16px; min-height: 0; }
-      .pastryCard{ padding: 16px; }
+      .grid.pastryGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 680px){
       .card{ padding: 14px; }
@@ -580,13 +575,7 @@
       .name{ font-size: 12px; }
       .infoRow{ grid-template-columns: 1fr; gap: 2px; margin-bottom: 6px; }
 
-      .pastryCard .cardLayout{ grid-template-columns: 1fr; gap: 14px; }
-      .pastryVisualWrap{ width: 100%; min-height: 200px; padding: 10px; }
-      .pastryVisual{ width: 150px; height: 176px; font-size: 10px; }
-      .pastryImg{ width: 150px; height: 176px; }
-      .pastryTitle{ font-size: 18px; }
-      .pastryDescription{ font-size: 15px; min-height: 0; }
-      .pastryCard .divider{ margin: 12px 0; }
+      .grid.pastryGrid{ grid-template-columns: 1fr; }
     }
 
     .card{
@@ -704,78 +693,85 @@
       white-space: normal;
     }
     .pastryCard{
-      max-width: 560px;
+      max-width: 400px;
+      width: 100%;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
     }
-    .pastryCard .cardLayout{
-      grid-template-columns: 240px 1fr;
-      gap: 24px;
-      max-width: none;
-      margin: 0 auto;
-      align-items: start;
-    }
-    .pastryCard .meta{
-      padding-top: 0;
-    }
-    .pastryVisualWrap{
-      background: var(--bg2);
-      border: none;
-      min-height: 260px;
+    .pastryPhoto{
+      position: relative;
+      flex-shrink: 0;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      box-sizing: border-box;
       padding: 8px;
-      align-items: center;
-    }
-    .pastryImg{
-      width: 216px;
-      height: 252px;
-      object-fit: cover;
-      transform: none;
-      border-radius: var(--radius2);
-      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08));
-    }
-    .pastryVisual{
-      width: 216px;
-      height: 252px;
-      border-radius: 24px;
-      background: linear-gradient(170deg, #f7efe4 0%, #ead8c0 100%);
-      border: 1px solid #deccb1;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--stroke);
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+    .pastryImg{
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08));
+    }
+    .pastryVisual{
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(170deg, #f7efe4 0%, #ead8c0 100%);
       color: #8a5d2d;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 600;
       letter-spacing: 1px;
       text-transform: uppercase;
     }
+    [data-theme="dark"] .pastryVisual{
+      background: linear-gradient(170deg, #2a2a2c 0%, #1c1c1e 100%);
+      color: #8d8d92;
+    }
+    .pastryBody{
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 16px 18px 18px;
+    }
     .pastryTitle{
       font-weight: 600;
-      font-size: 20px;
-      letter-spacing: 0;
-      text-transform: none;
-      color: #1d1d1f;
+      font-size: 18px;
+      color: var(--text);
+      line-height: 1.25;
       margin-bottom: 6px;
-      line-height: 1.2;
     }
     .pastryDescription{
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 400;
-      color: #86868b;
-      line-height: 1.3;
-      margin-bottom: 0;
-      margin-top: 0;
-    }
-    .pastryPriceLine{
-      font-size: 16px;
-      font-weight: 600;
-      color: #1d1d1f;
+      color: var(--muted);
       line-height: 1.4;
-      margin-bottom: 0;
-      margin-top: 12px;
+      text-align: justify;
     }
-    .pastryCard .dietaryBadges{
-      margin-top: 6px;
+    .pastryFooter{
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: auto;
+      padding-top: 14px;
     }
-    .pastryCard .divider{
-      margin: 12px 0;
+    .pastryPrice{
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1;
+    }
+    .pastryFooter .dietaryBadges{
+      margin: 0;
     }
     .infoRow{
       display: grid;
@@ -878,16 +874,25 @@
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      min-width:28px;
-      height:22px;
-      padding:0 8px;
+      gap:5px;
+      height:26px;
+      padding:0 11px;
       border-radius:999px;
       border:1px solid var(--stroke);
       background: var(--chip);
       color: var(--text);
-      font-size:11px;
+      font-size:11.5px;
       font-weight:600;
       letter-spacing:0.2px;
+    }
+    .dietaryBadgeIcon{
+      display:inline-flex;
+      flex-shrink:0;
+    }
+    .dietaryBadgeIcon svg{
+      display:block;
+      width:14px;
+      height:14px;
     }
     .notes{
       display:grid;
@@ -1856,6 +1861,12 @@ const MENU_ICON_SVGS = {
   coffee: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M17 9h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M8 3v2M12 3v2"/><path d="M4 21h13"/></svg>',
   pastry: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11h12l-1.5 9h-9z"/><path d="M5 11a7 7 0 0 1 14 0"/><path d="M12 4v1.5"/></svg>',
   wine: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h10l-1 6a4 4 0 0 1-8 0z"/><path d="M12 15v5"/><path d="M8 20h8"/></svg>',
+};
+
+const DIETARY_ICON_SVGS = {
+  V: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20c0-9 6-15 15-15 0 9-6 15-15 15z"/><path d="M5 20 13 12"/></svg>',
+  VE: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-8"/><path d="M12 13c0-3.3 2.4-5.7 5.7-5.7C17.7 10.6 15.3 13 12 13z"/><path d="M12 15.5C12 12.5 10 10 6.5 10 6.5 13 8.5 15.5 12 15.5z"/></svg>',
+  GF: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><path d="M12 13 7.5 9"/><path d="M12 13 16.5 9"/><path d="M12 8.5 8 5"/><path d="M12 8.5 16 5"/><path d="M4.5 5 19.5 20"/></svg>',
 };
 
 function menuIconSvg(menu) {
@@ -2835,40 +2846,25 @@ function isPastryMode() {
   return isPastryMenu(state.menuConfig);
 }
 
-function extractPastryTitleAndBadges(rawTitle) {
-  const title = String(rawTitle || '').trim();
-  const badges = [];
-  const badgeSet = new Set(['VE', 'GF', 'V']);
-
-  const tokens = title.split(/\s+/).filter(Boolean);
-  const kept = [];
-  for (const token of tokens) {
-    const normalized = token.replace(/[^A-Za-z]/g, '').toUpperCase();
-    if (badgeSet.has(normalized)) {
-      if (!badges.includes(normalized)) badges.push(normalized);
-      continue;
-    }
-    kept.push(token);
-  }
-
-  return {
-    title: kept.join(' ').trim(),
-    badges,
-  };
-}
+const PASTRY_BADGE_LABELS = { V: 'Vegetarian', VE: 'Vegan', GF: 'Gluten-Free' };
 
 function mapPastryRow(x, idx) {
-  const rawTitle = String(x.name ?? x.title ?? '').trim();
-  const parsed = extractPastryTitleAndBadges(rawTitle);
-  const title = parsed.title || rawTitle;
+  const title = String(x['name of dish'] ?? x.name ?? x.title ?? '').trim();
   const description = String(x.description ?? '').trim();
   const rawPrice = String(x.price ?? '').replace(',', '.').trim();
   const parsedPrice = Number(rawPrice);
   const priceBottle = isFinite(parsedPrice) ? parsedPrice : '';
-  const id = String(x.id ?? x.no ?? idx + 1).trim();
+  const id = String(x['№'] ?? x.id ?? x.no ?? idx + 1).trim();
+  const imageUrl = String(x.primary_image_url ?? x.image ?? '').trim();
 
-  const rawImage = String(x.image ?? '').trim();
-  const imageUrl = rawImage ? 'assets/pastry/' + rawImage : '';
+  const badgeSet = new Set(['V', 'VE', 'GF']);
+  const badges = [];
+  for (const token of String(x.allergies ?? '').split(',')) {
+    const normalized = token.replace(/[^A-Za-z]/g, '').toUpperCase();
+    if (badgeSet.has(normalized) && !badges.includes(normalized)) {
+      badges.push(normalized);
+    }
+  }
 
   return {
     id,
@@ -2876,11 +2872,11 @@ function mapPastryRow(x, idx) {
     description,
     priceBottle,
     imageUrl,
-    badges: parsed.badges,
-    searchHaystack: buildSearchHaystack([title, description, rawPrice]),
+    badges,
+    searchHaystack: buildSearchHaystack([title, description]),
     raw: x,
-    visible: true,
-    available: true,
+    visible: toBool(x.visible),
+    available: toBool(x.is_available),
   };
 }
 
@@ -3395,7 +3391,8 @@ async function loadWinesForCurrentMenu() {
     if (isPastryMode()) {
       state.wines = raw
         .map((x, idx) => mapPastryRow(x, idx))
-        .filter((w) => w.id && w.title);
+        .filter((w) => w.id && w.title)
+        .filter((w) => w.visible);
 
       state.sectionsEffective = [];
       state.activeSection = 'all';
@@ -3774,67 +3771,49 @@ function renderGrid(list) {
       const card = document.createElement('div');
       card.className = 'card pastryCard';
 
-      const layout = document.createElement('div');
-      layout.className = 'cardLayout';
-
-      const visualWrap = document.createElement('div');
-      visualWrap.className = 'bottleWrap pastryVisualWrap';
+      const photo = document.createElement('div');
+      photo.className = 'pastryPhoto';
 
       if (w.imageUrl) {
         const img = document.createElement('img');
-        img.className = 'bottleImg pastryImg';
+        img.className = 'pastryImg';
         img.loading = 'lazy';
         img.decoding = 'async';
         img.src = w.imageUrl;
         img.alt = w.title || 'Dessert image';
-        visualWrap.appendChild(img);
+        photo.appendChild(img);
       } else {
         const visual = document.createElement('div');
         visual.className = 'pastryVisual';
         visual.textContent = 'Pastry';
-        visualWrap.appendChild(visual);
+        photo.appendChild(visual);
       }
+      card.appendChild(photo);
 
-      const meta = document.createElement('div');
-      meta.className = 'meta';
+      const body = document.createElement('div');
+      body.className = 'pastryBody';
 
       const titleEl = document.createElement('div');
       titleEl.className = 'pastryTitle';
       titleEl.textContent = safe(w.title);
-      meta.appendChild(titleEl);
+      body.appendChild(titleEl);
 
       if (safe(w.description)) {
         const desc = document.createElement('div');
         desc.className = 'pastryDescription';
         desc.textContent = w.description;
-        meta.appendChild(desc);
+        body.appendChild(desc);
       }
 
-      const dividerTop = document.createElement('div');
-      dividerTop.className = 'divider';
-      meta.appendChild(dividerTop);
+      const footer = document.createElement('div');
+      footer.className = 'pastryFooter';
 
       if (safe(w.priceBottle)) {
-        const priceLine = document.createElement('div');
-        priceLine.className = 'priceLine pastryPriceLine';
-
-        const priceLabel = document.createElement('span');
-        priceLabel.className = 'label';
-        priceLabel.textContent = 'Price';
-
         const priceValue = document.createElement('span');
-        priceValue.className = 'value';
-        priceValue.textContent = money(w.priceBottle);
-
-        priceLine.appendChild(priceLabel);
-        priceLine.appendChild(document.createTextNode(' '));
-        priceLine.appendChild(priceValue);
-        meta.appendChild(priceLine);
+        priceValue.className = 'pastryPrice';
+        priceValue.textContent = money(w.priceBottle).replace('$ ', '$');
+        footer.appendChild(priceValue);
       }
-
-      const dividerBottom = document.createElement('div');
-      dividerBottom.className = 'divider';
-      meta.appendChild(dividerBottom);
 
       if (Array.isArray(w.badges) && w.badges.length) {
         const badgesWrap = document.createElement('div');
@@ -3842,15 +3821,24 @@ function renderGrid(list) {
         for (const badge of w.badges) {
           const badgeEl = document.createElement('span');
           badgeEl.className = 'dietaryBadge';
-          badgeEl.textContent = badge;
+          const iconSvg = DIETARY_ICON_SVGS[badge];
+          if (iconSvg) {
+            const icon = document.createElement('span');
+            icon.className = 'dietaryBadgeIcon';
+            icon.innerHTML = iconSvg;
+            badgeEl.appendChild(icon);
+          }
+          const label = document.createElement('span');
+          label.textContent = PASTRY_BADGE_LABELS[badge] || badge;
+          badgeEl.appendChild(label);
           badgesWrap.appendChild(badgeEl);
         }
-        meta.appendChild(badgesWrap);
+        footer.appendChild(badgesWrap);
       }
 
-      layout.appendChild(visualWrap);
-      layout.appendChild(meta);
-      card.appendChild(layout);
+      if (footer.childNodes.length) body.appendChild(footer);
+
+      card.appendChild(body);
       grid.appendChild(card);
       continue;
     }
@@ -4608,7 +4596,8 @@ async function boot() {
     if (isPastryMode()) {
       state.wines = raw
         .map((x, idx) => mapPastryRow(x, idx))
-        .filter((w) => w.id && w.title);
+        .filter((w) => w.id && w.title)
+        .filter((w) => w.visible);
 
       state.sectionsEffective = [];
     } else {

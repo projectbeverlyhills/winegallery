@@ -65,7 +65,7 @@
       "type": "pastry",
       "layout": "list",
       "csvUrl": {
-        "en": "/winegallery/data/novikov_pastry.csv"
+        "en": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbbBsIIBl9xIRAguRXzpMczI_FdJRe-tURslWWItFsZUTFxPhVrt0RmpjdUc8kMcZh-28wO6EBRPNZ/pub?gid=148819163&single=true&output=csv"
       }
     },
     {

@@ -1863,10 +1863,14 @@ const MENU_ICON_SVGS = {
   wine: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h10l-1 6a4 4 0 0 1-8 0z"/><path d="M12 15v5"/><path d="M8 20h8"/></svg>',
 };
 
-const DIETARY_ICON_SVGS = {
+// Badge icons for the photo-card footer: V/VE/GF (pastry diet) + allergens (coffee).
+const BADGE_ICON_SVGS = {
   V: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20c0-9 6-15 15-15 0 9-6 15-15 15z"/><path d="M5 20 13 12"/></svg>',
   VE: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-8"/><path d="M12 13c0-3.3 2.4-5.7 5.7-5.7C17.7 10.6 15.3 13 12 13z"/><path d="M12 15.5C12 12.5 10 10 6.5 10 6.5 13 8.5 15.5 12 15.5z"/></svg>',
   GF: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><path d="M12 13 7.5 9"/><path d="M12 13 16.5 9"/><path d="M12 8.5 8 5"/><path d="M12 8.5 16 5"/><path d="M4.5 5 19.5 20"/></svg>',
+  DAIRY: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H15V6.5Q15 8 17.5 10V19.5Q17.5 21 16 21H8Q6.5 21 6.5 19.5V10Q9 8 9 6.5Z"/><path d="M7 13H17"/></svg>',
+  CITRUS: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 12 20.5 12M12 12 16.25 4.64M12 12 7.75 4.64M12 12 3.5 12M12 12 7.75 19.36M12 12 16.25 19.36"/></svg>',
+  MINT: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V13"/><path d="M12 13C6 13 3.5 8.5 5 4 9.5 5.5 11.5 8.5 12 13Z"/><path d="M12 13C18 13 20.5 8.5 19 4 14.5 5.5 12.5 8.5 12 13Z"/></svg>',
 };
 
 function menuIconSvg(menu) {
@@ -2838,8 +2842,12 @@ function isInventoryMode() {
   return isInventoryMenu(state.menuConfig);
 }
 
+// Pastry and Coffee share the same flat photo-card layout, row mapping and render path.
 function isPastryMenu(menu) {
-  return !!menu && (menu.key === 'pastry' || menu.type === 'pastry');
+  if (!menu) return false;
+  const key = String(menu.key || '').toLowerCase();
+  const type = String(menu.type || '').toLowerCase();
+  return key === 'pastry' || key === 'coffee' || type === 'pastry' || type === 'coffee';
 }
 
 function isPastryMode() {
@@ -2857,13 +2865,11 @@ function mapPastryRow(x, idx) {
   const id = String(x['№'] ?? x.id ?? x.no ?? idx + 1).trim();
   const imageUrl = String(x.primary_image_url ?? x.image ?? '').trim();
 
-  const badgeSet = new Set(['V', 'VE', 'GF']);
   const badges = [];
-  for (const token of String(x.allergies ?? '').split(',')) {
-    const normalized = token.replace(/[^A-Za-z]/g, '').toUpperCase();
-    if (badgeSet.has(normalized) && !badges.includes(normalized)) {
-      badges.push(normalized);
-    }
+  for (const raw of String(x.allergies ?? '').split(',')) {
+    const token = raw.trim();
+    if (!token || token.toUpperCase() === 'N/A') continue;
+    if (!badges.includes(token)) badges.push(token);
   }
 
   return {
@@ -3821,7 +3827,7 @@ function renderGrid(list) {
         for (const badge of w.badges) {
           const badgeEl = document.createElement('span');
           badgeEl.className = 'dietaryBadge';
-          const iconSvg = DIETARY_ICON_SVGS[badge];
+          const iconSvg = BADGE_ICON_SVGS[badge.toUpperCase()];
           if (iconSvg) {
             const icon = document.createElement('span');
             icon.className = 'dietaryBadgeIcon';
@@ -3829,7 +3835,7 @@ function renderGrid(list) {
             badgeEl.appendChild(icon);
           }
           const label = document.createElement('span');
-          label.textContent = PASTRY_BADGE_LABELS[badge] || badge;
+          label.textContent = PASTRY_BADGE_LABELS[badge.toUpperCase()] || badge;
           badgeEl.appendChild(label);
           badgesWrap.appendChild(badgeEl);
         }

@@ -102,7 +102,7 @@
     [data-theme="dark"] .topbarNav,
     [data-theme="dark"] .topbarTools{
       background:#1c1c1e;
-      border-color:rgba(255,255,255,0.08);
+      border-color:rgba(255,255,255,0.2);
       box-shadow:0 6px 20px rgba(0,0,0,0.55);
     }
     [data-theme="dark"] .topMenuItem:hover:not([disabled]):not(.active),
@@ -117,7 +117,7 @@
       height:64px;
       box-sizing:border-box;
       background: var(--chip);
-      border:1px solid var(--stroke);
+      border:1px solid rgba(0,0,0,0.15);
       border-radius:20px;
       box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     }
@@ -179,7 +179,7 @@
       background:transparent;
       color:var(--muted);
       cursor:pointer;
-      transition: background-color 180ms ease, color 180ms ease;
+      transition: background-color 220ms cubic-bezier(0.2, 0, 0, 1), color 220ms cubic-bezier(0.2, 0, 0, 1);
     }
     .topMenuItem .menuIcon,
     .topMenuItem .menuIcon svg{
@@ -339,33 +339,115 @@
       position:absolute;
       top: calc(100% + 8px);
       right:0;
-      min-width:150px;
-      padding:8px;
-      display:none;
+      min-width:170px;
+      padding:6px;
+      display:flex;
       flex-direction:column;
-      gap:4px;
-      border-radius:12px;
-      border:1px solid var(--stroke);
-      background: var(--card);
-      box-shadow: var(--shadow);
+      gap:2px;
+      border-radius:14px;
+      border:1px solid rgba(0,0,0,0.15);
+      background: rgba(255,255,255,0.85);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      backdrop-filter: blur(20px) saturate(180%);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08);
       z-index:120;
+      opacity:0;
+      transform: scale(0.95) translateY(-4px);
+      transform-origin: top right;
+      transition: opacity 150ms cubic-bezier(0.2, 0, 0, 1), transform 150ms cubic-bezier(0.2, 0, 0, 1);
+      pointer-events: none;
     }
     .settingsPanel.open{
-      display:flex;
+      opacity:1;
+      transform: scale(1) translateY(0);
+      pointer-events: auto;
+    }
+    [data-theme="dark"] .settingsPanel{
+      background: rgba(30,30,30,0.85);
+      border-color: rgba(255,255,255,0.2);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3);
     }
     .settingsAction{
-      height:34px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      height:38px;
+      padding:0 10px 0 12px;
       border:none;
       border-radius:8px;
       background:transparent;
       color:var(--text);
       font-size:14px;
+      font-weight:500;
       text-align:left;
-      padding:0 10px;
       cursor:pointer;
+      transition: background-color 120ms ease-out;
     }
-    .settingsAction:hover{
-      background: var(--chip);
+    .settingsAction:hover,
+    .settingsAction:focus-visible{
+      background: rgba(0,0,0,0.06);
+      outline:none;
+    }
+    [data-theme="dark"] .settingsAction:hover,
+    [data-theme="dark"] .settingsAction:focus-visible{
+      background: rgba(255,255,255,0.08);
+    }
+    .settingsActionIcon{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:18px;
+      height:18px;
+      flex-shrink:0;
+    }
+    .settingsActionIcon svg{
+      width:18px;
+      height:18px;
+      display:block;
+    }
+    .settingsThemeIcon{
+      position:relative;
+    }
+    .settingsThemeLayer{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      opacity:0;
+      transition: opacity 180ms cubic-bezier(0.2, 0, 0, 1);
+    }
+    .settingsThemeIcon.isLight .settingsThemeSun{ opacity:1; }
+    .settingsThemeIcon.isDark .settingsThemeMoon{ opacity:1; }
+    .settingsActionLabel{
+      flex:1;
+    }
+    .settingsActionValue{
+      color: var(--muted);
+      font-size:13px;
+      font-weight:500;
+    }
+    .settingsActionDestructive{
+      color:#d33b3b;
+    }
+    [data-theme="dark"] .settingsActionDestructive{
+      color:#ff5959;
+    }
+    .settingsActionDestructive:hover,
+    .settingsActionDestructive:focus-visible{
+      background: rgba(211,59,59,0.10);
+    }
+    [data-theme="dark"] .settingsActionDestructive:hover,
+    [data-theme="dark"] .settingsActionDestructive:focus-visible{
+      background: rgba(255,89,89,0.14);
+    }
+    .settingsDivider{
+      height:1px;
+      margin:6px 8px;
+      background: rgba(0,0,0,0.10);
+    }
+    [data-theme="dark"] .settingsDivider{
+      background: rgba(255,255,255,0.12);
     }
     .hiddenControl{
       display:none !important;
@@ -542,7 +624,7 @@
       margin-top: 10px;
       padding: 0 18px;
     }
-    .grid.pastryGrid{
+    .grid.photoCardGrid{
       grid-template-columns: repeat(3, minmax(0, 1fr));
       column-gap: 28px;
       row-gap: 32px;
@@ -553,9 +635,9 @@
       input{ min-width: 160px; }
 
       .card{ padding: 16px; }
-      .card:not(.pastryCard){ height: auto; }
+      .card:not(.photoCard){ height: auto; }
       .cardLayout{ grid-template-columns: 1fr; gap: 16px; }
-      .card:not(.pastryCard) .cardLayout{ width: 100%; max-width: none; }
+      .card:not(.photoCard) .cardLayout{ width: 100%; max-width: none; }
       .bottleWrap{ min-height: 180px; padding: 12px; }
       .bottleImg{ max-height: 160px; }
 
@@ -564,18 +646,18 @@
       .infoLabel{ font-size: 9px; }
       .infoValue{ font-size: 11px; }
 
-      .grid.pastryGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid.photoCardGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 680px){
       .card{ padding: 14px; }
-      .card:not(.pastryCard){ height: auto; }
+      .card:not(.photoCard){ height: auto; }
       .cardLayout{ grid-template-columns: 1fr; gap: 14px; }
       .bottleWrap{ width: 100%; min-height: 160px; padding: 10px; }
       .bottleImg{ max-height: 140px; }
       .name{ font-size: 12px; }
       .infoRow{ grid-template-columns: 1fr; gap: 2px; margin-bottom: 6px; }
 
-      .grid.pastryGrid{ grid-template-columns: 1fr; }
+      .grid.photoCardGrid{ grid-template-columns: 1fr; }
     }
 
     .card{
@@ -592,7 +674,7 @@
       overflow:hidden;
       transition: border-color 0.2s ease;
     }
-    .card:not(.pastryCard){
+    .card:not(.photoCard){
       height: auto;
     }
     .card:hover{ border-color: var(--stroke2); }
@@ -605,7 +687,7 @@
       max-width: 520px;
       margin: 0 auto;
     }
-    .card:not(.pastryCard) .cardLayout{
+    .card:not(.photoCard) .cardLayout{
       width: calc(100% - 12px);
       max-width: 424px;
       margin: 0 auto;
@@ -692,14 +774,14 @@
       margin-top: 10px;
       white-space: normal;
     }
-    .pastryCard{
+    .photoCard{
       max-width: 400px;
       width: 100%;
       padding: 0;
       display: flex;
       flex-direction: column;
     }
-    .pastryPhoto{
+    .photoCardPhoto{
       position: relative;
       flex-shrink: 0;
       width: 100%;
@@ -712,14 +794,14 @@
       align-items: center;
       justify-content: center;
     }
-    .pastryImg{
+    .photoCardImg{
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
       display: block;
       filter: drop-shadow(0 2px 8px rgba(0,0,0,0.08));
     }
-    .pastryVisual{
+    .photoCardPlaceholder{
       position: absolute;
       inset: 0;
       display: flex;
@@ -732,31 +814,41 @@
       letter-spacing: 1px;
       text-transform: uppercase;
     }
-    [data-theme="dark"] .pastryVisual{
+    [data-theme="dark"] .photoCardPlaceholder{
       background: linear-gradient(170deg, #2a2a2c 0%, #1c1c1e 100%);
       color: #8d8d92;
     }
-    .pastryBody{
+    .photoCardBody{
       flex: 1;
       display: flex;
       flex-direction: column;
       padding: 16px 18px 18px;
     }
-    .pastryTitle{
+    .photoCardHeader{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+    .photoCardTitle{
+      flex: 1;
+      min-width: 0;
       font-weight: 600;
       font-size: 18px;
       color: var(--text);
       line-height: 1.25;
-      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
     }
-    .pastryDescription{
+    .photoCardDescription{
       font-size: 14px;
       font-weight: 400;
       color: var(--muted);
       line-height: 1.4;
       text-align: justify;
     }
-    .pastryFooter{
+    .photoCardFooter{
       display: flex;
       align-items: center;
       gap: 14px;
@@ -764,13 +856,25 @@
       margin-top: auto;
       padding-top: 14px;
     }
-    .pastryPrice{
-      font-size: 18px;
+    .photoCardPrice{
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      height: 26px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: var(--chip);
+      color: var(--accent);
+      border: 1px solid rgba(0,0,0,0.15);
+      font-size: 14px;
       font-weight: 600;
-      color: var(--text);
       line-height: 1;
+      white-space: nowrap;
     }
-    .pastryFooter .dietaryBadges{
+    [data-theme="dark"] .photoCardPrice{
+      border-color: rgba(255,255,255,0.2);
+    }
+    .photoCardFooter .dietaryBadges{
       margin: 0;
     }
     .infoRow{
@@ -885,15 +989,6 @@
       font-weight:600;
       letter-spacing:0.2px;
     }
-    .dietaryBadgeIcon{
-      display:inline-flex;
-      flex-shrink:0;
-    }
-    .dietaryBadgeIcon svg{
-      display:block;
-      width:14px;
-      height:14px;
-    }
     .notes{
       display:grid;
       grid-auto-flow: column;
@@ -955,24 +1050,47 @@
     .modalBack{
       position:fixed;
       inset:0;
-      background: rgba(0,0,0,0.55);
+      background:rgba(0,0,0,0.42);
       display:none;
       align-items:center;
       justify-content:center;
-      padding: 18px;
-      z-index: 300;
+      padding:18px;
+      z-index:300;
+      backdrop-filter:blur(20px) saturate(180%);
+      -webkit-backdrop-filter:blur(20px) saturate(180%);
     }
     .modal{
       position:relative;
-      width: min(783px, 100%);
-      height: auto;
-      max-height: 88vh;
-      border-radius: 22px;
-      border: 1px solid var(--stroke);
-      background: var(--bg1);
-      box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+      width:min(783px,100%);
+      height:auto;
+      max-height:88vh;
+      border-radius:22px;
+      border:1px solid rgba(0,0,0,0.10);
+      background:var(--bg1);
+      box-shadow:
+        0 0 0 0.5px rgba(0,0,0,0.06),
+        0 8px 24px rgba(0,0,0,0.10),
+        0 32px 80px rgba(0,0,0,0.28);
       overflow:hidden;
-      color: var(--text);
+      color:var(--text);
+      opacity:0;
+      transform:scale(0.95) translateY(12px);
+      transform-origin:center 60%;
+      transition:
+        opacity 300ms cubic-bezier(0.2,0,0,1),
+        transform 300ms cubic-bezier(0.2,0,0,1);
+      will-change:opacity,transform;
+    }
+    .modalBack.open .modal{
+      opacity:1;
+      transform:scale(1) translateY(0);
+    }
+    [data-theme="dark"] .modal{
+      border-color:rgba(255,255,255,0.10);
+      box-shadow:
+        0 0 0 0.5px rgba(255,255,255,0.04),
+        0 8px 24px rgba(0,0,0,0.30),
+        0 32px 80px rgba(0,0,0,0.60);
     }
     .modal > .closeBtn{
       position:absolute;
@@ -1421,6 +1539,247 @@
       font-size: 12px;
     }
     .noteContainer { display:none; }
+
+    /* ===== Photo-card modal ===== */
+    .pcModalBack{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.42);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:300;
+      backdrop-filter:blur(20px) saturate(180%);
+      -webkit-backdrop-filter:blur(20px) saturate(180%);
+    }
+    .pcModal{
+      position:relative;
+      width:min(800px,100%);
+      border-radius:24px;
+      border:1px solid rgba(0,0,0,0.10);
+      background:var(--bg1);
+      /* Layered shadow: ambient + direct + specular rim */
+      box-shadow:
+        0 0 0 0.5px rgba(0,0,0,0.06),
+        0 8px 24px rgba(0,0,0,0.10),
+        0 32px 80px rgba(0,0,0,0.28);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      opacity:0;
+      transform:scale(0.95) translateY(12px);
+      transform-origin:center 60%;
+      transition:
+        opacity 300ms cubic-bezier(0.2,0,0,1),
+        transform 300ms cubic-bezier(0.2,0,0,1);
+      will-change:opacity,transform;
+    }
+    .pcModalBack.open .pcModal{
+      opacity:1;
+      transform:scale(1) translateY(0);
+    }
+    [data-theme="dark"] .pcModal{
+      border-color:rgba(255,255,255,0.10);
+      box-shadow:
+        0 0 0 0.5px rgba(255,255,255,0.04),
+        0 8px 24px rgba(0,0,0,0.30),
+        0 32px 80px rgba(0,0,0,0.60);
+    }
+    /* Close: circular pill, lives inside the content pane */
+    .pcModalClose{
+      position:absolute;
+      top:16px;
+      right:16px;
+      z-index:10;
+      cursor:pointer;
+      border-radius:999px;
+      border:1px solid rgba(0,0,0,0.14);
+      padding:0 16px;
+      background:rgba(255,255,255,0.82);
+      -webkit-backdrop-filter:blur(8px);
+      backdrop-filter:blur(8px);
+      color:rgba(0,0,0,0.78);
+      font-size:12px;
+      font-weight:500;
+      letter-spacing:0.1px;
+      height:32px;
+      display:inline-flex;
+      align-items:center;
+      transition:
+        background 150ms cubic-bezier(0.2,0,0,1),
+        border-color 150ms cubic-bezier(0.2,0,0,1),
+        transform 150ms cubic-bezier(0.2,0,0,1);
+    }
+    .pcModalClose:hover{
+      background:rgba(255,255,255,0.96);
+      border-color:rgba(0,0,0,0.22);
+      transform:translateY(-1px);
+    }
+    [data-theme="dark"] .pcModalClose{
+      background:rgba(40,40,40,0.82);
+      border-color:rgba(255,255,255,0.16);
+      color:rgba(255,255,255,0.82);
+    }
+    [data-theme="dark"] .pcModalClose:hover{
+      background:rgba(58,58,58,0.96);
+      border-color:rgba(255,255,255,0.26);
+    }
+    /* Layout: content column drives height, image stretches to match */
+    .pcModalLayout{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      align-items:stretch;
+      /* No fixed row height — modal height = content height */
+    }
+    /* Image pane: fills whatever height the content column needs */
+    .pcModalImgWrap{
+      position:relative;
+      background:linear-gradient(160deg,#faf7f3 0%,#f0e9de 100%);
+      border-right:1px solid rgba(0,0,0,0.07);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      overflow:hidden;
+      /* Minimum so the image never collapses on very short content */
+      min-height:280px;
+    }
+    [data-theme="dark"] .pcModalImgWrap{
+      background:linear-gradient(160deg,#1e1e1e 0%,#161616 100%);
+      border-right-color:rgba(255,255,255,0.07);
+    }
+    .pcModalImg{
+      width:100%;
+      max-height:400px;
+      object-fit:contain;
+      display:block;
+      filter:
+        drop-shadow(0 2px 6px rgba(0,0,0,0.08))
+        drop-shadow(0 12px 28px rgba(0,0,0,0.14));
+      transition:transform 300ms cubic-bezier(0.2,0,0,1);
+    }
+    .pcModalBack.open .pcModalImg{
+      transform:scale(1.015);
+    }
+    .pcModalPlaceholder{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(170deg,#f7efe4 0%,#ead8c0 100%);
+      color:#8a5d2d;
+      font-size:11px;
+      font-weight:600;
+      letter-spacing:1.5px;
+      text-transform:uppercase;
+    }
+    [data-theme="dark"] .pcModalPlaceholder{
+      background:linear-gradient(170deg,#2a2a2c 0%,#1c1c1e 100%);
+      color:#8d8d92;
+    }
+    .pcModalContent{
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-start;
+      padding:24px 24px 24px 26px;
+      overflow-y:auto;
+      scrollbar-width:thin;
+      gap:0;
+    }
+    /* Title + price block */
+    .pcModalTop{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      padding-right:56px;
+      margin-bottom:0;
+    }
+    .pcModalTitle{
+      font-size:20px;
+      font-weight:600;
+      color:var(--text);
+      line-height:1.25;
+      letter-spacing:-0.3px;
+      margin:0;
+      white-space:normal;
+      word-break:break-word;
+    }
+    .pcModalPrice{
+      display:inline-flex;
+      align-items:center;
+      height:26px;
+      padding:0 12px;
+      border-radius:999px;
+      /* Warm tint echoes accent without going full chip-grey */
+      background:color-mix(in srgb,var(--accent) 8%,var(--chip) 92%);
+      color:var(--accent);
+      border:1px solid color-mix(in srgb,var(--accent) 22%,transparent);
+      font-size:13px;
+      font-weight:600;
+      letter-spacing:0.1px;
+      align-self:flex-start;
+    }
+    [data-theme="dark"] .pcModalPrice{
+      background:color-mix(in srgb,var(--accent) 14%,#1c1c1e 86%);
+      border-color:color-mix(in srgb,var(--accent) 30%,transparent);
+    }
+    .pcModalDivider{
+      width:100%;
+      height:1px;
+      background:linear-gradient(90deg,transparent,var(--stroke) 8%,var(--stroke) 92%,transparent);
+      margin:18px 0 16px;
+      flex-shrink:0;
+      opacity:0.7;
+    }
+    .pcModalDesc{
+      font-size:14px;
+      line-height:1.6;
+      color:color-mix(in srgb,var(--text) 68%,var(--muted) 32%);
+      text-align:left;
+      -webkit-hyphens:auto;
+      hyphens:auto;
+      flex:0 0 auto;
+    }
+    .pcModalBadges{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      margin-top:14px;
+      flex-shrink:0;
+    }
+    @media(max-width:640px){
+      .pcModalBack{ padding:0; align-items:flex-end; backdrop-filter:blur(12px) saturate(160%); -webkit-backdrop-filter:blur(12px) saturate(160%); }
+      .pcModal{
+        width:100%;
+        max-height:92vh;
+        border-radius:20px 20px 0 0;
+        transform-origin:center bottom;
+      }
+      .pcModalLayout{
+        grid-template-columns:1fr;
+      }
+      .pcModalImgWrap{
+        border-right:none;
+        border-bottom:1px solid rgba(0,0,0,0.07);
+        padding:12px;
+        min-height:54vw;
+      }
+      .pcModalContent{
+        padding:18px 18px 20px;
+        max-height:46vh;
+      }
+      .pcModalTop{ padding-right:52px; }
+      .pcModalTitle{ font-size:17px; letter-spacing:-0.2px; }
+    }
+
+    /* Clickable photo-card */
+    .photoCard{ cursor:pointer; }
+    .photoCard:hover .photoCardPhoto{ opacity:0.92; }
+    .photoCard:active{ transform:scale(0.984); }
+    .photoCard{ transition:transform 140ms cubic-bezier(0.2,0,0,1); }
+
     @media (max-width: 900px){
       .modalBody{
         grid-template-columns: 1fr;
@@ -1505,10 +1864,24 @@
         </div>
 
         <button id="settingsBtn" class="toolBtn" type="button" title="Settings" aria-label="Settings" aria-expanded="false">⋮</button>
-        <div id="settingsPanel" class="settingsPanel" aria-hidden="true">
-          <button id="settingsThemeBtn" class="settingsAction" type="button">Theme</button>
-          <button id="settingsBackToMenuBtn" class="settingsAction" type="button">Back to Menu</button>
-          <button id="settingsLogoutBtn" class="settingsAction" type="button">Logout</button>
+        <div id="settingsPanel" class="settingsPanel" aria-hidden="true" role="menu">
+          <button id="settingsThemeBtn" class="settingsAction" type="button" role="menuitem">
+            <span class="settingsActionIcon settingsThemeIcon" id="settingsThemeIcon">
+              <span class="settingsThemeLayer settingsThemeSun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2 M12 20v2 M2 12h2 M20 12h2"/><path d="M4.93 4.93l1.41 1.41 M17.66 17.66l1.41 1.41 M4.93 19.07l1.41-1.41 M17.66 6.34l1.41-1.41"/></svg></span>
+              <span class="settingsThemeLayer settingsThemeMoon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+            </span>
+            <span class="settingsActionLabel">Theme</span>
+            <span class="settingsActionValue" id="settingsThemeValue"></span>
+          </button>
+          <button id="settingsBackToMenuBtn" class="settingsAction" type="button" role="menuitem">
+            <span class="settingsActionIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+            <span class="settingsActionLabel">Back to Menu</span>
+          </button>
+          <div class="settingsDivider" role="separator"></div>
+          <button id="settingsLogoutBtn" class="settingsAction settingsActionDestructive" type="button" role="menuitem">
+            <span class="settingsActionIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+            <span class="settingsActionLabel">Logout</span>
+          </button>
         </div>
 
         <select id="menuSelect" class="hiddenControl" title="Menu" aria-label="Menu"></select>
@@ -1549,6 +1922,27 @@
           <div class="modalSectionDivider afterProfile" aria-hidden="true"></div>
           <div class="desc" id="modalDesc"></div>
           <div class="pairing" id="modalPairing" style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pcModalBack" id="pcModalBack" aria-hidden="true">
+    <div class="pcModal" role="dialog" aria-modal="true" aria-labelledby="pcModalTitle" tabindex="-1">
+      <button class="pcModalClose" id="pcModalClose" aria-label="Close">Close</button>
+      <div class="pcModalLayout">
+        <div class="pcModalImgWrap">
+          <img class="pcModalImg" id="pcModalImg" alt="" src="" />
+          <div class="pcModalPlaceholder" id="pcModalPlaceholder"></div>
+        </div>
+        <div class="pcModalContent">
+          <div class="pcModalTop">
+            <div class="pcModalTitle" id="pcModalTitle"></div>
+            <span class="pcModalPrice" id="pcModalPrice"></span>
+          </div>
+          <div class="pcModalDivider" id="pcModalDivider"></div>
+          <div class="pcModalDesc" id="pcModalDesc"></div>
+          <div class="pcModalBadges" id="pcModalBadges"></div>
         </div>
       </div>
     </div>
@@ -1863,16 +2257,6 @@ const MENU_ICON_SVGS = {
   wine: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h10l-1 6a4 4 0 0 1-8 0z"/><path d="M12 15v5"/><path d="M8 20h8"/></svg>',
 };
 
-// Badge icons for the photo-card footer: V/VE/GF (pastry diet) + allergens (coffee).
-const BADGE_ICON_SVGS = {
-  V: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20c0-9 6-15 15-15 0 9-6 15-15 15z"/><path d="M5 20 13 12"/></svg>',
-  VE: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-8"/><path d="M12 13c0-3.3 2.4-5.7 5.7-5.7C17.7 10.6 15.3 13 12 13z"/><path d="M12 15.5C12 12.5 10 10 6.5 10 6.5 13 8.5 15.5 12 15.5z"/></svg>',
-  GF: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><path d="M12 13 7.5 9"/><path d="M12 13 16.5 9"/><path d="M12 8.5 8 5"/><path d="M12 8.5 16 5"/><path d="M4.5 5 19.5 20"/></svg>',
-  DAIRY: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H15V6.5Q15 8 17.5 10V19.5Q17.5 21 16 21H8Q6.5 21 6.5 19.5V10Q9 8 9 6.5Z"/><path d="M7 13H17"/></svg>',
-  CITRUS: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 12 20.5 12M12 12 16.25 4.64M12 12 7.75 4.64M12 12 3.5 12M12 12 7.75 19.36M12 12 16.25 19.36"/></svg>',
-  MINT: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V13"/><path d="M12 13C6 13 3.5 8.5 5 4 9.5 5.5 11.5 8.5 12 13Z"/><path d="M12 13C18 13 20.5 8.5 19 4 14.5 5.5 12.5 8.5 12 13Z"/></svg>',
-};
-
 function menuIconSvg(menu) {
   const type = String(menu?.type || '').toLowerCase();
   return MENU_ICON_SVGS[type] || MENU_ICON_SVGS.wine;
@@ -1881,15 +2265,31 @@ function menuIconSvg(menu) {
 function renderTopMenuNav() {
   const nav = $('topMenuNav');
   if (!nav) return;
+
+  const menus = (state.menus || []).filter(m => !isInventoryMenu(m));
+  const existing = nav.querySelectorAll('.topMenuItem');
+  const canPatch = existing.length === menus.length &&
+    Array.from(existing).every((btn, i) => btn.dataset.menuKey === menus[i].key);
+
+  if (canPatch) {
+    // Same buttons, just toggle .active — preserves DOM nodes so CSS transitions fire.
+    existing.forEach((btn, i) => {
+      const isActive = menus[i].key === state.menuKey;
+      btn.classList.toggle('active', isActive);
+      if (isActive) btn.setAttribute('aria-current', 'page');
+      else btn.removeAttribute('aria-current');
+    });
+    return;
+  }
+
   nav.innerHTML = '';
 
-  for (const menu of state.menus || []) {
-    if (isInventoryMenu(menu)) continue;
-
+  for (const menu of menus) {
     const isActive = menu.key === state.menuKey;
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'topMenuItem' + (isActive ? ' active' : '');
+    button.dataset.menuKey = menu.key;
     if (isActive) button.setAttribute('aria-current', 'page');
 
     const icon = document.createElement('span');
@@ -1941,6 +2341,16 @@ function goBackToMenuSelection() {
   writeUrlParams({ menu: null, w: null, section: null }, 'push');
 }
 
+function updateSettingsThemeIndicator() {
+  const iconEl = $('settingsThemeIcon');
+  const valueEl = $('settingsThemeValue');
+  if (!iconEl || !valueEl) return;
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  iconEl.classList.toggle('isDark', isDark);
+  iconEl.classList.toggle('isLight', !isDark);
+  valueEl.textContent = isDark ? 'Dark' : 'Light';
+}
+
 function bindSettingsMenu() {
   if (settingsMenuBound) return;
 
@@ -1951,6 +2361,8 @@ function bindSettingsMenu() {
   const settingsLogoutBtn = $('settingsLogoutBtn');
   if (!settingsBtn || !settingsPanel || !settingsThemeBtn || !settingsBackToMenuBtn || !settingsLogoutBtn) return;
 
+  updateSettingsThemeIndicator();
+
   settingsBtn.addEventListener('click', (e) => {
     e.preventDefault();
     const isOpen = settingsPanel.classList.contains('open');
@@ -1958,6 +2370,7 @@ function bindSettingsMenu() {
       closeSettingsMenu();
       return;
     }
+    updateSettingsThemeIndicator();
     settingsPanel.classList.add('open');
     settingsPanel.setAttribute('aria-hidden', 'false');
     settingsBtn.setAttribute('aria-expanded', 'true');
@@ -1965,7 +2378,7 @@ function bindSettingsMenu() {
 
   settingsThemeBtn.addEventListener('click', () => {
     toggleTheme();
-    closeSettingsMenu();
+    updateSettingsThemeIndicator();
   });
 
   settingsBackToMenuBtn.addEventListener('click', () => {
@@ -2108,13 +2521,13 @@ function fitSingleLineElements(elements, maxFont, preferredMin, floorMin) {
 function fitWineNameSingleLine() {
   const isMobile = window.matchMedia('(max-width: 767px)').matches;
   fitSingleLineElements(
-    document.querySelectorAll('#grid .card:not(.pastryCard) .titleWine'),
+    document.querySelectorAll('#grid .card:not(.photoCard) .titleWine'),
     16,
     isMobile ? 10 : 11,
     8
   );
   fitSingleLineElements(
-    document.querySelectorAll('#grid .card:not(.pastryCard) .titleProducer'),
+    document.querySelectorAll('#grid .card:not(.photoCard) .titleProducer'),
     16,
     isMobile ? 10 : 11,
     8
@@ -2141,6 +2554,24 @@ function scheduleWineNameFit() {
   wineNameFitRaf = requestAnimationFrame(() => {
     wineNameFitRaf = null;
     fitWineNameSingleLine();
+  });
+}
+
+function fitPhotoCardTitles() {
+  fitSingleLineElements(
+    document.querySelectorAll('#grid .photoCard .photoCardTitle'),
+    18,
+    13,
+    11
+  );
+}
+
+let photoCardTitleFitRaf = null;
+function schedulePhotoCardTitleFit() {
+  if (photoCardTitleFitRaf) cancelAnimationFrame(photoCardTitleFitRaf);
+  photoCardTitleFitRaf = requestAnimationFrame(() => {
+    photoCardTitleFitRaf = null;
+    fitPhotoCardTitles();
   });
 }
 
@@ -2854,9 +3285,19 @@ function isPastryMode() {
   return isPastryMenu(state.menuConfig);
 }
 
-const PASTRY_BADGE_LABELS = { V: 'Vegetarian', VE: 'Vegan', GF: 'Gluten-Free' };
+// Photo-card layout covers Pastry, Coffee and Bar. Pastry/Coffee are flat (no sections);
+// Bar adds section tabs on top, otherwise same card design and row mapping.
+function isPhotoCardMenu(menu) {
+  if (!menu) return false;
+  const key = String(menu.key || '').toLowerCase();
+  const type = String(menu.type || '').toLowerCase();
+  return key === 'pastry' || key === 'coffee' || key === 'bar'
+      || type === 'pastry' || type === 'coffee' || type === 'bar';
+}
 
-function mapPastryRow(x, idx) {
+const DIET_BADGE_LABELS = { V: 'Vegetarian', VE: 'Vegan', GF: 'Gluten-Free' };
+
+function mapPhotoCardRow(x, idx) {
   const title = String(x['name of dish'] ?? x.name ?? x.title ?? '').trim();
   const description = String(x.description ?? '').trim();
   const rawPrice = String(x.price ?? '').replace(',', '.').trim();
@@ -2864,6 +3305,10 @@ function mapPastryRow(x, idx) {
   const priceBottle = isFinite(parsedPrice) ? parsedPrice : '';
   const id = String(x['№'] ?? x.id ?? x.no ?? idx + 1).trim();
   const imageUrl = String(x.primary_image_url ?? x.image ?? '').trim();
+
+  const sectionRaw = String(x.section_key ?? x.section ?? '').trim();
+  const section = sectionRaw.replace(/\b\w/g, c => c.toUpperCase());
+  const sectionKey = normalizeSectionKey(sectionRaw);
 
   const badges = [];
   for (const raw of String(x.allergies ?? '').split(',')) {
@@ -2879,6 +3324,8 @@ function mapPastryRow(x, idx) {
     priceBottle,
     imageUrl,
     badges,
+    section,
+    sectionKey,
     searchHaystack: buildSearchHaystack([title, description]),
     raw: x,
     visible: toBool(x.visible),
@@ -3394,14 +3841,19 @@ async function loadWinesForCurrentMenu() {
     
     const raw = csvToObjects(csvText);
 
-    if (isPastryMode()) {
+    if (isPhotoCardMenu(state.menuConfig)) {
       state.wines = raw
-        .map((x, idx) => mapPastryRow(x, idx))
+        .map((x, idx) => mapPhotoCardRow(x, idx))
         .filter((w) => w.id && w.title)
         .filter((w) => w.visible);
 
-      state.sectionsEffective = [];
-      state.activeSection = 'all';
+      if (isPastryMode()) {
+        state.sectionsEffective = [];
+        state.activeSection = 'all';
+      } else {
+        state.sectionsEffective = computeSectionsEffective(state.wines, state.config, state.lang);
+        applyDefaultSectionSelection();
+      }
 
       setStatus(t('ready'), 'good');
       filterAndRender();
@@ -3770,19 +4222,19 @@ function renderSectionButtons() {
 function renderGrid(list) {
   const grid = $('grid');
   grid.innerHTML = '';
-  grid.classList.toggle('pastryGrid', isPastryMode());
+  grid.classList.toggle('photoCardGrid', isPhotoCardMenu(state.menuConfig));
 
   for (const w of list) {
-    if (isPastryMode()) {
+    if (isPhotoCardMenu(state.menuConfig)) {
       const card = document.createElement('div');
-      card.className = 'card pastryCard';
+      card.className = 'card photoCard';
 
       const photo = document.createElement('div');
-      photo.className = 'pastryPhoto';
+      photo.className = 'photoCardPhoto';
 
       if (w.imageUrl) {
         const img = document.createElement('img');
-        img.className = 'pastryImg';
+        img.className = 'photoCardImg';
         img.loading = 'lazy';
         img.decoding = 'async';
         img.src = w.imageUrl;
@@ -3790,61 +4242,40 @@ function renderGrid(list) {
         photo.appendChild(img);
       } else {
         const visual = document.createElement('div');
-        visual.className = 'pastryVisual';
-        visual.textContent = 'Pastry';
+        visual.className = 'photoCardPlaceholder';
+        visual.textContent = state.menuConfig?.title || '';
         photo.appendChild(visual);
       }
       card.appendChild(photo);
 
       const body = document.createElement('div');
-      body.className = 'pastryBody';
+      body.className = 'photoCardBody';
+
+      const header = document.createElement('div');
+      header.className = 'photoCardHeader';
 
       const titleEl = document.createElement('div');
-      titleEl.className = 'pastryTitle';
+      titleEl.className = 'photoCardTitle';
       titleEl.textContent = safe(w.title);
-      body.appendChild(titleEl);
-
-      if (safe(w.description)) {
-        const desc = document.createElement('div');
-        desc.className = 'pastryDescription';
-        desc.textContent = w.description;
-        body.appendChild(desc);
-      }
-
-      const footer = document.createElement('div');
-      footer.className = 'pastryFooter';
+      header.appendChild(titleEl);
 
       if (safe(w.priceBottle)) {
         const priceValue = document.createElement('span');
-        priceValue.className = 'pastryPrice';
+        priceValue.className = 'photoCardPrice';
         priceValue.textContent = money(w.priceBottle).replace('$ ', '$');
-        footer.appendChild(priceValue);
+        header.appendChild(priceValue);
       }
-
-      if (Array.isArray(w.badges) && w.badges.length) {
-        const badgesWrap = document.createElement('div');
-        badgesWrap.className = 'dietaryBadges';
-        for (const badge of w.badges) {
-          const badgeEl = document.createElement('span');
-          badgeEl.className = 'dietaryBadge';
-          const iconSvg = BADGE_ICON_SVGS[badge.toUpperCase()];
-          if (iconSvg) {
-            const icon = document.createElement('span');
-            icon.className = 'dietaryBadgeIcon';
-            icon.innerHTML = iconSvg;
-            badgeEl.appendChild(icon);
-          }
-          const label = document.createElement('span');
-          label.textContent = PASTRY_BADGE_LABELS[badge.toUpperCase()] || badge;
-          badgeEl.appendChild(label);
-          badgesWrap.appendChild(badgeEl);
-        }
-        footer.appendChild(badgesWrap);
-      }
-
-      if (footer.childNodes.length) body.appendChild(footer);
+      body.appendChild(header);
 
       card.appendChild(body);
+
+      card.addEventListener('click', () => openPhotoCardModal(w));
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPhotoCardModal(w); }
+      });
+
       grid.appendChild(card);
       continue;
     }
@@ -3995,7 +4426,9 @@ function renderGrid(list) {
     grid.appendChild(card);
   }
 
-  if (!isPastryMode()) {
+  if (isPhotoCardMenu(state.menuConfig)) {
+    schedulePhotoCardTitleFit();
+  } else {
     scheduleWineNameFit();
   }
 }
@@ -4061,38 +4494,35 @@ function filterAndRender() {
   }
 
   if (isPastryMode()) {
-    list.sort((a, b) => {
-      const priceA = Number(a.priceBottle) || 0;
-      const priceB = Number(b.priceBottle) || 0;
-      return priceA - priceB;
-    });
-
+    // Data order (sheet order by №) — curated by restaurateur, not price.
     renderSectionButtons();
     renderGrid(list);
     return;
   }
 
-  // Sort by section order and then by price (ascending)
-  const sectionOrder = ['sparkling', 'champagne', 'white', 'rose', 'red', 'dessert'];
-  list.sort((a, b) => {
-    const sectionA = String(a.sectionKey || '').toLowerCase();
-    const sectionB = String(b.sectionKey || '').toLowerCase();
-    
-    const orderA = sectionOrder.indexOf(sectionA);
-    const orderB = sectionOrder.indexOf(sectionB);
-    
-    const indexA = orderA >= 0 ? orderA : 999;
-    const indexB = orderB >= 0 ? orderB : 999;
-    
-    if (indexA !== indexB) {
-      return indexA - indexB;
-    }
-    
-    // Within same section, sort by price (ascending)
-    const priceA = Number(a.priceBottle) || 0;
-    const priceB = Number(b.priceBottle) || 0;
-    return priceA - priceB;
-  });
+  // Wine sorts by section order and then by price; photo-card menus (Bar) respect sheet order.
+  if (!isPhotoCardMenu(state.menuConfig)) {
+    const sectionOrder = ['sparkling', 'champagne', 'white', 'rose', 'red', 'dessert'];
+    list.sort((a, b) => {
+      const sectionA = String(a.sectionKey || '').toLowerCase();
+      const sectionB = String(b.sectionKey || '').toLowerCase();
+
+      const orderA = sectionOrder.indexOf(sectionA);
+      const orderB = sectionOrder.indexOf(sectionB);
+
+      const indexA = orderA >= 0 ? orderA : 999;
+      const indexB = orderB >= 0 ? orderB : 999;
+
+      if (indexA !== indexB) {
+        return indexA - indexB;
+      }
+
+      // Within same section, sort by price (ascending)
+      const priceA = Number(a.priceBottle) || 0;
+      const priceB = Number(b.priceBottle) || 0;
+      return priceA - priceB;
+    });
+  }
 
   renderSectionButtons();
   renderGrid(list);
@@ -4179,7 +4609,7 @@ function unlockBodyScroll() {
 }
 
 function openWineModal(wineId, pushHistory = true) {
-  if (isPastryMode()) {
+  if (isPhotoCardMenu(state.menuConfig)) {
     state.modalWineId = null;
     writeUrlParams({ w: null }, 'replace');
     return;
@@ -4287,12 +4717,14 @@ function openWineModal(wineId, pushHistory = true) {
   mn.innerHTML = '';
   mn.style.display = 'none';
 
-  $('modalBack').style.display = 'flex';
+  const modalBack = $('modalBack');
+  modalBack.style.display = 'flex';
   lockBodyScroll();
 
-  setTimeout(() => {
-    $('closeModalBtn').focus();
-  }, 0);
+  requestAnimationFrame(() => {
+    modalBack.classList.add('open');
+    setTimeout(() => { $('closeModalBtn').focus(); }, 50);
+  });
 
   if (pushHistory) syncUrl('push');
   else syncUrl('replace');
@@ -4302,8 +4734,9 @@ function openWineModal(wineId, pushHistory = true) {
 }
 
 function closeModal(sync=true) {
-  const wasOpen = $('modalBack').style.display === 'flex';
-  $('modalBack').style.display = 'none';
+  const back = $('modalBack');
+  const wasOpen = back.style.display === 'flex';
+  back.classList.remove('open');
   unlockBodyScroll();
 
   if (sync) {
@@ -4314,6 +4747,7 @@ function closeModal(sync=true) {
   if (!wasOpen) return;
 
   setTimeout(() => {
+    back.style.display = 'none';
     if (lastFocusEl && typeof lastFocusEl.focus === 'function') {
       lastFocusEl.focus();
     } else {
@@ -4321,13 +4755,107 @@ function closeModal(sync=true) {
       if (si) si.focus();
     }
     lastFocusEl = null;
-  }, 0);
+  }, 310);
 }
 
 $('modalBack').addEventListener('click', (e) => {
   if (e.target === $('modalBack')) closeModal(true);
 });
 $('closeModalBtn').addEventListener('click', () => closeModal(true));
+
+/* ===== Photo-card modal ===== */
+let pcLastFocusEl = null;
+
+function openPhotoCardModal(item) {
+  pcLastFocusEl = document.activeElement;
+
+  const img = $('pcModalImg');
+  const placeholder = $('pcModalPlaceholder');
+
+  if (item.imageUrl) {
+    img.src = item.imageUrl;
+    img.alt = item.title || '';
+    img.style.display = 'block';
+    placeholder.style.display = 'none';
+  } else {
+    img.src = '';
+    img.style.display = 'none';
+    placeholder.textContent = state.menuConfig?.title || '';
+    placeholder.style.display = 'flex';
+  }
+
+  $('pcModalTitle').textContent = safe(item.title);
+
+  const priceEl = $('pcModalPrice');
+  const priceStr = safe(item.priceBottle) ? money(item.priceBottle).replace('$ ', '$') : '';
+  if (priceStr) {
+    priceEl.textContent = priceStr;
+    priceEl.style.display = 'inline-flex';
+  } else {
+    priceEl.style.display = 'none';
+  }
+
+  const descEl = $('pcModalDesc');
+  const dividerEl = $('pcModalDivider');
+  const descText = safe(item.description).trim();
+  if (descText) {
+    descEl.textContent = descText;
+    descEl.style.display = 'block';
+    dividerEl.style.display = 'block';
+  } else {
+    descEl.style.display = 'none';
+    dividerEl.style.display = 'none';
+  }
+
+  const badgesEl = $('pcModalBadges');
+  badgesEl.innerHTML = '';
+  if (Array.isArray(item.badges) && item.badges.length) {
+    for (const badge of item.badges) {
+      const b = document.createElement('span');
+      b.className = 'dietaryBadge';
+      b.textContent = DIET_BADGE_LABELS[badge.toUpperCase()] || badge;
+      badgesEl.appendChild(b);
+    }
+    badgesEl.style.display = 'flex';
+  } else {
+    badgesEl.style.display = 'none';
+  }
+
+  const back = $('pcModalBack');
+  back.style.display = 'flex';
+  back.removeAttribute('aria-hidden');
+  lockBodyScroll();
+
+  requestAnimationFrame(() => {
+    back.classList.add('open');
+    setTimeout(() => { $('pcModalClose').focus(); }, 50);
+  });
+}
+
+function closePhotoCardModal() {
+  const back = $('pcModalBack');
+  back.classList.remove('open');
+  back.setAttribute('aria-hidden', 'true');
+  unlockBodyScroll();
+  setTimeout(() => {
+    back.style.display = 'none';
+  }, 270);
+  if (pcLastFocusEl && typeof pcLastFocusEl.focus === 'function') {
+    pcLastFocusEl.focus();
+    pcLastFocusEl = null;
+  }
+}
+
+$('pcModalClose').addEventListener('click', closePhotoCardModal);
+$('pcModalBack').addEventListener('click', (e) => {
+  if (e.target === $('pcModalBack')) closePhotoCardModal();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && $('pcModalBack').classList.contains('open')) {
+    e.preventDefault();
+    closePhotoCardModal();
+  }
+});
 
 function isModalOpen() {
   return $('modalBack').style.display === 'flex';
@@ -4599,9 +5127,9 @@ async function boot() {
     const csvText = await loadCSV(csvUrl);
     const raw = csvToObjects(csvText);
 
-    if (isPastryMode()) {
+    if (isPhotoCardMenu(state.menuConfig)) {
       state.wines = raw
-        .map((x, idx) => mapPastryRow(x, idx))
+        .map((x, idx) => mapPhotoCardRow(x, idx))
         .filter((w) => w.id && w.title)
         .filter((w) => w.visible);
 
@@ -4720,7 +5248,7 @@ async function boot() {
   if (!sample) {
     console.warn('[WineGallery] No wines after mapping/filters. Check visible/is_available and required fields.');
   } else {
-    if (isPastryMode()) return;
+    if (isPhotoCardMenu(state.menuConfig)) return;
 
     const required = ['id','title','section','sectionKey','style','description','notes','imageUrl','priceBottle','priceGlass'];
     const missing = required.filter(k => !(k in sample));
@@ -4791,8 +5319,12 @@ window.addEventListener('popstate', () => {
 });
 
 window.addEventListener('resize', () => {
-  if (isInventoryMode() || isPastryMode()) return;
-  scheduleWineNameFit();
+  if (isInventoryMode()) return;
+  if (isPhotoCardMenu(state.menuConfig)) {
+    schedulePhotoCardTitleFit();
+  } else {
+    scheduleWineNameFit();
+  }
 });
 
 boot();

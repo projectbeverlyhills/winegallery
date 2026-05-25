@@ -4437,14 +4437,18 @@ function filterAndRender() {
   if (isInventoryMode()) return;
 
   let list = state.wines.slice();
-  list = list.filter(w => hasAnyDisplayPrice(w));
+  const isPhotoCard = isPhotoCardMenu(state.menuConfig);
+
+  if (!isPhotoCard) {
+    list = list.filter(w => hasAnyDisplayPrice(w));
+  }
 
   if (state.config?.hide86) {
     list = list.filter(w => w.available);
   }
 
-    // For Pastry mode, skip wine-specific filters and render directly
-    if (isPastryMode()) {
+    // For photo-card menus (Pastry, Coffee, Bar), skip wine-specific filters and render directly
+    if (isPhotoCard) {
       renderSectionButtons();
       renderGrid(list);
       return;
@@ -4491,13 +4495,6 @@ function filterAndRender() {
         list = list.filter(w => w.subsectionKey === state.activeSubsection);
       }
     }
-  }
-
-  if (isPastryMode()) {
-    // Data order (sheet order by №) — curated by restaurateur, not price.
-    renderSectionButtons();
-    renderGrid(list);
-    return;
   }
 
   // Wine sorts by section order and then by price; photo-card menus (Bar) respect sheet order.

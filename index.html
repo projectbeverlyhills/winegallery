@@ -52,6 +52,9 @@
     *{
       font-family: var(--font);
     }
+    html.smoothScroll{
+      scroll-behavior: smooth;
+    }
     body{
       margin:0;
       background: var(--bg1);
@@ -2310,7 +2313,7 @@ function goBackToMenuSelection() {
   state.menuConfig = null;
   state.activeSection = '';
   state.activeSubsection = '';
-  closeModal(false);
+  closeModal(false, false);
   state.modalWineId = null;
   writeUrlParams({ menu: null, w: null, section: null }, 'push');
 
@@ -3447,7 +3450,7 @@ function hideWineView() {
 
 async function renderInventoryMode() {
   hideWineView();
-  closeModal(false);
+  closeModal(false, false);
   state.modalWineId = null;
 
   const module = getInventoryModeModule();
@@ -3828,7 +3831,7 @@ async function enterMenu(menuKey) {
 
   showWineView();
 
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  scrollToTop();
 
   // Форсируем загрузку данных, даже если язык не изменился
   state.wines = [];
@@ -3936,7 +3939,7 @@ async function setMenu(nextMenuKey, opts = {}) {
 
   showAppScreen();
 
-  closeModal(false);
+  closeModal(false, false);
   state.modalWineId = null;
 
   if (!fromPopstate) {
@@ -3954,7 +3957,7 @@ async function setMenu(nextMenuKey, opts = {}) {
 
   showWineView();
 
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  scrollToTop();
 
   await loadWinesForCurrentMenu();
 }
@@ -4503,18 +4506,14 @@ function setActiveSection(sectionKey) {
   syncUrl();
   closeModal(false);
   filterAndRender();
-  
-  // Scroll to top when changing section
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  scrollToTop();
 }
 
 function setActiveSubsection(subKey) {
   state.activeSubsection = subKey || getDefaultSubsection(state.activeSection) || '';
   syncUrl();
   filterAndRender();
-  
-  // Scroll to top when changing subsection
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  scrollToTop();
 }
 
 /**
@@ -4539,7 +4538,7 @@ function lockBodyScroll() {
   document.body.classList.add('modalOpen');
 }
 
-function unlockBodyScroll() {
+function unlockBodyScroll(restoreScroll = true) {
   if (!document.body.classList.contains('modalOpen')) return;
 
   const top = document.body.style.top;
@@ -4551,8 +4550,10 @@ function unlockBodyScroll() {
   document.body.style.width = '';
   document.body.style.overflowY = '';
 
-  const restoreY = top ? Math.abs(parseInt(top, 10) || 0) : scrollLockY;
-  window.scrollTo(0, restoreY);
+  if (restoreScroll) {
+    const restoreY = top ? Math.abs(parseInt(top, 10) || 0) : scrollLockY;
+    window.scrollTo(0, restoreY);
+  }
 }
 
 function openWineModal(wineId, pushHistory = true) {
@@ -4680,11 +4681,11 @@ function openWineModal(wineId, pushHistory = true) {
   filterAndRender();
 }
 
-function closeModal(sync=true) {
+function closeModal(sync=true, restoreScroll=true) {
   const back = $('modalBack');
   const wasOpen = back.style.display === 'flex';
   back.classList.remove('open');
-  unlockBodyScroll();
+  unlockBodyScroll(restoreScroll);
 
   if (sync) {
     state.modalWineId = null;
@@ -4890,6 +4891,19 @@ function onSearchDebounced() {
   }, 250);
 }
 $('searchInput').addEventListener('input', onSearchDebounced);
+
+function scrollToTop(smooth = true) {
+  if (smooth) {
+    document.documentElement.classList.add('smoothScroll');
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0 });
+      setTimeout(() => document.documentElement.classList.remove('smoothScroll'), 600);
+    });
+  } else {
+    document.documentElement.classList.remove('smoothScroll');
+    window.scrollTo({ top: 0 });
+  }
+}
 
 function syncClearButton() {
   const has = !!String($('searchInput').value || '').trim();

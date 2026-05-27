@@ -52,9 +52,6 @@
     *{
       font-family: var(--font);
     }
-    html.smoothScroll{
-      scroll-behavior: smooth;
-    }
     body{
       margin:0;
       background: var(--bg1);
@@ -4893,16 +4890,21 @@ function onSearchDebounced() {
 $('searchInput').addEventListener('input', onSearchDebounced);
 
 function scrollToTop(smooth = true) {
-  if (smooth) {
-    document.documentElement.classList.add('smoothScroll');
-    requestAnimationFrame(() => {
-      window.scrollTo({ top: 0 });
-      setTimeout(() => document.documentElement.classList.remove('smoothScroll'), 600);
-    });
-  } else {
-    document.documentElement.classList.remove('smoothScroll');
-    window.scrollTo({ top: 0 });
+  if (!smooth || window.scrollY === 0) {
+    window.scrollTo(0, 0);
+    return;
   }
+  const start = window.scrollY;
+  const duration = Math.min(600, Math.max(300, start * 0.4));
+  const startTime = performance.now();
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+  function step(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    window.scrollTo(0, start * (1 - easeOutCubic(progress)));
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
 }
 
 function syncClearButton() {

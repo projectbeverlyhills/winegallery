@@ -3828,11 +3828,10 @@ async function enterMenu(menuKey) {
 
   showWineView();
 
-  scrollToTop();
-
   // Форсируем загрузку данных, даже если язык не изменился
   state.wines = [];
   await loadWinesForCurrentMenu();
+  scrollToTop();
 }
 
 async function loadWinesForCurrentMenu() {
@@ -3954,9 +3953,8 @@ async function setMenu(nextMenuKey, opts = {}) {
 
   showWineView();
 
-  scrollToTop();
-
   await loadWinesForCurrentMenu();
+  scrollToTop();
 }
 
 /**

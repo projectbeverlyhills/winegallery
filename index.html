@@ -508,7 +508,7 @@
       gap:10px;
       flex-wrap:wrap;
       margin: 12px 0 12px;
-      padding: 12px 0;
+      padding: 12px 0 12px 18px;
       background: transparent;
     }
     .subsectionTabs{
@@ -864,7 +864,7 @@
       padding: 0 12px;
       border-radius: 999px;
       background: var(--chip);
-      color: var(--accent);
+      color: var(--good);
       border: 1px solid rgba(0,0,0,0.15);
       font-size: 14px;
       font-weight: 600;
@@ -1555,11 +1555,10 @@
     }
     .pcModal{
       position:relative;
-      width:min(800px,100%);
+      width:min(480px,100%);
       border-radius:24px;
       border:1px solid rgba(0,0,0,0.10);
       background:var(--bg1);
-      /* Layered shadow: ambient + direct + specular rim */
       box-shadow:
         0 0 0 0.5px rgba(0,0,0,0.06),
         0 8px 24px rgba(0,0,0,0.10),
@@ -1586,24 +1585,60 @@
         0 8px 24px rgba(0,0,0,0.30),
         0 32px 80px rgba(0,0,0,0.60);
     }
-    /* Close: circular pill, lives inside the content pane */
+    /* Header: title + price + close in one row */
+    .pcModalHeader{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:18px 18px 14px;
+      flex-shrink:0;
+    }
+    .pcModalTitle{
+      flex:1;
+      min-width:0;
+      font-size:20px;
+      font-weight:600;
+      color:var(--text);
+      line-height:1.2;
+      letter-spacing:-0.3px;
+      margin:0;
+      white-space:normal;
+      overflow:hidden;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      line-clamp:2;
+      -webkit-box-orient:vertical;
+    }
+    .pcModalPrice{
+      flex-shrink:0;
+      display:inline-flex;
+      align-items:center;
+      height:28px;
+      padding:0 12px;
+      border-radius:999px;
+      background:color-mix(in srgb,var(--good) 8%,var(--chip) 92%);
+      color:var(--good);
+      border:1px solid color-mix(in srgb,var(--good) 22%,transparent);
+      font-size:13px;
+      font-weight:600;
+      letter-spacing:0.1px;
+    }
+    [data-theme="dark"] .pcModalPrice{
+      background:color-mix(in srgb,var(--good) 14%,#1c1c1e 86%);
+      border-color:color-mix(in srgb,var(--good) 30%,transparent);
+    }
     .pcModalClose{
-      position:absolute;
-      top:16px;
-      right:16px;
-      z-index:10;
+      flex-shrink:0;
       cursor:pointer;
       border-radius:999px;
       border:1px solid rgba(0,0,0,0.14);
-      padding:0 16px;
-      background:rgba(255,255,255,0.82);
-      -webkit-backdrop-filter:blur(8px);
-      backdrop-filter:blur(8px);
-      color:rgba(0,0,0,0.78);
+      padding:0 14px;
+      background:var(--chip);
+      color:var(--text);
       font-size:12px;
       font-weight:500;
       letter-spacing:0.1px;
-      height:32px;
+      height:28px;
       display:inline-flex;
       align-items:center;
       transition:
@@ -1612,51 +1647,42 @@
         transform 150ms cubic-bezier(0.2,0,0,1);
     }
     .pcModalClose:hover{
-      background:rgba(255,255,255,0.96);
-      border-color:rgba(0,0,0,0.22);
+      border-color:rgba(0,0,0,0.26);
       transform:translateY(-1px);
     }
     [data-theme="dark"] .pcModalClose{
-      background:rgba(40,40,40,0.82);
       border-color:rgba(255,255,255,0.16);
-      color:rgba(255,255,255,0.82);
     }
     [data-theme="dark"] .pcModalClose:hover{
-      background:rgba(58,58,58,0.96);
-      border-color:rgba(255,255,255,0.26);
+      border-color:rgba(255,255,255,0.30);
     }
-    /* Layout: content column drives height, image stretches to match */
+    /* Image: full width, 4:3 ratio */
     .pcModalLayout{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      align-items:stretch;
-      /* No fixed row height — modal height = content height */
+      display:flex;
+      flex-direction:column;
     }
-    /* Image pane: fills whatever height the content column needs */
     .pcModalImgWrap{
       position:relative;
-      background:linear-gradient(160deg,#faf7f3 0%,#f0e9de 100%);
-      border-right:1px solid rgba(0,0,0,0.07);
+      width:100%;
+      aspect-ratio:4/3;
+      background:#f5f0ea;
+      border-top:1px solid rgba(0,0,0,0.08);
+      border-bottom:1px solid rgba(0,0,0,0.08);
       display:flex;
       align-items:center;
       justify-content:center;
-      padding:16px;
       overflow:hidden;
-      /* Minimum so the image never collapses on very short content */
-      min-height:280px;
+      flex-shrink:0;
     }
     [data-theme="dark"] .pcModalImgWrap{
-      background:linear-gradient(160deg,#1e1e1e 0%,#161616 100%);
-      border-right-color:rgba(255,255,255,0.07);
+      background:#1e1c1a;
+      border-color:rgba(255,255,255,0.08);
     }
     .pcModalImg{
       width:100%;
-      max-height:400px;
+      height:100%;
       object-fit:contain;
       display:block;
-      filter:
-        drop-shadow(0 2px 6px rgba(0,0,0,0.08))
-        drop-shadow(0 12px 28px rgba(0,0,0,0.14));
       transition:transform 300ms cubic-bezier(0.2,0,0,1);
     }
     .pcModalBack.open .pcModalImg{
@@ -1679,60 +1705,15 @@
       background:linear-gradient(170deg,#2a2a2c 0%,#1c1c1e 100%);
       color:#8d8d92;
     }
+    /* Content: description + badges */
     .pcModalContent{
       display:flex;
       flex-direction:column;
-      justify-content:flex-start;
-      padding:24px 24px 24px 26px;
-      overflow-y:auto;
-      scrollbar-width:thin;
+      padding:16px 18px 20px;
       gap:0;
     }
-    /* Title + price block */
-    .pcModalTop{
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      padding-right:56px;
-      margin-bottom:0;
-    }
-    .pcModalTitle{
-      font-size:20px;
-      font-weight:600;
-      color:var(--text);
-      line-height:1.25;
-      letter-spacing:-0.3px;
-      margin:0;
-      white-space:normal;
-      word-break:break-word;
-    }
-    .pcModalPrice{
-      display:inline-flex;
-      align-items:center;
-      height:26px;
-      padding:0 12px;
-      border-radius:999px;
-      /* Warm tint echoes accent without going full chip-grey */
-      background:color-mix(in srgb,var(--accent) 8%,var(--chip) 92%);
-      color:var(--accent);
-      border:1px solid color-mix(in srgb,var(--accent) 22%,transparent);
-      font-size:13px;
-      font-weight:600;
-      letter-spacing:0.1px;
-      align-self:flex-start;
-    }
-    [data-theme="dark"] .pcModalPrice{
-      background:color-mix(in srgb,var(--accent) 14%,#1c1c1e 86%);
-      border-color:color-mix(in srgb,var(--accent) 30%,transparent);
-    }
-    .pcModalDivider{
-      width:100%;
-      height:1px;
-      background:linear-gradient(90deg,transparent,var(--stroke) 8%,var(--stroke) 92%,transparent);
-      margin:18px 0 16px;
-      flex-shrink:0;
-      opacity:0.7;
-    }
+    .pcModalTop{ display:none; }
+    .pcModalDivider{ display:none; }
     .pcModalDesc{
       font-size:14px;
       line-height:1.6;
@@ -1740,38 +1721,25 @@
       text-align:left;
       -webkit-hyphens:auto;
       hyphens:auto;
-      flex:0 0 auto;
     }
     .pcModalBadges{
       display:flex;
       gap:6px;
       flex-wrap:wrap;
-      margin-top:14px;
+      margin-top:12px;
       flex-shrink:0;
     }
     @media(max-width:640px){
       .pcModalBack{ padding:0; align-items:flex-end; backdrop-filter:blur(12px) saturate(160%); -webkit-backdrop-filter:blur(12px) saturate(160%); }
       .pcModal{
         width:100%;
-        max-height:92vh;
+        max-height:94vh;
         border-radius:20px 20px 0 0;
         transform-origin:center bottom;
       }
-      .pcModalLayout{
-        grid-template-columns:1fr;
-      }
-      .pcModalImgWrap{
-        border-right:none;
-        border-bottom:1px solid rgba(0,0,0,0.07);
-        padding:12px;
-        min-height:54vw;
-      }
-      .pcModalContent{
-        padding:18px 18px 20px;
-        max-height:46vh;
-      }
-      .pcModalTop{ padding-right:52px; }
+      .pcModalHeader{ padding:14px 14px 10px; }
       .pcModalTitle{ font-size:17px; letter-spacing:-0.2px; }
+      .pcModalContent{ padding:14px 14px 24px; }
     }
 
     /* Clickable photo-card */
@@ -1929,17 +1897,18 @@
 
   <div class="pcModalBack" id="pcModalBack" aria-hidden="true">
     <div class="pcModal" role="dialog" aria-modal="true" aria-labelledby="pcModalTitle" tabindex="-1">
-      <button class="pcModalClose" id="pcModalClose" aria-label="Close">Close</button>
+      <div class="pcModalHeader">
+        <div class="pcModalTitle" id="pcModalTitle"></div>
+        <span class="pcModalPrice" id="pcModalPrice"></span>
+        <button class="pcModalClose" id="pcModalClose" aria-label="Close">Close</button>
+      </div>
       <div class="pcModalLayout">
         <div class="pcModalImgWrap">
           <img class="pcModalImg" id="pcModalImg" alt="" src="" />
           <div class="pcModalPlaceholder" id="pcModalPlaceholder"></div>
         </div>
         <div class="pcModalContent">
-          <div class="pcModalTop">
-            <div class="pcModalTitle" id="pcModalTitle"></div>
-            <span class="pcModalPrice" id="pcModalPrice"></span>
-          </div>
+          <div class="pcModalTop"></div>
           <div class="pcModalDivider" id="pcModalDivider"></div>
           <div class="pcModalDesc" id="pcModalDesc"></div>
           <div class="pcModalBadges" id="pcModalBadges"></div>
@@ -2229,10 +2198,16 @@ function applyLanguageUI() {
   if (logoutBtn) logoutBtn.textContent = t('logout');
 
   const settingsBackToMenuBtn = $('settingsBackToMenuBtn');
-  if (settingsBackToMenuBtn) settingsBackToMenuBtn.textContent = t('backToMenu');
+  if (settingsBackToMenuBtn) {
+    const lbl = settingsBackToMenuBtn.querySelector('.settingsActionLabel');
+    if (lbl) lbl.textContent = t('backToMenu');
+  }
 
   const settingsLogoutBtn = $('settingsLogoutBtn');
-  if (settingsLogoutBtn) settingsLogoutBtn.textContent = t('logout');
+  if (settingsLogoutBtn) {
+    const lbl = settingsLogoutBtn.querySelector('.settingsActionLabel');
+    if (lbl) lbl.textContent = t('logout');
+  }
 }
 
 function hasMenuCsv(menu) {
@@ -2325,6 +2300,11 @@ function closeSettingsMenu() {
   if (btn) btn.setAttribute('aria-expanded', 'false');
 }
 
+function getFirstRegularMenu() {
+  const regular = (state.menus || []).filter(m => !isInventoryMenu(m));
+  return regular.find(m => !!(m?.csvUrl?.en || m?.csvUrl?.[state.lang])) || regular[0] || null;
+}
+
 function goBackToMenuSelection() {
   state.menuKey = null;
   state.menuConfig = null;
@@ -2332,13 +2312,15 @@ function goBackToMenuSelection() {
   state.activeSubsection = '';
   closeModal(false);
   state.modalWineId = null;
+  writeUrlParams({ menu: null, w: null, section: null }, 'push');
+
+  resetThemeToLight();
   renderStartBranding();
   showStartScreen();
   $('loginForm').classList.add('hidden');
   $('menuList').classList.remove('hidden');
   renderMenuSelect();
   renderMenuList();
-  writeUrlParams({ menu: null, w: null, section: null }, 'push');
 }
 
 function updateSettingsThemeIndicator() {
@@ -2662,6 +2644,14 @@ function applyTheme(theme) {
   }
 }
 
+function resetThemeToLight() {
+  localStorage.removeItem('theme');
+  document.documentElement.setAttribute('data-theme', 'light');
+  applyTheme('light');
+  updateThemeButton('light');
+  updateSettingsThemeIndicator();
+}
+
 function initTheme() {
   const savedTheme = localStorage.getItem('theme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
@@ -2897,9 +2887,73 @@ function toBool(v) {
 
 function buildSearchHaystack(parts) {
   return parts
-    .map(v => String(v ?? '').replace(/\u00A0/g, ' ').trim().toLowerCase())
+    .map(v => String(v ?? '').replace(/\u00A0/g, ' ').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036F]/g, ''))
     .filter(Boolean)
     .join(' ');
+}
+
+function toNum(v) {
+  const n = Number(String(v ?? '').replace(',', '.').trim());
+  return isFinite(n) ? n : null;
+}
+
+function buildWineTitle(x) {
+  const producer = String(x.producer ?? '').trim();
+  const name = String(x.name ?? '').trim();
+  const vintage = String(x.vintage ?? '').trim();
+  const base = [producer, name].filter(Boolean).join(' ');
+  return [base, vintage].filter(Boolean).join(' ');
+}
+
+function buildWineSub(x) {
+  const country = String(x.country ?? '').trim();
+  const region = String(x.region ?? '').trim();
+  const subregion = String(x['sub-region'] ?? x.subregion ?? '').trim();
+  const grape = String(x.grape ?? '').trim();
+  const regionDisplay = [region, subregion].filter(Boolean).join(' | ');
+  return [country, regionDisplay, grape].filter(Boolean).join(' \u2022 ');
+}
+
+function mapWineRow(x) {
+  const section = String(x.section ?? x.section_key ?? '').trim();
+  const sectionKeyRaw = String(x.section_key ?? '').trim();
+  const sectionKey = normalizeSectionKey(sectionKeyRaw || section);
+
+  const visible = toBool(x.visible);
+  const available = toBool(x.is_available);
+
+  const producer = String(x.producer ?? '').trim();
+  const country = String(x.country ?? '').trim();
+  const region = String(x.region ?? '').trim();
+  const subregion = String(x['sub-region'] ?? x.subregion ?? '').trim();
+  const grape = String(x.grape ?? '').trim();
+
+  return {
+    id: String(x['\u2116'] ?? x.id ?? x.wine_id ?? '').trim(),
+    title: buildWineTitle(x),
+    sub: buildWineSub(x),
+    section,
+    sectionKey,
+    producer,
+    country,
+    region,
+    subregion,
+    grape,
+    searchHaystack: buildSearchHaystack([buildWineTitle(x), producer, country, region, subregion, grape]),
+    description: String(x.story ?? x.description ?? '').trim(),
+    notes: String(x.notes ?? x.notes_profile ?? '').trim(),
+    pairing: String(x.pairing ?? '').trim(),
+    imageUrl: String(x.bottle_img ?? x.primary_image_url ?? '').trim(),
+    priceGlass: x.btg_price ?? '',
+    priceBottle: x.bottle_price ?? '',
+    subsectionKey: normalizeSectionKey(String(x['subsection_key '] ?? x.subsection_key ?? '').trim()),
+    subsectionLabel: String((x['subsection_key '] ?? x.subsection_key ?? '')).trim(),
+    btg: String(x.btg ?? '').trim(),
+    order: toNum(x.order),
+    raw: x,
+    visible,
+    available,
+  };
 }
 
 function parseNotesChips(s) {
@@ -2935,14 +2989,6 @@ function parseNotesChips(s) {
   return resolved.slice(0, 3).map(x => x.key);
 }
 
-
-function buildShortDescription(text) {
-  const raw = String(text || '').replace(/\s+/g, ' ').trim();
-  if (!raw) return '';
-  const cleaned = raw.replace(/^this wine\s+(is|offers|presents|delivers)\s+/i, '');
-  const sentences = cleaned.split(/(?<=[.!?])\s+/).filter(Boolean);
-  return sentences.slice(0, 3).join(' ');
-}
 
 function buildCardChips(w) {
   const chips = [];
@@ -3128,13 +3174,10 @@ function buildNoteTag(tokenData) {
   return container;
 }
 
-function getTokenDisplay(tokenStr, lang = 'en') {
+function getTokenDisplay(tokenStr) {
   const token = resolveTokenEntry(tokenStr);
   if (!token) return null;
-  return {
-    label: token.label,
-    icon: token.icon
-  };
+  return { label: token.label, icon: token.icon };
 }
 
 /**
@@ -3435,6 +3478,7 @@ function clearAuthState() {
   sessionStorage.removeItem(`${key}_role`);
   state.isAuthenticated = false;
   state.authRole = null;
+  resetThemeToLight();
 }
 
 function showStartScreen() {
@@ -3503,8 +3547,8 @@ function renderHosteraStartLockup() {
 function renderStartBranding() {
   const logo = state.config?.branding?.logo || state.config?.logoUrl || '';
   const normalizedLogo = normalizeAssetPath(logo);
-  const isNovikov = state.restaurantId === 'novikov_bh';
-  
+  const isLogoOnly = !!(state.config?.branding?.logoOnly);
+
   const startLogo = $('startLogo');
   const startLockup = $('startLockup');
   const startTitle = $('startTitle');
@@ -3512,50 +3556,30 @@ function renderStartBranding() {
   const loginForm = $('loginForm');
   const startBrand = document.querySelector('.startBrand');
   const startCard = document.querySelector('.startCard');
-  
-  // Only show logo if we're past global login (i.e., if loginForm is hidden)
+
   if (loginForm && !loginForm.classList.contains('hidden')) {
     if (startBrand) startBrand.classList.remove('logoOnly');
     if (startCard) startCard.classList.remove('logoOnlyScreen');
-    // Global login form is visible - don't show restaurant branding yet
     if (startLogo) startLogo.style.display = 'none';
     renderHosteraStartLockup();
   } else {
     if (startBrand) startBrand.classList.remove('hosteraLockup');
-    // Restaurant is loaded - show branding
-    if (startBrand) {
-      if (isNovikov) startBrand.classList.add('logoOnly');
-      else startBrand.classList.remove('logoOnly');
-    }
-    if (startCard) {
-      if (isNovikov) startCard.classList.add('logoOnlyScreen');
-      else startCard.classList.remove('logoOnlyScreen');
-    }
+    if (startBrand) startBrand.classList.toggle('logoOnly', isLogoOnly);
+    if (startCard) startCard.classList.toggle('logoOnlyScreen', isLogoOnly);
     if (startLogo) {
       startLogo.src = normalizedLogo;
       startLogo.style.display = 'inline-block';
     }
-    if (startLockup) {
-      startLockup.style.display = 'none';
-    }
+    if (startLockup) startLockup.style.display = 'none';
     if (startTitle) {
-      if (isNovikov) {
-        startTitle.style.display = 'none';
-      } else {
-        startTitle.style.display = '';
-        startTitle.textContent = state.config?.name || state.restaurantId || 'HOSTERA';
-      }
+      startTitle.style.display = isLogoOnly ? 'none' : '';
+      if (!isLogoOnly) startTitle.textContent = state.config?.name || state.restaurantId || 'HOSTERA';
     }
     if (startSubtitle) {
-      if (isNovikov) {
-        startSubtitle.style.display = 'none';
-      } else {
-        startSubtitle.style.display = '';
-        startSubtitle.textContent = state.config?.branding?.subtitle || '';
-      }
+      startSubtitle.style.display = isLogoOnly ? 'none' : '';
+      if (!isLogoOnly) startSubtitle.textContent = state.config?.branding?.subtitle || '';
     }
   }
-  
 }
 
 function renderMenuList() {
@@ -3573,9 +3597,7 @@ function renderMenuList() {
     openMenuBtn.className = 'menuBtn';
     openMenuBtn.textContent = 'Open Menu';
 
-    const menuToOpen = regularMenus.find((m) => m?.key === 'wine')
-      || regularMenus.find((m) => !!(m?.csvUrl?.en || m?.csvUrl?.[state.lang]))
-      || regularMenus[0];
+    const menuToOpen = getFirstRegularMenu();
 
     if (menuToOpen?.key) {
       openMenuBtn.onclick = () => enterMenu(menuToOpen.key);
@@ -3708,34 +3730,22 @@ function renderGlobalLoginForm() {
       applyLanguageUI();
       
       setAuthState(user.role);
-      
+
       loginForm.classList.add('hidden');
-      
-      // Show menuList and remove aria-hidden from startScreen since content is now visible
-      const menuList = $('menuList');
-      if (menuList) menuList.classList.remove('hidden');
-      
-      const startScreen = $('startScreen');
-      if (startScreen) {
-        startScreen.setAttribute('aria-hidden', 'false');
-      }
-      
-      // Don't hide startScreen - menuList is inside it!
-      // If we hide startScreen, menuList will be hidden too
-      // Keep startScreen visible for menu selection
-      
-      renderStartBranding();
 
       renderMenuSelect();
       bindSettingsMenu();
-      
-      renderMenuList();
-
       bindLogoutHandler();
 
       $('logoutBtn').style.display = 'inline-flex';
-      
       setStatus(t('ready'), 'good');
+
+      const menuList = $('menuList');
+      if (menuList) menuList.classList.remove('hidden');
+      const startScreen = $('startScreen');
+      if (startScreen) startScreen.setAttribute('aria-hidden', 'false');
+      renderStartBranding();
+      renderMenuList();
     } catch (err) {
       console.error('[Login] Error:', err);
       loginError.textContent = 'Error: ' + err.message;
@@ -3788,6 +3798,11 @@ async function enterMenu(menuKey) {
 
   state.menuKey = menuKey;
   state.menuConfig = nextMenu;
+  state.isSearchMode = false;
+  state.search = '';
+  state.currentDisplaySection = '';
+  $('searchInput').value = '';
+  syncClearButton();
 
   renderMenuSelect();
 
@@ -3796,7 +3811,7 @@ async function enterMenu(menuKey) {
   $('restaurantName').textContent = state.config.name || state.restaurantId;
   $('logo').src = normalizeAssetPath(brandLogo);
   $('logo').style.display = brandLogo ? 'inline-block' : 'none';
-  
+
   showAppScreen();
 
   writeUrlParams({ menu: menuKey, w: null, section: null }, 'push');
@@ -3812,7 +3827,9 @@ async function enterMenu(menuKey) {
   }
 
   showWineView();
-  
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
   // Форсируем загрузку данных, даже если язык не изменился
   state.wines = [];
   await loadWinesForCurrentMenu();
@@ -3860,88 +3877,7 @@ async function loadWinesForCurrentMenu() {
       return;
     }
 
-    function toNum(v) {
-      const n = Number(String(v ?? '').replace(',', '.').trim());
-      return isFinite(n) ? n : null;
-    }
-    
-    function buildTitle(x) {
-      const producer = String(x.producer ?? '').trim();
-      const name = String(x.name ?? '').trim();
-      const vintage = String(x.vintage ?? '').trim();
-      const base = [producer, name].filter(Boolean).join(' ');
-      return [base, vintage].filter(Boolean).join(' ');
-    }
-    
-    function buildSub(x) {
-      const country = String(x.country ?? '').trim();
-      const region = String(x.region ?? '').trim();
-      const subregion = String(x['sub-region'] ?? x.subregion ?? '').trim();
-      const grape = String(x.grape ?? '').trim();
-      const regionDisplay = [region, subregion].filter(Boolean).join(' | ');
-      return [country, regionDisplay, grape].filter(Boolean).join(' • ');
-    }
-
-    state.wines = raw
-      .map(x => {
-        const section = String(x.section ?? x.section_key ?? '').trim();
-        const sectionKeyRaw = String(x.section_key ?? '').trim();
-        const sectionKey = normalizeSectionKey(sectionKeyRaw || section);
-
-        const visible = toBool(x.visible);
-        const available = toBool(x.is_available);
-
-        const producer = String(x.producer ?? '').trim();
-        const country = String(x.country ?? '').trim();
-        const region = String(x.region ?? '').trim();
-        const subregion = String(x['sub-region'] ?? x.subregion ?? '').trim();
-        const grape = String(x.grape ?? '').trim();
-
-        const hay = buildSearchHaystack([
-          buildTitle(x),
-          producer,
-          country,
-          region,
-          subregion,
-          grape
-        ]);
-
-        return {
-          id: String(x['№'] ?? x.id ?? x.wine_id ?? '').trim(),
-          title: buildTitle(x),
-          sub: buildSub(x),
-
-          section,
-          sectionKey,
-
-          producer,
-          country,
-          region,
-          subregion,
-          grape,
-          searchHaystack: hay,
-
-          description: String(x.story ?? x.description ?? '').trim(),
-          notes: String(x.notes ?? x.notes_profile ?? '').trim(),
-          pairing: String(x.pairing ?? '').trim(),
-
-          imageUrl: String(x.bottle_img ?? x.primary_image_url ?? '').trim(),
-          priceGlass: x.btg_price ?? '',
-          priceBottle: x.bottle_price ?? '',
-
-          subsectionKey: normalizeSectionKey(String(x['subsection_key '] ?? x.subsection_key ?? '').trim()),
-          subsectionLabel: String((x['subsection_key '] ?? x.subsection_key ?? '')).trim(),
-          btg: String(x.btg ?? '').trim(),
-
-          order: toNum(x.order),
-          raw: x,
-
-          visible,
-          available,
-        };
-      })
-      .filter(w => w.id && w.title)
-      .filter(w => w.visible);
+    state.wines = raw.map(mapWineRow).filter(w => w.id && w.title).filter(w => w.visible);
 
     state.sectionsEffective = computeSectionsEffective(state.wines, state.config, state.lang);
     applyDefaultSectionSelection();
@@ -4017,6 +3953,8 @@ async function setMenu(nextMenuKey, opts = {}) {
   }
 
   showWineView();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 
   await loadWinesForCurrentMenu();
 }
@@ -4447,17 +4385,29 @@ function filterAndRender() {
     list = list.filter(w => w.available);
   }
 
-    // For photo-card menus (Pastry, Coffee, Bar), skip wine-specific filters and render directly
+    // For photo-card menus (Pastry, Coffee, Bar): apply section + search filters
     if (isPhotoCard) {
-      renderSectionButtons();
-      renderGrid(list);
+      const q = (state.search || '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+      if (q) {
+        list = list.filter(w => {
+          const hay = (w.searchHaystack || '').normalize('NFD').replace(/[̀-ͯ]/g, '');
+          return hay.includes(q);
+        });
+        renderGrid(list);
+      } else {
+        if (!isPastryMode() && state.activeSection && state.activeSection !== 'all') {
+          list = list.filter(w => w.sectionKey === state.activeSection);
+        }
+        renderSectionButtons();
+        renderGrid(list);
+      }
       return;
     }
 
     list = list.filter(w => sectionAllowed(w.sectionKey));
 
-  const q = (state.search || '').trim().toLowerCase();
-  
+  const q = (state.search || '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+
   if (state.isSearchMode) {
     // In search mode
     if (state.currentDisplaySection === 'search') {
@@ -5011,7 +4961,9 @@ async function boot() {
     initTheme();
     initStickyOffsets();
     setStatus(t('loading'), 'idle');
-    validateInventoryI18nCoverage();
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      validateInventoryI18nCoverage();
+    }
 
     state.configsIndex = await loadConfigsIndex();
     const url = readRoute();
@@ -5132,90 +5084,7 @@ async function boot() {
 
       state.sectionsEffective = [];
     } else {
-
-    function toNum(v) {
-      const n = Number(String(v ?? '').replace(',', '.').trim());
-      return isFinite(n) ? n : null;
-    }
-
-    function buildTitle(x) {
-      const producer = String(x.producer ?? '').trim();
-      const name = String(x.name ?? '').trim();
-      const vintage = String(x.vintage ?? '').trim();
-      const base = [producer, name].filter(Boolean).join(' ');
-      return [base, vintage].filter(Boolean).join(' ');
-    }
-
-    function buildSub(x) {
-      const country = String(x.country ?? '').trim();
-      const region = String(x.region ?? '').trim();
-      const subregion = String(x['sub-region'] ?? x.subregion ?? '').trim();
-      const grape = String(x.grape ?? '').trim();
-      const regionDisplay = [region, subregion].filter(Boolean).join(' | ');
-      return [country, regionDisplay, grape].filter(Boolean).join(' • ');
-    }
-
-    state.wines = raw
-      .map(x => {
-        const section = String(x.section ?? x.section_key ?? '').trim();
-        const sectionKeyRaw = String(x.section_key ?? '').trim();
-        const sectionKey = normalizeSectionKey(sectionKeyRaw || section);
-
-        const visible = toBool(x.visible);
-        const available = toBool(x.is_available);
-
-        const producer = String(x.producer ?? '').trim();
-        const country = String(x.country ?? '').trim();
-        const region = String(x.region ?? '').trim();
-        const subregion = String(x['sub-region'] ?? x.subregion ?? '').trim();
-        const grape = String(x.grape ?? '').trim();
-
-        const searchHaystack = buildSearchHaystack([
-          buildTitle(x),
-          producer,
-          country,
-          region,
-          subregion,
-          grape
-        ]);
-
-        return {
-          id: String(x['№'] ?? x.id ?? x.wine_id ?? '').trim(),
-          title: buildTitle(x),
-          sub: buildSub(x),
-
-          section,
-          sectionKey,
-
-          producer,
-          country,
-          region,
-          subregion,
-          grape,
-          searchHaystack,
-
-          description: String(x.story ?? x.description ?? '').trim(),
-          notes: String(x.notes ?? x.notes_profile ?? '').trim(),
-          pairing: String(x.pairing ?? '').trim(),
-
-          imageUrl: String(x.bottle_img ?? x.primary_image_url ?? '').trim(),
-          priceGlass: x.btg_price ?? '',
-          priceBottle: x.bottle_price ?? '',
-
-          subsectionKey: normalizeSectionKey(String(x['subsection_key '] ?? x.subsection_key ?? '').trim()),
-          subsectionLabel: String((x['subsection_key '] ?? x.subsection_key ?? '')).trim(),
-          btg: String(x.btg ?? '').trim(),
-
-          order: toNum(x.order),
-          raw: x,
-
-          visible,
-          available,
-        };
-      })
-      .filter(w => w.id && w.title)
-      .filter(w => w.visible);
-
+      state.wines = raw.map(mapWineRow).filter(w => w.id && w.title).filter(w => w.visible);
     }
 
     state.sectionsEffective = computeSectionsEffective(state.wines, state.config, state.lang);

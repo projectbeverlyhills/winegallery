@@ -3,7 +3,8 @@
   "name": "Novikov Beverly Hills",
   "branding": {
     "logo": "assets/novikov-logo.png",
-    "subtitle": "Wine & Desserts"
+    "subtitle": "Wine & Desserts",
+    "logoOnly": true
   },
   "theme": {
     "preset": "novikov_clean",

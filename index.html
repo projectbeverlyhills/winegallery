@@ -4895,7 +4895,7 @@ function scrollToTop(smooth = true) {
     return;
   }
   const start = window.scrollY;
-  const duration = Math.min(600, Math.max(300, start * 0.4));
+  const duration = Math.min(900, Math.max(500, start * 0.6));
   const startTime = performance.now();
   function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
   function step(now) {

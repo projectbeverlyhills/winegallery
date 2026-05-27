@@ -4155,218 +4155,208 @@ function renderSectionButtons() {
   }
 }
 
+function buildCardElement(w) {
+  if (isPhotoCardMenu(state.menuConfig)) {
+    const card = document.createElement('div');
+    card.className = 'card photoCard';
+    const photo = document.createElement('div');
+    photo.className = 'photoCardPhoto';
+    if (w.imageUrl) {
+      const img = document.createElement('img');
+      img.className = 'photoCardImg';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.src = w.imageUrl;
+      img.alt = w.title || 'Dessert image';
+      photo.appendChild(img);
+    } else {
+      const visual = document.createElement('div');
+      visual.className = 'photoCardPlaceholder';
+      visual.textContent = state.menuConfig?.title || '';
+      photo.appendChild(visual);
+    }
+    card.appendChild(photo);
+    const body = document.createElement('div');
+    body.className = 'photoCardBody';
+    const header = document.createElement('div');
+    header.className = 'photoCardHeader';
+    const titleEl = document.createElement('div');
+    titleEl.className = 'photoCardTitle';
+    titleEl.textContent = safe(w.title);
+    header.appendChild(titleEl);
+    if (safe(w.priceBottle)) {
+      const priceValue = document.createElement('span');
+      priceValue.className = 'photoCardPrice';
+      priceValue.textContent = money(w.priceBottle).replace('$ ', '$');
+      header.appendChild(priceValue);
+    }
+    body.appendChild(header);
+    card.appendChild(body);
+    card.addEventListener('click', () => openPhotoCardModal(w));
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPhotoCardModal(w); }
+    });
+    return card;
+  }
+  return null;
+}
+
 function renderGrid(list) {
   const grid = $('grid');
   grid.innerHTML = '';
-  grid.classList.toggle('photoCardGrid', isPhotoCardMenu(state.menuConfig));
+  const isPhotoCard = isPhotoCardMenu(state.menuConfig);
+  grid.classList.toggle('photoCardGrid', isPhotoCard);
 
-  for (const w of list) {
-    if (isPhotoCardMenu(state.menuConfig)) {
-      const card = document.createElement('div');
-      card.className = 'card photoCard';
+  const FIRST_CHUNK = 8;
+  const REST_CHUNK = 12;
+  const firstBatch = list.slice(0, FIRST_CHUNK);
+  const rest = list.slice(FIRST_CHUNK);
 
-      const photo = document.createElement('div');
-      photo.className = 'photoCardPhoto';
+  const frag = document.createDocumentFragment();
+  for (const w of firstBatch) {
+    const el = isPhotoCard ? buildCardElement(w) : buildWineCardElement(w);
+    if (el) frag.appendChild(el);
+  }
+  grid.appendChild(frag);
 
-      if (w.imageUrl) {
-        const img = document.createElement('img');
-        img.className = 'photoCardImg';
-        img.loading = 'lazy';
-        img.decoding = 'async';
-        img.src = w.imageUrl;
-        img.alt = w.title || 'Dessert image';
-        photo.appendChild(img);
-      } else {
-        const visual = document.createElement('div');
-        visual.className = 'photoCardPlaceholder';
-        visual.textContent = state.menuConfig?.title || '';
-        photo.appendChild(visual);
-      }
-      card.appendChild(photo);
+  if (isPhotoCard) schedulePhotoCardTitleFit(); else scheduleWineNameFit();
 
-      const body = document.createElement('div');
-      body.className = 'photoCardBody';
+  if (rest.length === 0) return;
 
-      const header = document.createElement('div');
-      header.className = 'photoCardHeader';
-
-      const titleEl = document.createElement('div');
-      titleEl.className = 'photoCardTitle';
-      titleEl.textContent = safe(w.title);
-      header.appendChild(titleEl);
-
-      if (safe(w.priceBottle)) {
-        const priceValue = document.createElement('span');
-        priceValue.className = 'photoCardPrice';
-        priceValue.textContent = money(w.priceBottle).replace('$ ', '$');
-        header.appendChild(priceValue);
-      }
-      body.appendChild(header);
-
-      card.appendChild(body);
-
-      card.addEventListener('click', () => openPhotoCardModal(w));
-      card.setAttribute('role', 'button');
-      card.setAttribute('tabindex', '0');
-      card.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPhotoCardModal(w); }
-      });
-
-      grid.appendChild(card);
-      continue;
+  let offset = 0;
+  function renderChunk() {
+    const chunk = rest.slice(offset, offset + REST_CHUNK);
+    if (chunk.length === 0) return;
+    const f = document.createDocumentFragment();
+    for (const w of chunk) {
+      const el = isPhotoCard ? buildCardElement(w) : buildWineCardElement(w);
+      if (el) f.appendChild(el);
     }
-
-    const card = document.createElement('div');
-    card.className = 'card';
-    if (!w.available) card.classList.add('is86');
-
-    const layout = document.createElement('div');
-    layout.className = 'cardLayout';
-
-    const bottleWrap = document.createElement('div');
-    bottleWrap.className = 'bottleWrap';
-
-    const img = document.createElement('img');
-    img.className = 'bottleImg';
-    img.loading = 'lazy';
-    img.decoding = 'async';
-    img.src = resolveBottleSrc(w.imageUrl);
-    img.onerror = () => { img.src = PLACEHOLDER_BOTTLE; };
-    img.alt = w.title ? `Bottle image: ${w.title}` : 'Wine bottle';
-
-    bottleWrap.appendChild(img);
-
-    const meta = document.createElement('div');
-    meta.className = 'meta';
-
-    // Producer on first line
-    if (w.producer) {
-      const producerDiv = document.createElement('div');
-      producerDiv.className = 'titleProducer';
-      producerDiv.textContent = w.producer;
-      meta.appendChild(producerDiv);
+    grid.appendChild(f);
+    offset += REST_CHUNK;
+    if (offset < rest.length) {
+      (window.requestIdleCallback || ((cb) => setTimeout(cb, 16)))(renderChunk);
     }
-    
-    // Name on second line (without vintage)
-    const cardName = safe(w.raw?.name);
-    if (cardName) {
-      const wineNameDiv = document.createElement('div');
-      wineNameDiv.className = 'titleWine';
-      wineNameDiv.textContent = cardName;
-      meta.appendChild(wineNameDiv);
-      
-      // Divider after wine name
-      const divider1 = document.createElement('div');
-      divider1.className = 'divider';
-      meta.appendChild(divider1);
-    }
+  }
+  (window.requestIdleCallback || ((cb) => setTimeout(cb, 16)))(renderChunk);
 
-    // Info line: Italy | Region | 2024
-    const infoParts = [];
-    if (w.country) infoParts.push(w.country);
-    if (w.region) infoParts.push(w.region);
-    if (w.raw?.vintage || w.vintage) infoParts.push(w.raw?.vintage || w.vintage);
-    
-    if (infoParts.length > 0) {
-      const infoLine = document.createElement('div');
-      infoLine.className = 'infoLine';
-      
-      infoParts.forEach((part, idx) => {
-        if (idx > 0) {
-          const sep = document.createElement('span');
-          sep.className = 'sep';
-          sep.textContent = '|';
-          infoLine.appendChild(sep);
-        }
-        const textNode = document.createTextNode(part);
-        infoLine.appendChild(textNode);
-      });
-      
-      meta.appendChild(infoLine);
-    }
+}
 
-    // Price line: Bottle $54 | Glass $15
-    const bottlePrice = getDisplayPrice(w.priceBottle);
-    const glassPrice = getDisplayPrice(w.priceGlass);
-    const hasBottle = !!bottlePrice;
-    const hasGlass = !!glassPrice;
-    
-    if (hasBottle || hasGlass) {
-      const priceLine = document.createElement('div');
-      priceLine.className = 'priceLine';
+function buildWineCardElement(w) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  if (!w.available) card.classList.add('is86');
 
-      const appendPrice = (labelText, displayValue) => {
-        const label = document.createElement('span');
-        label.className = 'label';
-        label.textContent = labelText;
-        priceLine.appendChild(label);
+  const layout = document.createElement('div');
+  layout.className = 'cardLayout';
 
-        priceLine.appendChild(document.createTextNode(' '));
+  const bottleWrap = document.createElement('div');
+  bottleWrap.className = 'bottleWrap';
 
-        const valueEl = document.createElement('span');
-        valueEl.className = 'value';
-        valueEl.textContent = displayValue;
-        priceLine.appendChild(valueEl);
-      };
+  const img = document.createElement('img');
+  img.className = 'bottleImg';
+  img.loading = 'lazy';
+  img.decoding = 'async';
+  img.src = resolveBottleSrc(w.imageUrl);
+  img.onerror = () => { img.src = PLACEHOLDER_BOTTLE; };
+  img.alt = w.title ? `Bottle image: ${w.title}` : 'Wine bottle';
+  bottleWrap.appendChild(img);
 
-      if (hasGlass) {
-        appendPrice('Glass', glassPrice);
-      }
+  const meta = document.createElement('div');
+  meta.className = 'meta';
 
-      if (hasBottle && hasGlass) {
+  if (w.producer) {
+    const producerDiv = document.createElement('div');
+    producerDiv.className = 'titleProducer';
+    producerDiv.textContent = w.producer;
+    meta.appendChild(producerDiv);
+  }
+
+  const cardName = safe(w.raw?.name);
+  if (cardName) {
+    const wineNameDiv = document.createElement('div');
+    wineNameDiv.className = 'titleWine';
+    wineNameDiv.textContent = cardName;
+    meta.appendChild(wineNameDiv);
+    const divider1 = document.createElement('div');
+    divider1.className = 'divider';
+    meta.appendChild(divider1);
+  }
+
+  const infoParts = [];
+  if (w.country) infoParts.push(w.country);
+  if (w.region) infoParts.push(w.region);
+  if (w.raw?.vintage || w.vintage) infoParts.push(w.raw?.vintage || w.vintage);
+  if (infoParts.length > 0) {
+    const infoLine = document.createElement('div');
+    infoLine.className = 'infoLine';
+    infoParts.forEach((part, idx) => {
+      if (idx > 0) {
         const sep = document.createElement('span');
         sep.className = 'sep';
         sep.textContent = '|';
-        priceLine.appendChild(sep);
+        infoLine.appendChild(sep);
       }
-
-      if (hasBottle) {
-        appendPrice('Bottle', bottlePrice);
-      }
-      
-      meta.appendChild(priceLine);
-      
-      // Divider after price line
-      const divider3 = document.createElement('div');
-      divider3.className = 'divider';
-      meta.appendChild(divider3);
-    }
-
-    // Notes with icons
-    if (w.notes) {
-      const notesValueWrap = document.createElement('div');
-      notesValueWrap.className = 'notes';
-      
-      const tokens = parseNotesChips(w.notes);
-      tokens.forEach(tokenStr => {
-        const tokenData = getTokenDisplay(tokenStr);
-        if (tokenData && tokenData.icon) {
-          const tag = buildNoteTag(tokenData);
-          notesValueWrap.appendChild(tag);
-        }
-      });
-      
-      meta.appendChild(notesValueWrap);
-    }
-
-    layout.appendChild(bottleWrap);
-    layout.appendChild(meta);
-    card.appendChild(layout);
-
-    const btn = document.createElement('button');
-    btn.className = 'cardBtn';
-    btn.type = 'button';
-    btn.setAttribute('aria-label', `Open wine: ${w.title}`);
-    btn.onclick = () => openWineModal(w.id);
-    card.appendChild(btn);
-    grid.appendChild(card);
+      infoLine.appendChild(document.createTextNode(part));
+    });
+    meta.appendChild(infoLine);
   }
 
-  if (isPhotoCardMenu(state.menuConfig)) {
-    schedulePhotoCardTitleFit();
-  } else {
-    scheduleWineNameFit();
+  const bottlePrice = getDisplayPrice(w.priceBottle);
+  const glassPrice = getDisplayPrice(w.priceGlass);
+  const hasBottle = !!bottlePrice;
+  const hasGlass = !!glassPrice;
+  if (hasBottle || hasGlass) {
+    const priceLine = document.createElement('div');
+    priceLine.className = 'priceLine';
+    const appendPrice = (labelText, displayValue) => {
+      const label = document.createElement('span');
+      label.className = 'label';
+      label.textContent = labelText;
+      priceLine.appendChild(label);
+      priceLine.appendChild(document.createTextNode(' '));
+      const valueEl = document.createElement('span');
+      valueEl.className = 'value';
+      valueEl.textContent = displayValue;
+      priceLine.appendChild(valueEl);
+    };
+    if (hasGlass) appendPrice('Glass', glassPrice);
+    if (hasBottle && hasGlass) {
+      const sep = document.createElement('span');
+      sep.className = 'sep';
+      sep.textContent = '|';
+      priceLine.appendChild(sep);
+    }
+    if (hasBottle) appendPrice('Bottle', bottlePrice);
+    meta.appendChild(priceLine);
+    const divider3 = document.createElement('div');
+    divider3.className = 'divider';
+    meta.appendChild(divider3);
   }
+
+  if (w.notes) {
+    const notesValueWrap = document.createElement('div');
+    notesValueWrap.className = 'notes';
+    parseNotesChips(w.notes).forEach(tokenStr => {
+      const tokenData = getTokenDisplay(tokenStr);
+      if (tokenData && tokenData.icon) notesValueWrap.appendChild(buildNoteTag(tokenData));
+    });
+    meta.appendChild(notesValueWrap);
+  }
+
+  layout.appendChild(bottleWrap);
+  layout.appendChild(meta);
+  card.appendChild(layout);
+
+  const btn = document.createElement('button');
+  btn.className = 'cardBtn';
+  btn.type = 'button';
+  btn.setAttribute('aria-label', `Open wine: ${w.title}`);
+  btn.onclick = () => openWineModal(w.id);
+  card.appendChild(btn);
+  return card;
 }
 
 function filterAndRender() {

@@ -4896,9 +4896,10 @@ function scrollToTop(smooth = true) {
   }
   const start = window.scrollY;
   const duration = Math.min(900, Math.max(500, start * 0.6));
-  const startTime = performance.now();
+  let startTime = null;
   function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
   function step(now) {
+    if (startTime === null) startTime = now;
     const elapsed = now - startTime;
     const progress = Math.min(elapsed / duration, 1);
     window.scrollTo(0, start * (1 - easeOutCubic(progress)));

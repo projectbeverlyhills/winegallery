@@ -1783,7 +1783,7 @@
     }
     .hidden{ display:none !important; }
   </style>
-  <link rel="stylesheet" href="assets/css/inventory-mode.css" />
+  <link rel="stylesheet" href="assets/css/waste-mode.css" />
 </head>
 <body>
   <div class="startScreen" id="startScreen" aria-hidden="true">
@@ -1821,6 +1821,7 @@
       </div>
 
       <nav id="topMenuNav" class="topbarNav" aria-label="Top menu"></nav>
+      <div id="wasteModeTitle" class="topbarNav wm-topbar-title" aria-hidden="true">Waste Mode</div>
 
       <div class="topbarTools">
         <div class="searchField" id="searchWrap" role="button" tabindex="0" aria-label="Search" aria-expanded="false">
@@ -1917,12 +1918,8 @@
     </div>
   </div>
 
-<script src="assets/js/inventory-i18n.js"></script>
-<script src="assets/js/inventory-data-provider.js"></script>
-<script src="assets/js/inventory-storage.js"></script>
-<script src="assets/js/inventory-actions.js"></script>
-<script src="assets/js/inventory-render.js"></script>
-<script src="assets/js/inventory-mode-module.js"></script>
+<script src="assets/js/waste-mode.js"></script>
+<script src="assets/js/wine-profiles.js"></script>
 <script>
 /**
  * =========================
@@ -1961,23 +1958,12 @@ const state = {
   isSearchMode: false, // Track if we're in search mode
   sectionBeforeSearch: '', // Store which section was active before search started
   currentDisplaySection: '', // Current section being displayed (can differ from activeSection when searching)
-  inventory: {
-    byDate: {},
-    selectedDate: null,
-    rangeFrom: null,
-    rangeTo: null,
-    draftRows: [],
-    pastryProducts: [],
-  },
 };
 
 const PLACEHOLDER_BOTTLE = 'assets/placeholder-bottle.svg';
 let logoutHandlerBound = false;
 let settingsMenuBound = false;
-const INVENTORY_MENU_KEY = 'inventory_pastry';
-const INVENTORY_STORAGE_PREFIX = 'wg_inventory_pastry_';
-const INVENTORY_UNITS = ['g', 'kg', 'pcs', 'portions'];
-const INVENTORY_REASONS = ['Human error', 'Guest return', 'Damaged', 'Expired', 'Other'];
+const WASTE_MENU_KEY = 'waste_mode';
 
 const UI_STRINGS = {
   en: {
@@ -1994,59 +1980,6 @@ const UI_STRINGS = {
     menuNotConfigured: 'Menu not configured',
     wineNotFound: 'Wine not found',
     comingSoon: 'coming soon',
-    inventory: {
-      title: 'Pastry Inventory',
-      date: 'Date',
-      rowNumber: '#',
-      product: 'Product',
-      quantity: 'Quantity',
-      unit: 'Unit',
-      reason: 'Reason',
-      staff: 'Staff',
-      actions: 'Actions',
-      addRow: '+ Add row',
-      downloadXlsx: 'Download XLSX',
-      shiftSurname: 'On-duty surname',
-      surnamePlaceholder: 'Surname',
-      enterToSave: 'Press Enter in row fields to save',
-      confirmSurname: 'Confirm surname',
-      confirmDay: 'Confirm day',
-      history: 'History',
-      from: 'From',
-      to: 'To',
-      confirmedByHeader: 'Confirmed by',
-      notConfirmed: 'Not confirmed',
-      dayNotConfirmed: 'Day is not confirmed',
-      confirmedBy: 'Confirmed',
-      confirmedByAt: 'Confirmed by {name} at {time}',
-      entries: 'Entries',
-      totalsByUnit: 'Totals by unit',
-      topProducts: 'Top products',
-      noRowsYet: 'No rows yet. Click + Add row.',
-      noRangeRows: 'No records in selected range.',
-      remove: 'Remove',
-      save: 'Save',
-      cancel: 'Cancel',
-      edit: 'Edit',
-      del: 'Delete',
-      exportSheet: 'Pastry Inventory',
-      xlsxDate: 'Date',
-      xlsxRecord: 'Record',
-      xlsxProduct: 'Product',
-      xlsxQuantity: 'Quantity',
-      xlsxUnit: 'Unit',
-      xlsxReason: 'Reason',
-      xlsxStaff: 'Staff',
-      xlsxConfirmedBy: 'Confirmed by',
-      errFillRequired: 'Fill all required fields: date, product, quantity, unit, reason, staff.',
-      errQty: 'Quantity must be a valid number.',
-      errShiftSurname: 'On-duty surname is required before saving rows.',
-      errDayLocked: 'Day is confirmed and locked for edits.',
-      errNoExportRows: 'No rows available for export in selected range.',
-      errNoXlsx: 'XLSX library is not loaded. Check internet connection and retry.',
-      errConfirmSurname: 'Enter surname to confirm day.',
-      errConfirmNoRows: 'Add at least one row before confirmation.'
-    }
   },
   ru: {
     all: 'Все',
@@ -2062,115 +1995,12 @@ const UI_STRINGS = {
     menuNotConfigured: 'Меню не настроено',
     wineNotFound: 'Вино не найдено',
     comingSoon: 'скоро',
-    inventory: {
-      title: 'Инвентаризация десертов',
-      date: 'Дата',
-      rowNumber: '#',
-      product: 'Продукт',
-      quantity: 'Количество',
-      unit: 'Ед.',
-      reason: 'Причина',
-      staff: 'Сотрудник',
-      actions: 'Действия',
-      addRow: '+ Добавить строку',
-      downloadXlsx: 'Скачать XLSX',
-      shiftSurname: 'Фамилия сотрудника',
-      surnamePlaceholder: 'Фамилия',
-      enterToSave: 'Нажмите Enter в строке для сохранения',
-      confirmSurname: 'Фамилия подтверждающего',
-      confirmDay: 'Подтвердить день',
-      history: 'История',
-      from: 'С',
-      to: 'По',
-      confirmedByHeader: 'Подтвердил(а)',
-      notConfirmed: 'Не подтверждено',
-      dayNotConfirmed: 'День не подтвержден',
-      confirmedBy: 'Подтверждено',
-      confirmedByAt: 'Подтвердил(а): {name} в {time}',
-      entries: 'Записей',
-      totalsByUnit: 'Итоги по единицам',
-      topProducts: 'Топ продуктов',
-      noRowsYet: 'Записей пока нет. Нажмите + Добавить строку.',
-      noRangeRows: 'Нет записей в выбранном диапазоне.',
-      remove: 'Удалить',
-      save: 'Сохранить',
-      cancel: 'Отмена',
-      edit: 'Изменить',
-      del: 'Удалить',
-      exportSheet: 'Инвентаризация десертов',
-      xlsxDate: 'Дата',
-      xlsxRecord: 'Запись №',
-      xlsxProduct: 'Продукт',
-      xlsxQuantity: 'Количество',
-      xlsxUnit: 'Ед.',
-      xlsxReason: 'Причина',
-      xlsxStaff: 'Сотрудник',
-      xlsxConfirmedBy: 'Подтвердил(а)',
-      errFillRequired: 'Заполните обязательные поля: дата, продукт, количество, единица, причина, сотрудник.',
-      errQty: 'Количество должно быть корректным числом.',
-      errShiftSurname: 'Перед сохранением укажите фамилию сотрудника.',
-      errDayLocked: 'День уже подтвержден и закрыт для редактирования.',
-      errNoExportRows: 'Нет строк для экспорта в выбранном диапазоне.',
-      errNoXlsx: 'Библиотека XLSX не загружена. Проверьте интернет и повторите.',
-      errConfirmSurname: 'Укажите фамилию для подтверждения дня.',
-      errConfirmNoRows: 'Добавьте хотя бы одну строку перед подтверждением.'
-    }
   }
 };
 
 function t(key) {
   const lang = state?.lang || 'en';
   return UI_STRINGS[lang]?.[key] || UI_STRINGS.en?.[key] || key;
-}
-
-function inventoryStringsForLang(lang) {
-  const locale = UI_STRINGS[lang]?.inventory || {};
-  const fallback = UI_STRINGS.en.inventory || {};
-  return { ...fallback, ...locale };
-}
-
-function validateInventoryI18nCoverage() {
-  const placeholderTokens = (value) => {
-    const tokens = new Set();
-    String(value || '').replace(/\{(\w+)\}/g, (_, token) => {
-      tokens.add(token);
-      return _;
-    });
-    return Array.from(tokens).sort();
-  };
-
-  const enBase = UI_STRINGS.en?.inventory || {};
-  const expectedKeys = Object.keys(enBase);
-  const locales = Object.keys(UI_STRINGS || {}).filter((lang) => lang !== 'en');
-
-  for (const lang of locales) {
-    const locale = UI_STRINGS[lang]?.inventory || {};
-    const missing = expectedKeys.filter((key) => {
-      const value = locale[key];
-      return value === undefined || value === null || value === '';
-    });
-
-    if (missing.length) {
-      console.warn(`[Inventory i18n] Missing keys for ${lang}:`, missing);
-    }
-
-    const extra = Object.keys(locale).filter((key) => !expectedKeys.includes(key));
-    if (extra.length) {
-      console.warn(`[Inventory i18n] Extra keys for ${lang}:`, extra);
-    }
-
-    const placeholderMismatch = [];
-    for (const key of expectedKeys) {
-      const enTokens = placeholderTokens(enBase[key]);
-      const localeTokens = placeholderTokens(locale[key]);
-      if (enTokens.join('|') !== localeTokens.join('|')) {
-        placeholderMismatch.push({ key, en: enTokens, locale: localeTokens });
-      }
-    }
-    if (placeholderMismatch.length) {
-      console.warn(`[Inventory i18n] Placeholder mismatch for ${lang}:`, placeholderMismatch);
-    }
-  }
 }
 
 function menuTitleForLang(menu) {
@@ -2211,15 +2041,15 @@ function applyLanguageUI() {
 }
 
 function hasMenuCsv(menu) {
-  if (menu?.key === INVENTORY_MENU_KEY || menu?.type === 'inventory') {
-    return isInventoryFeatureEnabled();
+  if (menu?.key === WASTE_MENU_KEY || menu?.type === 'waste') {
+    return isWasteFeatureEnabled();
   }
   return !!(menu?.csvUrl?.[state.lang] || menu?.csvUrl?.en);
 }
 
 function topMenuLabel(menu) {
   if (!menu) return '';
-  if (menu.key === INVENTORY_MENU_KEY || menu.type === 'inventory') return 'Inventory';
+  if (menu.key === WASTE_MENU_KEY || menu.type === 'waste') return 'Waste';
   const title = String(menu.title || menu.key || '').trim();
   if (/wine\s+list/i.test(title)) return 'Wine';
   return title;
@@ -2241,7 +2071,7 @@ function renderTopMenuNav() {
   const nav = $('topMenuNav');
   if (!nav) return;
 
-  const menus = (state.menus || []).filter(m => !isInventoryMenu(m));
+  const menus = (state.menus || []).filter(m => !isWasteMenu(m));
   const existing = nav.querySelectorAll('.topMenuItem');
   const canPatch = existing.length === menus.length &&
     Array.from(existing).every((btn, i) => btn.dataset.menuKey === menus[i].key);
@@ -2301,7 +2131,7 @@ function closeSettingsMenu() {
 }
 
 function getFirstRegularMenu() {
-  const regular = (state.menus || []).filter(m => !isInventoryMenu(m));
+  const regular = (state.menus || []).filter(m => !isWasteMenu(m));
   return regular.find(m => !!(m?.csvUrl?.en || m?.csvUrl?.[state.lang])) || regular[0] || null;
 }
 
@@ -2748,7 +2578,7 @@ function readRoute() {
 
   return {
     r: pathRestaurant || p.get('r'),
-    menu: (pathMenu === 'inventory' ? INVENTORY_MENU_KEY : pathMenu) || p.get('menu'),
+    menu: (pathMenu === 'waste' ? WASTE_MENU_KEY : pathMenu) || p.get('menu'),
     section: normalizeSectionKey(p.get('section')),
     w: p.get('w')
   };
@@ -2759,12 +2589,12 @@ function buildPath(r, menu) {
     const bp = getBasePath();
     const base = bp.endsWith('/') ? bp : `${bp}/`;
     if (!r) return base;
-    const routeMenu = menu === INVENTORY_MENU_KEY ? 'inventory' : menu;
+    const routeMenu = menu === WASTE_MENU_KEY ? 'waste' : menu;
     const suffix = routeMenu ? `${r}/${routeMenu}` : `${r}`;
     return `${base}#/${suffix}`;
   }
   if (!r) return '/';
-  const routeMenu = menu === INVENTORY_MENU_KEY ? 'inventory' : menu;
+  const routeMenu = menu === WASTE_MENU_KEY ? 'waste' : menu;
   if (!routeMenu) return `/${r}`;
   return `/${r}/${routeMenu}`;
 }
@@ -3033,31 +2863,35 @@ function readProfileValue(raw, keys) {
   return null;
 }
 
-function inferProfile(sectionKey = '') {
+// Per-wine taste base: grape variety first (assets/js/wine-profiles.js),
+// then section preset. Returns body/acidity/sweetness/texture[/tannins]/textureLabel.
+function inferProfile(sectionKey = '', grape = '') {
+  if (window.WineProfiles) return window.WineProfiles.resolve(grape, sectionKey);
+  // Defensive fallback if the knowledge base failed to load.
   const key = String(sectionKey || '').toLowerCase();
   if (key.includes('red')) {
-    return { body: 72, acidity: 55, sweetness: 12, texture: 72, textureLabel: ['Smooth', 'Firm'] };
-  }
-  if (key.includes('sparkling') || key.includes('champagne')) {
-    return { body: 30, acidity: 72, sweetness: 22, texture: 28, textureLabel: ['Crisp', 'Creamy'] };
-  }
-  if (key.includes('rose')) {
-    return { body: 42, acidity: 60, sweetness: 18, texture: 40, textureLabel: ['Crisp', 'Creamy'] };
-  }
-  if (key.includes('dessert')) {
-    return { body: 62, acidity: 40, sweetness: 82, texture: 60, textureLabel: ['Crisp', 'Creamy'] };
+    return { body: 72, acidity: 55, sweetness: 12, texture: 72, tannins: 62, textureLabel: ['Smooth', 'Firm'] };
   }
   return { body: 38, acidity: 64, sweetness: 12, texture: 36, textureLabel: ['Crisp', 'Creamy'] };
 }
 
+function isRedWine(sectionKey = '') {
+  return String(sectionKey || '').toLowerCase().includes('red');
+}
+
 function getWineProfile(w) {
   const raw = w?.raw || {};
-  const base = inferProfile(w.sectionKey);
+  const base = inferProfile(w.sectionKey, w.grape);
   const body = readProfileValue(raw, ['body', 'body_level', 'profile_body']) ?? base.body;
   const acidity = readProfileValue(raw, ['acidity', 'acidity_level', 'profile_acidity']) ?? base.acidity;
   const sweetness = readProfileValue(raw, ['sweetness', 'sweetness_level', 'profile_sweetness']) ?? base.sweetness;
   const texture = readProfileValue(raw, ['texture', 'texture_level', 'profile_texture']) ?? base.texture;
-  return { body, acidity, sweetness, texture, textureLabel: base.textureLabel };
+  const profile = { body, acidity, sweetness, texture, textureLabel: base.textureLabel };
+  if (isRedWine(w.sectionKey)) {
+    profile.tannins = readProfileValue(raw, ['tannins', 'tannin', 'tannins_level', 'profile_tannins'])
+      ?? (base.tannins ?? 60);
+  }
+  return profile;
 }
 
 // Словарь токенов для notes (иконки PNG + названия из файлов)
@@ -3252,34 +3086,34 @@ function applyThemeFromConfig(config) {
   if (config?.theme?.font) root.style.setProperty('--font', config.theme.font);
 }
 
-function getInventoryFeatureConfig(config = state.config) {
-  return config?.features?.inventory || null;
+function getWasteFeatureConfig(config = state.config) {
+  return config?.features?.waste || null;
 }
 
-function isInventoryFeatureEnabled(config = state.config) {
-  return !!getInventoryFeatureConfig(config)?.enabled;
+function isWasteFeatureEnabled(config = state.config) {
+  return !!getWasteFeatureConfig(config)?.enabled;
 }
 
-function isInventoryRouteKey(menuKey) {
-  return menuKey === INVENTORY_MENU_KEY;
+function isWasteRouteKey(menuKey) {
+  return menuKey === WASTE_MENU_KEY;
 }
 
 function normalizeMenus(config) {
   if (Array.isArray(config?.menus) && config.menus.length) {
-    const inventoryEnabled = isInventoryFeatureEnabled(config);
+    const wasteEnabled = isWasteFeatureEnabled(config);
     const menus = [...config.menus].filter((menu) => {
-      if (!inventoryEnabled && isInventoryMenu(menu)) return false;
+      if (!wasteEnabled && isWasteMenu(menu)) return false;
       return true;
     });
 
-    const hasInventory = menus.some(m => m?.key === INVENTORY_MENU_KEY);
-    if (inventoryEnabled && !hasInventory) {
-      const inventoryFeature = getInventoryFeatureConfig(config) || {};
+    const hasWaste = menus.some(m => m?.key === WASTE_MENU_KEY);
+    if (wasteEnabled && !hasWaste) {
+      const wasteFeature = getWasteFeatureConfig(config) || {};
       menus.push({
-        key: INVENTORY_MENU_KEY,
-        title: inventoryFeature.title || 'Inventory Mode',
-        type: 'inventory',
-        layout: 'inventory'
+        key: WASTE_MENU_KEY,
+        title: wasteFeature.title || 'Waste Mode',
+        type: 'waste',
+        layout: 'waste'
       });
     }
     return menus;
@@ -3308,12 +3142,12 @@ function getCsvUrlForLang(lang) {
   return source?.[lang] || source?.en || null;
 }
 
-function isInventoryMenu(menu) {
-  return !!menu && (menu.key === INVENTORY_MENU_KEY || menu.type === 'inventory' || menu.layout === 'inventory');
+function isWasteMenu(menu) {
+  return !!menu && (menu.key === WASTE_MENU_KEY || menu.type === 'waste' || menu.layout === 'waste');
 }
 
-function isInventoryMode() {
-  return isInventoryMenu(state.menuConfig);
+function isWasteMode() {
+  return isWasteMenu(state.menuConfig);
 }
 
 // Pastry and Coffee share the same flat photo-card layout, row mapping and render path.
@@ -3376,83 +3210,50 @@ function mapPhotoCardRow(x, idx) {
   };
 }
 
-let inventoryModeModule = null;
+let wasteModeModule = null;
 
-function showInventoryShell() {
-  const tabs = $('sectionTabs');
-  const grid = $('grid');
-  const topMenuNav = $('topMenuNav');
-  const topbar = document.querySelector('.topbar');
-  if (tabs) tabs.classList.add('hidden');
-  if (grid) grid.classList.add('hidden');
-  if (topMenuNav) topMenuNav.classList.add('hidden');
-  if (topbar) topbar.classList.add('inventoryModeTopbar');
-  const searchWrap = $('searchWrap');
-  if (searchWrap) searchWrap.classList.add('hiddenControl');
-  const inventoryView = $('inventoryView');
-  if (inventoryView) inventoryView.classList.remove('hidden');
+function showWasteShell() {
+  const appWrap = $('appWrap');
+  if (appWrap) appWrap.classList.add('wasteActive');
+  const wasteView = $('wasteView');
+  if (wasteView) wasteView.classList.add('wmVisible');
 }
 
-function hideInventoryShell() {
-  const tabs = $('sectionTabs');
-  const grid = $('grid');
-  const topMenuNav = $('topMenuNav');
-  const topbar = document.querySelector('.topbar');
-  if (tabs) tabs.classList.remove('hidden');
-  if (grid) grid.classList.remove('hidden');
-  if (topMenuNav) topMenuNav.classList.remove('hidden');
-  if (topbar) topbar.classList.remove('inventoryModeTopbar');
-  const searchWrap = $('searchWrap');
-  if (searchWrap) searchWrap.classList.remove('hiddenControl');
-  const inventoryView = $('inventoryView');
-  if (inventoryView) inventoryView.classList.add('hidden');
+function hideWasteShell() {
+  const appWrap = $('appWrap');
+  if (appWrap) appWrap.classList.remove('wasteActive');
+  const wasteView = $('wasteView');
+  if (wasteView) wasteView.classList.remove('wmVisible');
 }
 
-function getInventoryModeModule() {
-  if (inventoryModeModule) return inventoryModeModule;
-  if (typeof window.createInventoryModeModule !== 'function') {
-    throw new Error('Inventory module factory is not available');
+function getWasteModeModule() {
+  if (wasteModeModule) return wasteModeModule;
+  if (typeof window.createWasteModeModule !== 'function') {
+    throw new Error('Waste mode module factory is not available');
   }
-
-  inventoryModeModule = window.createInventoryModeModule({
-    getState: () => state,
-    byId: $,
-    loadCSV,
-    csvToObjects,
-    getMenuByKey,
-    setStatus,
-    t,
-    getStrings: () => inventoryStringsForLang(state.lang),
-    constants: {
-      menuKey: INVENTORY_MENU_KEY,
-      storagePrefix: INVENTORY_STORAGE_PREFIX,
-      units: INVENTORY_UNITS,
-      reasons: INVENTORY_REASONS
-    }
-  });
-
-  return inventoryModeModule;
+  wasteModeModule = window.createWasteModeModule({ getState: () => state, byId: $ });
+  return wasteModeModule;
 }
 
 function showWineView() {
-  if (inventoryModeModule && typeof inventoryModeModule.unmount === 'function') {
-    inventoryModeModule.unmount();
+  if (wasteModeModule && typeof wasteModeModule.unmount === 'function') {
+    wasteModeModule.unmount();
   }
-  hideInventoryShell();
+  hideWasteShell();
 }
 
 function hideWineView() {
-  showInventoryShell();
+  showWasteShell();
 }
 
-async function renderInventoryMode() {
+function renderWasteMode() {
   hideWineView();
   closeModal(false, false);
   state.modalWineId = null;
 
-  const module = getInventoryModeModule();
-  await module.mount();
-  showInventoryShell();
+  const module = getWasteModeModule();
+  module.mount();
+  showWasteShell();
 }
 
 function authStorageKey() {
@@ -3588,10 +3389,10 @@ function renderMenuList() {
   
   list.innerHTML = '';
 
-  const inventoryMenu = state.menus.find((m) => m?.key === INVENTORY_MENU_KEY);
-  const regularMenus = (state.menus || []).filter((m) => !isInventoryMenu(m));
+  const wasteMenu = state.menus.find((m) => m?.key === WASTE_MENU_KEY);
+  const regularMenus = (state.menus || []).filter((m) => !isWasteMenu(m));
 
-  if (inventoryMenu) {
+  if (wasteMenu) {
     const openMenuBtn = document.createElement('button');
     openMenuBtn.type = 'button';
     openMenuBtn.className = 'menuBtn';
@@ -3607,12 +3408,12 @@ function renderMenuList() {
     }
     list.appendChild(openMenuBtn);
 
-    const inventoryBtn = document.createElement('button');
-    inventoryBtn.type = 'button';
-    inventoryBtn.className = 'menuBtn';
-    inventoryBtn.textContent = inventoryMenu.title || 'Inventory Mode';
-    inventoryBtn.onclick = () => enterMenu(INVENTORY_MENU_KEY);
-    list.appendChild(inventoryBtn);
+    const wasteBtn = document.createElement('button');
+    wasteBtn.type = 'button';
+    wasteBtn.className = 'menuBtn';
+    wasteBtn.textContent = wasteMenu.title || 'Waste Mode';
+    wasteBtn.onclick = () => enterMenu(WASTE_MENU_KEY);
+    list.appendChild(wasteBtn);
     return;
   }
 
@@ -3778,13 +3579,13 @@ function validateCredentials(login, password) {
 
 async function enterMenu(menuKey) {
   if (!menuKey) return;
-  const wasInventoryMode = isInventoryMode();
+  const wasWasteMode = isWasteMode();
   const nextMenu = getMenuByKey(menuKey);
-  const nextIsInventoryMode = isInventoryMenu(nextMenu);
-  if (!wasInventoryMode && nextIsInventoryMode) {
+  const nextIsWasteMode = isWasteMenu(nextMenu);
+  if (!wasWasteMode && nextIsWasteMode) {
     resetWineSearchState();
   }
-  if (isInventoryRouteKey(menuKey) && !isInventoryFeatureEnabled()) {
+  if (isWasteRouteKey(menuKey) && !isWasteFeatureEnabled()) {
     showStartScreen();
     renderMenuList();
     return;
@@ -3806,7 +3607,6 @@ async function enterMenu(menuKey) {
 
   renderMenuSelect();
 
-  // Set topbar branding (logo and restaurant name)
   const brandLogo = state.config?.branding?.logo || state.config?.logoUrl || '';
   $('restaurantName').textContent = state.config.name || state.restaurantId;
   $('logo').src = normalizeAssetPath(brandLogo);
@@ -3816,27 +3616,26 @@ async function enterMenu(menuKey) {
 
   writeUrlParams({ menu: menuKey, w: null, section: null }, 'push');
 
-  if (isInventoryMode()) {
-    await renderInventoryMode();
+  if (isWasteMode()) {
+    renderWasteMode();
     renderTopMenuNav();
     return;
   }
 
-  if (wasInventoryMode) {
+  if (wasWasteMode) {
     resetWineSearchState();
   }
 
   showWineView();
 
-  // Форсируем загрузку данных, даже если язык не изменился
   state.wines = [];
   await loadWinesForCurrentMenu();
   scrollToTop();
 }
 
 async function loadWinesForCurrentMenu() {
-  if (isInventoryMode()) {
-    await renderInventoryMode();
+  if (isWasteMode()) {
+    renderWasteMode();
     return;
   }
 
@@ -3893,14 +3692,14 @@ async function loadWinesForCurrentMenu() {
 async function setMenu(nextMenuKey, opts = {}) {
   const { fromPopstate = false } = opts;
   if (!nextMenuKey || nextMenuKey === state.menuKey) return;
-  const wasInventoryMode = isInventoryMode();
+  const wasWasteMode = isWasteMode();
   const nextMenu = getMenuByKey(nextMenuKey);
-  const nextIsInventoryMode = isInventoryMenu(nextMenu);
-  if (!wasInventoryMode && nextIsInventoryMode) {
+  const nextIsWasteMode = isWasteMenu(nextMenu);
+  if (!wasWasteMode && nextIsWasteMode) {
     resetWineSearchState();
   }
 
-  if (isInventoryRouteKey(nextMenuKey) && !isInventoryFeatureEnabled()) {
+  if (isWasteRouteKey(nextMenuKey) && !isWasteFeatureEnabled()) {
     state.menuKey = null;
     state.menuConfig = null;
     showStartScreen();
@@ -3942,12 +3741,12 @@ async function setMenu(nextMenuKey, opts = {}) {
     writeUrlParams({ menu: nextMenuKey, w: null, section: null }, 'push');
   }
 
-  if (isInventoryMode()) {
-    await renderInventoryMode();
+  if (isWasteMode()) {
+    renderWasteMode();
     return;
   }
 
-  if (wasInventoryMode) {
+  if (wasWasteMode) {
     resetWineSearchState();
   }
 
@@ -4360,7 +4159,7 @@ function buildWineCardElement(w) {
 }
 
 function filterAndRender() {
-  if (isInventoryMode()) return;
+  if (isWasteMode()) return;
 
   let list = state.wines.slice();
   const isPhotoCard = isPhotoCardMenu(state.menuConfig);
@@ -4605,6 +4404,9 @@ function openWineModal(wineId, pushHistory = true) {
     { label: 'Sweetness', left: 'Dry', right: 'Sweet', value: profile.sweetness },
     { label: 'Texture', left: profile.textureLabel[0], right: profile.textureLabel[1], value: profile.texture }
   ];
+  if (profile.tannins !== undefined) {
+    rows.push({ label: 'Tannins', left: 'Supple', right: 'Grippy', value: profile.tannins });
+  }
   for (const r of rows) {
     const row = document.createElement('div');
     row.className = 'profileRow';
@@ -4966,9 +4768,7 @@ async function boot() {
     initTheme();
     initStickyOffsets();
     setStatus(t('loading'), 'idle');
-    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-      validateInventoryI18nCoverage();
-    }
+
 
     state.configsIndex = await loadConfigsIndex();
     const url = readRoute();
@@ -5062,8 +4862,8 @@ async function boot() {
 
     showAppScreen();
 
-    if (isInventoryMode()) {
-      await renderInventoryMode();
+    if (isWasteMode()) {
+      renderWasteMode();
       syncUrl();
       return;
     }
@@ -5168,8 +4968,8 @@ window.addEventListener('popstate', () => {
     return;
   }
 
-  if (isInventoryMode()) {
-    renderInventoryMode();
+  if (isWasteMode()) {
+    renderWasteMode();
     return;
   }
 
@@ -5190,7 +4990,7 @@ window.addEventListener('popstate', () => {
 });
 
 window.addEventListener('resize', () => {
-  if (isInventoryMode()) return;
+  if (isWasteMode()) return;
   if (isPhotoCardMenu(state.menuConfig)) {
     schedulePhotoCardTitleFit();
   } else {
@@ -5200,6 +5000,5 @@ window.addEventListener('resize', () => {
 
 boot();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </body>
 </html>

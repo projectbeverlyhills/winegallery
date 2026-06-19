@@ -31,12 +31,9 @@
   "defaultLanguage": "en",
   "enabledLanguages": ["en"],
   "features": {
-    "inventory": {
+    "waste": {
       "enabled": true,
-      "route": "inventory",
-      "profile": "pastry-default",
-      "apiNamespace": "pastry",
-      "title": "Inventory Mode"
+      "title": "Waste Mode"
     }
   },
   "currency": "USD",

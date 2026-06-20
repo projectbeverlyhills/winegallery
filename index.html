@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>HOSTERA</title>
   <style>
+    /* =======================================================================
+       ВСЕ СТИЛИ ПРИЛОЖЕНИЯ ИНЛАЙНОМ (single-file SPA, без сборки и внешних CSS).
+       Структура файла стилей: токены дизайна → темы → базовые стили → шапка →
+       поиск/настройки → вкладки → сетка → карточки → модалки → стартовый экран →
+       адаптив. Дизайн-система Apple-grade: хайрлайны 1px, iOS-изинги.
+       ======================================================================= */
+
+    /* --- ДИЗАЙН-ТОКЕНЫ (светлая тема по умолчанию) ---
+       Единый источник цветов/радиусов/отступов/шрифта. Все компоненты ссылаются
+       на эти переменные; тему можно переопределять из JS (applyTheme/из конфига). */
     :root{
       --bg1:#FFFFFF;
       --bg2:#FFFFFF;
@@ -30,6 +40,7 @@
       --gap:16px;
       --font: 'Proxima Nova', sans-serif;
     }
+    /* --- ТЁМНАЯ ТЕМА: переопределение тех же токенов при data-theme="dark" на <html> --- */
     :root[data-theme="dark"]{
       --bg1:#000000;
       --bg2:#000000;
@@ -49,6 +60,7 @@
       --track:#2C2C2C;
       --shadow:0 2px 8px rgba(0,0,0,0.3);
     }
+    /* --- БАЗОВЫЕ СТИЛИ: шрифт по умолчанию, фон/цвет страницы, сглаживание --- */
     *{
       font-family: var(--font);
     }
@@ -60,11 +72,15 @@
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
     }
+    /* --- ОСНОВНОЙ КОНТЕЙНЕР приложения (центрирование + макс. ширина) --- */
     .wrap{
       max-width:1240px;
       margin:0 auto;
       padding:22px 18px 70px;
     }
+    /* =================== ШАПКА (.topbar) ===================
+       Липкая шапка из трёх колонок: бренд | навигация по меню | инструменты.
+       ::before рисует размытую подложку во всю ширину экрана с маской снизу. */
     .topbar{
       position: sticky;
       top: 0;
@@ -153,6 +169,7 @@
       overflow:hidden;
       text-overflow:ellipsis;
     }
+    /* --- Навигация по меню в шапке (вкладки .topMenuItem) --- */
     .topbarNav{
       display:flex;
       align-items:center;
@@ -221,6 +238,7 @@
       position:relative;
       padding:0 8px;
     }
+    /* --- Иконочные кнопки инструментов в шапке (настройки и т.п.) --- */
     .toolBtn{
       width:48px;
       height:48px;
@@ -248,6 +266,8 @@
       width:20px;
       height:20px;
     }
+    /* =================== ПОИСК (раскрывающееся поле) ===================
+       В свёрнутом виде — иконка-кнопка; класс .expanded разворачивает в инпут. */
     .searchField{
       display:flex;
       align-items:center;
@@ -335,6 +355,8 @@
       outline:2px solid var(--navAccent);
       outline-offset:1px;
     }
+    /* =================== ПАНЕЛЬ НАСТРОЕК (выпадающее меню) ===================
+       Тема / назад в меню / выход. Открытие — класс .open. */
     .settingsPanel{
       position:absolute;
       top: calc(100% + 8px);
@@ -449,6 +471,7 @@
     [data-theme="dark"] .settingsDivider{
       background: rgba(255,255,255,0.12);
     }
+    /* --- Утилиты и legacy-контролы: скрытый класс, базовая кнопка, статус-индикатор --- */
     .hiddenControl{
       display:none !important;
     }
@@ -500,6 +523,9 @@
       box-shadow: 0 0 0 3px rgba(116,255,182,0.13);
     }
 
+    /* =================== ВКЛАДКИ СЕКЦИЙ / ПОДСЕКЦИЙ (.chip) ===================
+       Липкий под шапкой ряд чипов-фильтров; активный — .chip.active.
+       top привязан к --topbar-h, который пересчитывает syncStickyOffsets(). */
     .tabs{
       position: sticky;
       top: var(--topbar-h, 80px);
@@ -614,6 +640,9 @@
       outline-offset:2px;
     }
 
+    /* =================== СЕТКА КАРТОЧЕК (.grid) ===================
+       Базовая сетка винных карточек (2 колонки). .photoCardGrid — режим
+       фото-карточек (другая раскладка для Pastry/Coffee/Bar). */
     .grid{
       display:grid;
       grid-template-columns: repeat(2, minmax(0, 460px));
@@ -660,6 +689,9 @@
       .grid.photoCardGrid{ grid-template-columns: 1fr; }
     }
 
+    /* =================== ВИННАЯ КАРТОЧКА (layout «Wine») ===================
+       Горизонтальная карточка: фото бутылки слева (.bottleWrap), мета справа
+       (.meta: производитель/название/инфо/цены/ноты). .cardBtn — кликовый оверлей. */
     .card{
       position:relative;
       box-sizing: border-box;
@@ -774,6 +806,9 @@
       margin-top: 10px;
       white-space: normal;
     }
+    /* =================== ФОТО-КАРТОЧКА (layout «Photo-card») ===================
+       Вертикальная карточка для Pastry/Coffee/Bar: крупное фото сверху,
+       под ним заголовок и цена. Namespace .photoCard* — по соглашению проекта. */
     .photoCard{
       max-width: 400px;
       width: 100%;
@@ -877,6 +912,8 @@
     .photoCardFooter .dietaryBadges{
       margin: 0;
     }
+    /* --- Внутренние элементы карточек: строки инфо, цены (бокал/бутылка),
+           флаги стран, диет-бэйджи, чипы вкусовых нот (.noteTag с PNG-иконкой) --- */
     .infoRow{
       display: grid;
       grid-template-columns: 70px 1fr;
@@ -1047,6 +1084,10 @@
       background: transparent;
       border:0;
     }
+    /* =================== МОДАЛКА ВИНА ===================
+       .modalBack — затемнённый оверлей с blur; .modal — само окно.
+       Появление через класс .open (анимация из CSS). Внутри: фото слева,
+       текст/профиль вкуса справа. */
     .modalBack{
       position:fixed;
       inset:0;
@@ -1236,6 +1277,8 @@
       margin-top: 2px;
       opacity: 0.6;
     }
+    /* --- Профиль вкуса в модалке: шкалы Body/Acidity/... с бегунком (.profileMarker),
+           позиция которого = значение 0..100 (см. openWineModal) --- */
     .modalProfile{
       display:flex;
       flex-direction:column;
@@ -1355,6 +1398,8 @@
       border-color: var(--text);
     }
 
+    /* =================== СТАРТОВЫЙ ЭКРАН (логин + выбор меню) ===================
+       Брендинг, форма входа, кнопки меню. Принудительно светлая тема. */
     /* ===== Start screen ===== */
     .startScreen{
       /* Экран логина всегда в светлой теме, независимо от data-theme */
@@ -1468,6 +1513,7 @@
       object-position: center;
       margin: 0 auto;
     }
+    /* --- Форма входа и список кнопок меню на стартовом экране --- */
     .loginForm{
       width: min(336px, 65vw);
       max-width: 100%;
@@ -1540,6 +1586,8 @@
     }
     .noteContainer { display:none; }
 
+    /* =================== МОДАЛКА ФОТО-КАРТОЧКИ (Pastry/Coffee/Bar) ===================
+       Отдельная от винной модалки: фото + заголовок/цена/описание/бэйджи. */
     /* ===== Photo-card modal ===== */
     .pcModalBack{
       position:fixed;
@@ -1729,6 +1777,7 @@
       margin-top:12px;
       flex-shrink:0;
     }
+    /* На узких экранах фото-модалка превращается в нижний «лист» (bottom sheet). */
     @media(max-width:640px){
       .pcModalBack{ padding:0; align-items:flex-end; backdrop-filter:blur(12px) saturate(160%); -webkit-backdrop-filter:blur(12px) saturate(160%); }
       .pcModal{
@@ -1748,6 +1797,9 @@
     .photoCard:active{ transform:scale(0.984); }
     .photoCard{ transition:transform 140ms cubic-bezier(0.2,0,0,1); }
 
+    /* =================== АДАПТИВ (планшет/мобайл) ===================
+       Брейкпоинты 900/680/640px: модалка вина из 2 колонок становится в одну,
+       уменьшаются фото и отступы, фото-модалка — bottom sheet. */
     @media (max-width: 900px){
       .modalBody{
         grid-template-columns: 1fr;
@@ -1786,10 +1838,17 @@
   <link rel="stylesheet" href="assets/css/waste-mode.css" />
 </head>
 <body>
+  <!--
+    СТАРТОВЫЙ ЭКРАН (#startScreen): первое, что видит пользователь.
+    Содержит брендинг (лого/название), форму входа (#loginForm) и список меню
+    (#menuList). Видимостью управляет JS (showStartScreen/showAppScreen).
+  -->
   <div class="startScreen" id="startScreen" aria-hidden="true">
     <div class="startCard">
 
 
+      <!-- Брендинг: либо лого ресторана (#startLogo), либо фирменный локап
+           HOSTERA (#startLockup) с текстовым фолбэком. Переключает renderStartBranding(). -->
       <div class="startBrand">
         <img id="startLogo" alt="logo" src="" />
         <div>
@@ -1799,6 +1858,8 @@
         </div>
       </div>
 
+      <!-- Форма входа (для персонала). Обработчик onsubmit навешивается из JS
+           (renderGlobalLoginForm / boot). #loginError показывает ошибки валидации. -->
       <form id="loginForm" class="loginForm" autocomplete="off">
         <input id="loginInput" placeholder="Login" aria-label="Login" />
         <input id="passwordInput" placeholder="Password" type="password" aria-label="Password" />
@@ -1807,12 +1868,19 @@
         <div id="loginError" class="formError"></div>
       </form>
 
+      <!-- Список меню — кнопки выбора, наполняется renderMenuList() из state.menus. -->
       <div id="menuList" class="menuList"></div>
     </div>
   </div>
 
+  <!--
+    ЭКРАН ПРИЛОЖЕНИЯ (#appWrap): основной интерфейс меню.
+    Структура: липкая шапка (.topbar) → вкладки секций/подсекций → сетка карточек.
+  -->
   <div class="wrap" id="appWrap">
+    <!-- Липкая шапка: бренд слева, навигация по меню по центру, инструменты справа. -->
     <div class="topbar">
+      <!-- Бренд ресторана (лого + название), заполняется в enterMenu/boot. -->
       <div class="topbarBrand">
         <img id="logo" alt="logo" src="" />
         <div class="title">
@@ -1820,10 +1888,15 @@
         </div>
       </div>
 
+      <!-- Центр шапки: вкладки переключения меню (renderTopMenuNav) и заголовок
+           waste-режима, который показывается вместо них в режиме списания. -->
       <nav id="topMenuNav" class="topbarNav" aria-label="Top menu"></nav>
       <div id="wasteModeTitle" class="topbarNav wm-topbar-title" aria-hidden="true">Waste Mode</div>
 
+      <!-- Инструменты справа: поиск, меню настроек, и скрытые legacy-контролы. -->
       <div class="topbarTools">
+        <!-- Раскрывающееся поле поиска: в свёрнутом виде это иконка-кнопка,
+             по клику разворачивается в инпут (см. expandSearch/onSearchDebounced). -->
         <div class="searchField" id="searchWrap" role="button" tabindex="0" aria-label="Search" aria-expanded="false">
           <span class="searchIco" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
@@ -1832,6 +1905,8 @@
           <button id="clearSearchBtn" class="searchClearBtn" type="button" title="Clear search" aria-label="Clear search">×</button>
         </div>
 
+        <!-- Кнопка-«троеточие» и выпадающая панель настроек (тема / назад в меню /
+             выход). Поведение навешивает bindSettingsMenu(). -->
         <button id="settingsBtn" class="toolBtn" type="button" title="Settings" aria-label="Settings" aria-expanded="false">⋮</button>
         <div id="settingsPanel" class="settingsPanel" aria-hidden="true" role="menu">
           <button id="settingsThemeBtn" class="settingsAction" type="button" role="menuitem">
@@ -1853,6 +1928,9 @@
           </button>
         </div>
 
+        <!-- Скрытые legacy-контролы (.hiddenControl): нативный select меню и
+             старые кнопки темы/выхода. Управляются из JS, но визуально спрятаны —
+             их роль взяли на себя topMenuNav и панель настроек. -->
         <select id="menuSelect" class="hiddenControl" title="Menu" aria-label="Menu"></select>
 
         <button id="themeToggleBtn" class="btn hiddenControl" type="button" title="Toggle theme">🌙</button>
@@ -1860,11 +1938,17 @@
       </div>
     </div>
 
+    <!-- Вкладки фильтра по секциям и подсекциям (renderSectionButtons). -->
     <div class="tabs" id="sectionTabs"></div>
     <div class="tabs subsectionTabs hidden" id="subsectionTabs"></div>
+    <!-- Сетка карточек — главный контейнер контента (renderGrid). -->
     <div class="grid" id="grid"></div>
   </div>
 
+  <!--
+    МОДАЛКА ВИНА (#modalBack): детальная карточка с профилем вкуса.
+    Все поля (#modal*) заполняет openWineModal(). Открывается по ?w=<id>.
+  -->
   <div class="modalBack" id="modalBack">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalName" aria-describedby="modalDesc" tabindex="-1">
       <button class="closeBtn" id="closeModalBtn" aria-label="Close modal">Close</button>
@@ -1896,6 +1980,10 @@
     </div>
   </div>
 
+  <!--
+    МОДАЛКА ФОТО-КАРТОЧКИ (#pcModalBack): детальный просмотр блюда/напитка
+    для меню Pastry/Coffee/Bar. Заполняет openPhotoCardModal().
+  -->
   <div class="pcModalBack" id="pcModalBack" aria-hidden="true">
     <div class="pcModal" role="dialog" aria-modal="true" aria-labelledby="pcModalTitle" tabindex="-1">
       <div class="pcModalHeader">
@@ -1918,6 +2006,11 @@
     </div>
   </div>
 
+<!--
+  Внешние модули (единственные подключаемые скрипты, кроме инлайнового ниже):
+  • waste-mode.js   — самостоятельный модуль режима списания (фабрика createWasteModeModule);
+  • wine-profiles.js — база знаний вкусовых профилей по сортам (window.WineProfiles).
+-->
 <script src="assets/js/waste-mode.js"></script>
 <script src="assets/js/wine-profiles.js"></script>
 <script>
@@ -1926,8 +2019,16 @@
  * 1) State / helpers
  * =========================
  */
+// Короткий алиас для document.getElementById — используется по всему файлу.
 const $ = (id) => document.getElementById(id);
 
+/**
+ * ГЛОБАЛЬНОЕ СОСТОЯНИЕ ПРИЛОЖЕНИЯ (single source of truth).
+ * Здесь хранится ВСЁ, что нужно для отрисовки: выбранный ресторан/меню/язык,
+ * загруженный конфиг, список вин, активные фильтры (секция/подсекция/поиск),
+ * статус загрузки и флаги авторизации. Любой рендер читает данные отсюда.
+ * Поле `cache` хранит уже загруженные конфиги и CSV, чтобы не дёргать сеть повторно.
+ */
 const state = {
   restaurantId: null,
   menuKey: null,
@@ -1960,11 +2061,19 @@ const state = {
   currentDisplaySection: '', // Current section being displayed (can differ from activeSection when searching)
 };
 
+// Заглушка-картинка бутылки, когда у позиции нет фото.
 const PLACEHOLDER_BOTTLE = 'assets/placeholder-bottle.svg';
+// Флаги «обработчик уже навешен» — защита от повторной привязки слушателей при ре-рендере.
 let logoutHandlerBound = false;
 let settingsMenuBound = false;
+// Зарезервированный ключ меню для режима учёта списания (Waste mode).
 const WASTE_MENU_KEY = 'waste_mode';
 
+/**
+ * Словарь локализации интерфейса (i18n).
+ * Ключ верхнего уровня — язык ('en'/'ru'), внутри — строки UI по ключам.
+ * Доступ к строкам идёт только через функцию t() ниже, не напрямую.
+ */
 const UI_STRINGS = {
   en: {
     all: 'All',
@@ -1998,16 +2107,23 @@ const UI_STRINGS = {
   }
 };
 
+// Перевод строки UI по ключу. Берёт текущий язык из state, при отсутствии
+// строки откатывается на английский, а затем — на сам ключ (чтобы не падать).
 function t(key) {
   const lang = state?.lang || 'en';
   return UI_STRINGS[lang]?.[key] || UI_STRINGS.en?.[key] || key;
 }
 
+// Человекочитаемое название меню для текущего языка (с фолбэком на ключ меню).
 function menuTitleForLang(menu) {
   if (!menu) return '';
   return menu.title || menu.key;
 }
 
+/**
+ * Проставляет локализованные подписи/плейсхолдеры в уже отрисованный DOM:
+ * поля поиска и логина, форму входа и т.д. Вызывается при смене языка.
+ */
 function applyLanguageUI() {
   const searchInput = $('searchInput');
   if (searchInput) searchInput.placeholder = t('search');
@@ -2040,6 +2156,8 @@ function applyLanguageUI() {
   }
 }
 
+// Есть ли у меню источник данных (CSV) для отображения.
+// Для Waste-меню «доступность» определяется флагом фичи, а не наличием CSV.
 function hasMenuCsv(menu) {
   if (menu?.key === WASTE_MENU_KEY || menu?.type === 'waste') {
     return isWasteFeatureEnabled();
@@ -2047,6 +2165,8 @@ function hasMenuCsv(menu) {
   return !!(menu?.csvUrl?.[state.lang] || menu?.csvUrl?.en);
 }
 
+// Короткая подпись пункта в верхней навигации.
+// Длинное "Wine list" схлопывается в "Wine"; Waste-меню всегда "Waste".
 function topMenuLabel(menu) {
   if (!menu) return '';
   if (menu.key === WASTE_MENU_KEY || menu.type === 'waste') return 'Waste';
@@ -2055,6 +2175,8 @@ function topMenuLabel(menu) {
   return title;
 }
 
+// Inline-SVG иконки для типов меню (bar/coffee/pastry/wine).
+// Хранятся строками, чтобы не тянуть внешние файлы — single-file архитектура.
 const MENU_ICON_SVGS = {
   bar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16l-8 8z"/><path d="M12 13v6"/><path d="M8 21h8"/></svg>',
   coffee: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M17 9h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M8 3v2M12 3v2"/><path d="M4 21h13"/></svg>',
@@ -2062,11 +2184,19 @@ const MENU_ICON_SVGS = {
   wine: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h10l-1 6a4 4 0 0 1-8 0z"/><path d="M12 15v5"/><path d="M8 20h8"/></svg>',
 };
 
+// Возвращает SVG-иконку по типу меню (с фолбэком на «wine»).
 function menuIconSvg(menu) {
   const type = String(menu?.type || '').toLowerCase();
   return MENU_ICON_SVGS[type] || MENU_ICON_SVGS.wine;
 }
 
+/**
+ * Рендер верхней навигации по меню (вкладки Wine/Bar/Coffee/...).
+ * Waste-меню сюда не попадает (фильтруется).
+ * ОПТИМИЗАЦИЯ: если набор кнопок не изменился, DOM не пересоздаётся —
+ * лишь переключается класс .active. Это сохраняет узлы и даёт сработать
+ * CSS-анимациям перехода (иначе при innerHTML='' анимация сбрасывается).
+ */
 function renderTopMenuNav() {
   const nav = $('topMenuNav');
   if (!nav) return;
@@ -2077,6 +2207,7 @@ function renderTopMenuNav() {
     Array.from(existing).every((btn, i) => btn.dataset.menuKey === menus[i].key);
 
   if (canPatch) {
+    // Быстрый путь: кнопки те же — только переключаем активную (см. описание выше).
     // Same buttons, just toggle .active — preserves DOM nodes so CSS transitions fire.
     existing.forEach((btn, i) => {
       const isActive = menus[i].key === state.menuKey;
@@ -2106,6 +2237,7 @@ function renderTopMenuNav() {
     button.appendChild(icon);
     button.appendChild(label);
 
+    // Если у меню нет данных — кнопка неактивна и подписана «coming soon».
     const enabled = hasMenuCsv(menu);
     if (!enabled) {
       button.disabled = true;
@@ -2120,6 +2252,7 @@ function renderTopMenuNav() {
   }
 }
 
+// Закрывает выпадающую панель настроек (шестерёнка) и сбрасывает ARIA-состояния.
 function closeSettingsMenu() {
   const panel = $('settingsPanel');
   const btn = $('settingsBtn');
@@ -2130,11 +2263,18 @@ function closeSettingsMenu() {
   if (btn) btn.setAttribute('aria-expanded', 'false');
 }
 
+// Первое «обычное» (не Waste) меню, у которого есть CSV — используется как
+// меню по умолчанию при входе/возврате.
 function getFirstRegularMenu() {
   const regular = (state.menus || []).filter(m => !isWasteMenu(m));
   return regular.find(m => !!(m?.csvUrl?.en || m?.csvUrl?.[state.lang])) || regular[0] || null;
 }
 
+/**
+ * Возврат на экран выбора меню: сбрасывает выбранное меню/секции,
+ * закрывает модалку, чистит URL-параметры, возвращает светлую тему
+ * и перерисовывает стартовый экран со списком меню.
+ */
 function goBackToMenuSelection() {
   state.menuKey = null;
   state.menuConfig = null;
@@ -2153,6 +2293,8 @@ function goBackToMenuSelection() {
   renderMenuList();
 }
 
+// Синхронизирует индикатор темы в панели настроек (иконка + подпись Dark/Light)
+// с реальным атрибутом data-theme на <html>.
 function updateSettingsThemeIndicator() {
   const iconEl = $('settingsThemeIcon');
   const valueEl = $('settingsThemeValue');
@@ -2163,6 +2305,11 @@ function updateSettingsThemeIndicator() {
   valueEl.textContent = isDark ? 'Dark' : 'Light';
 }
 
+/**
+ * Навешивает все слушатели панели настроек: открытие/закрытие, переключение
+ * темы, «назад в меню», «выйти», а также закрытие по клику вне панели.
+ * Защищена флагом settingsMenuBound от повторной привязки.
+ */
 function bindSettingsMenu() {
   if (settingsMenuBound) return;
 
@@ -2216,16 +2363,20 @@ function bindSettingsMenu() {
   settingsMenuBound = true;
 }
 
+// Возвращает путь к фото бутылки, либо плейсхолдер, если url пустой/невалидный.
 function resolveBottleSrc(url) {
   const u = normalizeAssetPath(url || '');
   return u ? u : PLACEHOLDER_BOTTLE;
 }
 
+// Навешивает обработчик на кнопку «Выйти» (с защитой от повторной привязки).
 function bindLogoutHandler() {
   if (logoutHandlerBound) return;
   const logoutBtnEl = $('logoutBtn');
   if (!logoutBtnEl) return;
   logoutBtnEl.addEventListener('click', (e) => {
+    // Полный выход: чистим авторизацию и весь связанный с рестораном/меню state,
+    // сбрасываем URL-параметры и возвращаем пользователя на форму входа.
     e.preventDefault();
     closeSettingsMenu();
     clearAuthState();
@@ -2244,6 +2395,13 @@ function bindLogoutHandler() {
   logoutHandlerBound = true;
 }
 
+/**
+ * Приводит путь к ассету к абсолютному от корня /winegallery/.
+ * ВАЖНО (неочевидно): «красивые» URL ресторанов (напр. /novikov_bh) ломают
+ * относительные пути — браузер резолвит assets/... как /novikov_bh/assets/...
+ * Поэтому абсолютные пути и относительные пути принудительно префиксуем
+ * /winegallery/. Внешние URL (http/https/data:) возвращаем как есть.
+ */
 function normalizeAssetPath(path) {
   if (!path) return '';
   if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) return path;
@@ -2263,6 +2421,11 @@ function normalizeAssetPath(path) {
   return fullPath;
 }
 
+/**
+ * \u041f\u0440\u0435\u0432\u0440\u0430\u0449\u0430\u0435\u0442 \u043f\u0440\u043e\u0438\u0437\u0432\u043e\u043b\u044c\u043d\u043e\u0435 \u043d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u0441\u0435\u043a\u0446\u0438\u0438 \u0432 \u0441\u0442\u0430\u0431\u0438\u043b\u044c\u043d\u044b\u0439 \u043c\u0430\u0448\u0438\u043d\u043d\u044b\u0439 \u043a\u043b\u044e\u0447:
+ * \u0443\u0431\u0438\u0440\u0430\u0435\u0442 \u0434\u0438\u0430\u043a\u0440\u0438\u0442\u0438\u043a\u0443, \u043f\u0440\u0438\u0432\u043e\u0434\u0438\u0442 \u043a \u043d\u0438\u0436\u043d\u0435\u043c\u0443 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0443 \u0438 \u0437\u0430\u043c\u0435\u043d\u044f\u0435\u0442 \u0432\u0441\u0451, \u043a\u0440\u043e\u043c\u0435
+ * \u043b\u0430\u0442\u0438\u043d\u0438\u0446\u044b/\u0446\u0438\u0444\u0440, \u043d\u0430 \u00ab_\u00bb. \u041d\u0443\u0436\u0435\u043d \u0434\u043b\u044f \u0441\u043e\u043f\u043e\u0441\u0442\u0430\u0432\u043b\u0435\u043d\u0438\u044f \u0441\u0435\u043a\u0446\u0438\u0439 \u0438\u0437 CSV \u0438 \u043a\u043e\u043d\u0444\u0438\u0433\u0430.
+ */
 function normalizeSectionKey(input) {
   const raw = String(input ?? '').trim();
   if (!raw) return '';
@@ -2272,17 +2435,22 @@ function normalizeSectionKey(input) {
   return cleaned;
 }
 
+// Безопасное приведение к строке: null/undefined превращает в пустую строку.
 function safe(v) {
   if (v === null || v === undefined) return '';
   return String(v);
 }
 
+// --- Блок работы с ценами: нормализация, проверка «нет цены», форматирование ---
+
+// Нормализует сырое значение цены: заменяет неразрывные пробелы и обрезает края.
 function normalizePriceRaw(v) {
   return String(v ?? '')
     .replace(/\u00A0/g, ' ')
     .trim();
 }
 
+// Считается ли цена «отсутствующей»: пусто или маркеры вроде n/a, null, '-' и т.п.
 function isMissingPrice(v) {
   const raw = normalizePriceRaw(v);
   if (!raw) return true;
@@ -2290,21 +2458,31 @@ function isMissingPrice(v) {
   return key === 'n/a' || key === 'na' || key === 'null' || key === 'none' || key === '-' || key === '--';
 }
 
+// Готовая к показу цена (отформатированная) или пустая строка, если цены нет.
 function getDisplayPrice(v) {
   if (isMissingPrice(v)) return '';
   return money(normalizePriceRaw(v));
 }
 
+// Есть ли что показывать в одном поле цены.
 function hasDisplayPrice(v) {
   return !!getDisplayPrice(v);
 }
 
+// Есть ли у вина хоть какая-то цена — за бутылку или за бокал.
 function hasAnyDisplayPrice(w) {
   return hasDisplayPrice(w?.priceBottle) || hasDisplayPrice(w?.priceGlass);
 }
 
+// --- Блок авто-подгонки текста в одну строку (борьба с переносами в карточках) ---
 let wineNameFitRaf = null;
 
+/**
+ * Подгоняет шрифт элементов так, чтобы текст влез в одну строку без обрезки.
+ * Стратегия в три шага: сначала уменьшаем размер до preferredMin, затем
+ * поджимаем межбуквенный интервал, и только в крайнем случае уменьшаем
+ * размер дальше до floorMin. Сравнение идёт по scrollWidth > clientWidth.
+ */
 function fitSingleLineElements(elements, maxFont, preferredMin, floorMin) {
   for (const el of elements) {
     el.style.fontSize = `${maxFont}px`;
@@ -2330,6 +2508,8 @@ function fitSingleLineElements(elements, maxFont, preferredMin, floorMin) {
   }
 }
 
+// Применяет авто-подгонку к названиям/производителям вин в сетке и в модалке.
+// Лимиты шрифтов подобраны под мобайл/десктоп вручную.
 function fitWineNameSingleLine() {
   const isMobile = window.matchMedia('(max-width: 767px)').matches;
   fitSingleLineElements(
@@ -2361,6 +2541,8 @@ function fitWineNameSingleLine() {
   }
 }
 
+// Откладывает подгонку названий вин до следующего кадра (rAF) и схлопывает
+// частые вызовы в один — чтобы не считать layout на каждый ре-рендер.
 function scheduleWineNameFit() {
   if (wineNameFitRaf) cancelAnimationFrame(wineNameFitRaf);
   wineNameFitRaf = requestAnimationFrame(() => {
@@ -2369,6 +2551,7 @@ function scheduleWineNameFit() {
   });
 }
 
+// То же, что fitWineNameSingleLine, но для заголовков фото-карточек (Pastry/Bar/...).
 function fitPhotoCardTitles() {
   fitSingleLineElements(
     document.querySelectorAll('#grid .photoCard .photoCardTitle'),
@@ -2378,6 +2561,7 @@ function fitPhotoCardTitles() {
   );
 }
 
+// rAF-обёртка для подгонки заголовков фото-карточек (дебаунс через кадр).
 let photoCardTitleFitRaf = null;
 function schedulePhotoCardTitleFit() {
   if (photoCardTitleFitRaf) cancelAnimationFrame(photoCardTitleFitRaf);
@@ -2387,6 +2571,11 @@ function schedulePhotoCardTitleFit() {
   });
 }
 
+/**
+ * Форматирует число как денежную сумму через Intl.NumberFormat.
+ * Валюта берётся из конфига ресторана (по умолчанию USD), дробная часть
+ * отбрасывается. Хак с заменой '$' на '$ ' добавляет пробел после знака валюты.
+ */
 function money(v) {
   const n = Number(v);
   if (!isFinite(n)) return '';
@@ -2404,6 +2593,8 @@ function money(v) {
   }
 }
 
+// Обновляет индикатор статуса (текст + цветная точка) в шапке.
+// type='good' подсвечивает точку зелёным (успешная загрузка).
 function setStatus(text, type='idle') {
   state.status = text;
   state.statusType = type;
@@ -2416,6 +2607,7 @@ function setStatus(text, type='idle') {
   }
 }
 
+// Полный сброс состояния поиска: очищает строку поиска в state и в инпуте.
 function resetWineSearchState() {
   state.search = '';
   const searchInput = $('searchInput');
@@ -2425,8 +2617,11 @@ function resetWineSearchState() {
 
 /**
  * =========================
- * Theme Toggle
+ * Theme Toggle / Переключение темы
  * =========================
+ * Палитры тем заданы как наборы CSS-переменных. applyTheme() проставляет их
+ * инлайном в :root, что позволяет менять тему на лету (в т.ч. из конфига).
+ * Дублирует значения из :root в <style>, но даёт программный доступ из JS.
  */
 const lightTheme = {
   '--bg1': '#FFFFFF',
@@ -2466,6 +2661,7 @@ const darkTheme = {
   '--shadow': '0 2px 8px rgba(0,0,0,0.3)'
 };
 
+// Применяет тему: проставляет CSS-переменные выбранной палитры в :root инлайном.
 function applyTheme(theme) {
   const themeVars = theme === 'dark' ? darkTheme : lightTheme;
   const root = document.documentElement;
@@ -2474,6 +2670,8 @@ function applyTheme(theme) {
   }
 }
 
+// Принудительно возвращает светлую тему и забывает сохранённый выбор
+// (используется при возврате на экран выбора меню).
 function resetThemeToLight() {
   localStorage.removeItem('theme');
   document.documentElement.setAttribute('data-theme', 'light');
@@ -2482,6 +2680,7 @@ function resetThemeToLight() {
   updateSettingsThemeIndicator();
 }
 
+// Инициализация темы при старте: восстанавливает сохранённую в localStorage.
 function initTheme() {
   const savedTheme = localStorage.getItem('theme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
@@ -2489,6 +2688,7 @@ function initTheme() {
   updateThemeButton(savedTheme);
 }
 
+// Переключает тему light<->dark и запоминает выбор в localStorage.
 function toggleTheme() {
   const current = document.documentElement.getAttribute('data-theme') || 'light';
   const newTheme = current === 'light' ? 'dark' : 'light';
@@ -2498,6 +2698,7 @@ function toggleTheme() {
   updateThemeButton(newTheme);
 }
 
+// Обновляет иконку (🌙/☀️) и подсказку у кнопки переключения темы.
 function updateThemeButton(theme) {
   const btn = $('themeToggleBtn');
   if (btn) {
@@ -2507,6 +2708,9 @@ function updateThemeButton(theme) {
 }
 
 /**
+ * Держит sticky-отступы табов секций в согласии с реальной высотой шапки
+ * и панели табов. Высоты пишутся в CSS-переменные --topbar-h / --tabs-h,
+ * чтобы перенос табов или шапки на мобильном не перекрывал контент ниже.
  * Keeps sticky offsets for section tabs in sync with the actual
  * topbar / tabs heights, so wrapped tabs or a wrapped mobile topbar
  * never overlap the rows below them.
@@ -2525,6 +2729,8 @@ function syncStickyOffsets() {
   }
 }
 
+// Инициализирует синхронизацию sticky-отступов: пересчитывает их через
+// ResizeObserver (изменение высоты шапки/табов) и на resize окна.
 function initStickyOffsets() {
   syncStickyOffsets();
   if (typeof ResizeObserver !== 'undefined') {
@@ -2539,15 +2745,28 @@ function initStickyOffsets() {
 
 /**
  * =========================
- * 2) URL params (deep-links)
+ * 2) URL params (deep-links) / Роутинг и глубокие ссылки
  * =========================
+ * Состояние приложения (ресторан/меню/секция/открытое вино) отражается в URL,
+ * чтобы ссылки были «расшариваемыми» и работала кнопка «назад» браузера.
+ * Локально (file:// или localhost) используется hash-роутинг, на проде —
+ * «красивые» пути вида /restaurant/menu. Параметры section и w (id вина)
+ * всегда живут в query-строке.
  */
+
+// На localhost/file:// «красивые» пути недоступны → используем #/-роутинг.
 function shouldUseHashRouting() {
   return window.location.hostname === '127.0.0.1'
     || window.location.hostname === 'localhost'
     || window.location.protocol === 'file:';
 }
 
+/**
+ * Разбирает текущий URL в объект маршрута { r, menu, section, w }.
+ * Поддерживает оба формата: hash (#/restaurant/menu) и pretty-path
+ * (/restaurant/menu), аккуратно пропуская имя папки 'winegallery' в пути.
+ * Ключ 'waste' в URL маппится на внутренний WASTE_MENU_KEY.
+ */
 function readRoute() {
   const u = new URL(window.location.href);
   const p = u.searchParams;
@@ -2584,6 +2803,8 @@ function readRoute() {
   };
 }
 
+// Обратная к readRoute: собирает путь URL из ресторана и меню,
+// выбирая hash- или pretty-формат в зависимости от окружения.
 function buildPath(r, menu) {
   if (shouldUseHashRouting()) {
     const bp = getBasePath();
@@ -2599,6 +2820,12 @@ function buildPath(r, menu) {
   return `/${r}/${routeMenu}`;
 }
 
+/**
+ * Записывает новое состояние в URL. В объекте next можно передать только
+ * изменяемые ключи (r/menu/section/w); неуказанные берутся из state.
+ * Значение null у ключа удаляет соответствующий параметр. mode:
+ * 'replace' — без новой записи в истории, 'push' — с записью (кнопка «назад»).
+ */
 function writeUrlParams(next, mode = 'replace') {
   const u = new URL(window.location.href);
   const p = u.searchParams;
@@ -2622,6 +2849,7 @@ function writeUrlParams(next, mode = 'replace') {
   else history.replaceState(null, '', newUrl);
 }
 
+// Полностью синхронизирует URL с текущим state (все 4 параметра сразу).
 function syncUrl(mode = 'replace') {
   writeUrlParams({
     r: state.restaurantId,
@@ -2631,15 +2859,21 @@ function syncUrl(mode = 'replace') {
   }, mode);
 }
 
+// --- Выбор секции/подсекции по умолчанию ---
+
+// Первая доступная секция текущего меню (или пусто).
 function getDefaultSection() {
   return state.sectionsEffective?.[0] || '';
 }
 
+// Первая подсекция внутри секции (или пусто, если подсекций нет).
 function getDefaultSubsection(sectionKey) {
   const subsections = sectionKey ? getSubsectionsForSection(sectionKey, state.wines) : [];
   return subsections.length ? subsections[0].key : '';
 }
 
+// Выставляет активную секцию: предпочитаемую (например, из URL), если она
+// существует среди доступных, иначе — первую. Подсекцию сбрасывает на дефолтную.
 function applyDefaultSectionSelection(preferredSection) {
   const fallbackSection = getDefaultSection();
   const nextSection = preferredSection && state.sectionsEffective.includes(preferredSection)
@@ -2652,8 +2886,19 @@ function applyDefaultSectionSelection(preferredSection) {
 
 /**
  * =========================
- * 3) CSV parsing + mapping
+ * 3) CSV parsing + mapping / Парсинг CSV и маппинг строк в объекты вин
  * =========================
+ * Данные приходят из Google Sheets как CSV. Здесь сырой текст превращается
+ * сначала в матрицу строк, затем в объекты по заголовкам, и наконец —
+ * в нормализованную доменную модель «вино» (mapWineRow), на которой
+ * работает весь рендер.
+ */
+
+/**
+ * Минимальный потоковый CSV-парсер (свой, без библиотек — single-file стек).
+ * Корректно обрабатывает кавычки, экранированные кавычки ("") внутри поля,
+ * запятые-разделители и переносы строк. \r игнорируется (Windows-окончания).
+ * Возвращает массив массивов (строки → ячейки).
  */
 function parseCSV(text) {
   const rows = [];
@@ -2682,6 +2927,11 @@ function parseCSV(text) {
   return rows;
 }
 
+/**
+ * Превращает CSV в массив объектов, где ключи — заголовки первой строки.
+ * Дополнительно дублирует каждый ключ в нижнем регистре, чтобы доступ
+ * был нечувствителен к регистру заголовков таблицы.
+ */
 function csvToObjects(csvText) {
   const rows = parseCSV(csvText);
   if (!rows.length) return [];
@@ -2705,6 +2955,8 @@ function csvToObjects(csvText) {
   return objects;
 }
 
+// \u041F\u0430\u0440\u0441\u0438\u0442 \u0431\u0443\u043B\u0435\u0432\u043E \u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435 \u0438\u0437 CSV. \u0412\u0410\u0416\u041D\u041E: \u043F\u0443\u0441\u0442\u0430\u044F \u044F\u0447\u0435\u0439\u043A\u0430 \u0442\u0440\u0430\u043A\u0442\u0443\u0435\u0442\u0441\u044F \u043A\u0430\u043A true
+// (\u043F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E \u043F\u043E\u0437\u0438\u0446\u0438\u044F \u0432\u0438\u0434\u0438\u043C\u0430/\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0430, \u0435\u0441\u043B\u0438 \u043D\u0435 \u0443\u043A\u0430\u0437\u0430\u043D\u043E \u043E\u0431\u0440\u0430\u0442\u043D\u043E\u0435).
 function toBool(v) {
   const s = String(v ?? '')
     .replace(/\u00A0/g, ' ')
@@ -2715,6 +2967,9 @@ function toBool(v) {
   return ['1', 'true', 'yes', 'y', 'on'].includes(s);
 }
 
+// Собирает «стог сена» для поиска: склеивает поля в одну строку, приводит
+// к нижнему регистру и снимает диакритику — чтобы поиск был регистро- и
+// акцент-независимым (искать «cotes» находит «Côtes»).
 function buildSearchHaystack(parts) {
   return parts
     .map(v => String(v ?? '').replace(/\u00A0/g, ' ').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036F]/g, ''))
@@ -2722,11 +2977,13 @@ function buildSearchHaystack(parts) {
     .join(' ');
 }
 
+// Безопасный парсинг числа из CSV (поддерживает запятую как десятичный разделитель).
 function toNum(v) {
   const n = Number(String(v ?? '').replace(',', '.').trim());
   return isFinite(n) ? n : null;
 }
 
+// Заголовок карточки вина: «Производитель Название Винтаж» (пустые поля опускаются).
 function buildWineTitle(x) {
   const producer = String(x.producer ?? '').trim();
   const name = String(x.name ?? '').trim();
@@ -2735,6 +2992,7 @@ function buildWineTitle(x) {
   return [base, vintage].filter(Boolean).join(' ');
 }
 
+// Подзаголовок карточки: «Страна • Регион | Суб-регион • Сорт» через буллеты.
 function buildWineSub(x) {
   const country = String(x.country ?? '').trim();
   const region = String(x.region ?? '').trim();
@@ -2744,6 +3002,13 @@ function buildWineSub(x) {
   return [country, regionDisplay, grape].filter(Boolean).join(' \u2022 ');
 }
 
+/**
+ * ЦЕНТРАЛЬНЫЙ маппер: одна сырая строка CSV → нормализованный объект «вино».
+ * Здесь происходит вся «грязная» работа с разнообразием заголовков таблицы:
+ * запасные имена колонок (id/№/wine_id, story/description, bottle_img/...),
+ * нормализация ключей секций/подсекций, флаги visible/available и заранее
+ * посчитанный searchHaystack. Поле raw хранит исходную строку на всякий случай.
+ */
 function mapWineRow(x) {
   const section = String(x.section ?? x.section_key ?? '').trim();
   const sectionKeyRaw = String(x.section_key ?? '').trim();
@@ -2786,6 +3051,12 @@ function mapWineRow(x) {
   };
 }
 
+/**
+ * Разбирает строку вкусовых нот (разделители | , ;) в список ключей-токенов.
+ * Логика: дедуп по сырому тексту → резолв в известный токен с иконкой →
+ * дедуп по ключу токена → сортировка по приоритету (NOTE_PRIORITY_INDEX),
+ * при равенстве — по порядку в исходной строке. Возвращает максимум 3 ноты.
+ */
 function parseNotesChips(s) {
   const raw = String(s || '')
     .split(/[|,;]/g)
@@ -2820,6 +3091,7 @@ function parseNotesChips(s) {
 }
 
 
+// Формирует до 2 чипов-меток для карточки вина (секция + сорт), с дедупом.
 function buildCardChips(w) {
   const chips = [];
   const section = labelForSectionKey(w.sectionKey);
@@ -2838,6 +3110,7 @@ function buildCardChips(w) {
   return out;
 }
 
+// Разбивает строку гастро-пар (pairing) на список, максимум 4 пункта.
 function buildPairingList(text) {
   const raw = String(text || '')
     .split(/[|,;/]/g)
@@ -2846,10 +3119,17 @@ function buildPairingList(text) {
   return raw.slice(0, 4);
 }
 
+// Ноты вина в виде токенов (тонкая обёртка над parseNotesChips).
 function getNoteTokensForWine(w) {
   return parseNotesChips(w.notes);
 }
 
+/**
+ * Читает числовое значение профиля вкуса из сырой строки по списку
+ * возможных имён колонок и нормализует его в шкалу 0..100.
+ * Неочевидно: значения <=5 трактуются как 1..5-балльная шкала и
+ * масштабируются ((val-1)*25), всё остальное — как уже проценты.
+ */
 function readProfileValue(raw, keys) {
   for (const key of keys) {
     if (raw && raw[key] !== undefined && raw[key] !== null) {
@@ -2863,6 +3143,11 @@ function readProfileValue(raw, keys) {
   return null;
 }
 
+// --- Блок профиля вкуса вина (диаграмма body/acidity/sweetness/...) ---
+
+// Базовый профиль вкуса вина: приоритет у сорта винограда (wine-profiles.js),
+// иначе пресет по секции. Внутри — защитный фолбэк, если база знаний не
+// загрузилась: грубое деление на красное/прочее.
 // Per-wine taste base: grape variety first (assets/js/wine-profiles.js),
 // then section preset. Returns body/acidity/sweetness/texture[/tannins]/textureLabel.
 function inferProfile(sectionKey = '', grape = '') {
@@ -2875,10 +3160,17 @@ function inferProfile(sectionKey = '', grape = '') {
   return { body: 38, acidity: 64, sweetness: 12, texture: 36, textureLabel: ['Crisp', 'Creamy'] };
 }
 
+// Красное ли вино — определяется по наличию 'red' в ключе секции.
 function isRedWine(sectionKey = '') {
   return String(sectionKey || '').toLowerCase().includes('red');
 }
 
+/**
+ * Итоговый профиль вкуса конкретного вина для радар-диаграммы.
+ * Берёт базовый профиль (inferProfile) и переопределяет каждую ось явным
+ * значением из CSV, если оно задано. Ось «tannins» добавляется только для
+ * красных вин.
+ */
 function getWineProfile(w) {
   const raw = w?.raw || {};
   const base = inferProfile(w.sectionKey, w.grape);
@@ -2927,6 +3219,8 @@ const NOTE_ICON_FILES = [
   'VANILLA.png',
 ];
 
+// Словарь токенов нот: ключ — нормализованное имя (lower-case), значение —
+// { label: красивая подпись, icon: имя PNG-файла }. Строится из имён файлов.
 const TOKEN_DICTIONARY = NOTE_ICON_FILES.reduce((acc, file) => {
   const raw = file.replace(/\.png$/i, '').replace(/_/g, ' ').toLowerCase();
   const label = raw.replace(/(^|[\s-])\w/g, (m) => m.toUpperCase());
@@ -2969,10 +3263,12 @@ const NOTE_PRIORITY_ORDER = [
   'sulfur',
 ];
 
+// Быстрый доступ «ключ ноты → её приоритет» (индекс в NOTE_PRIORITY_ORDER).
 const NOTE_PRIORITY_INDEX = new Map(
   NOTE_PRIORITY_ORDER.map((key, idx) => [key, idx])
 );
 
+// Резолвит строку ноты в запись словаря { key, label, icon } или null.
 function resolveTokenEntry(tokenStr) {
   const normalized = String(tokenStr || '').toLowerCase().trim();
   if (!normalized) return null;
@@ -2984,10 +3280,11 @@ function resolveTokenEntry(tokenStr) {
   return null;
 }
 
+// Строит DOM-элемент тега ноты: PNG-иконка + текстовая подпись.
 function buildNoteTag(tokenData) {
   const container = document.createElement('div');
   container.className = 'noteTag';
-  
+
   // PNG иконка
   if (tokenData.icon) {
     const basePath = getBasePath();
@@ -3008,6 +3305,7 @@ function buildNoteTag(tokenData) {
   return container;
 }
 
+// Удобный геттер для отображения ноты: { label, icon } или null.
 function getTokenDisplay(tokenStr) {
   const token = resolveTokenEntry(tokenStr);
   if (!token) return null;
@@ -3016,21 +3314,32 @@ function getTokenDisplay(tokenStr) {
 
 /**
  * =========================
- * 4) Data loading (configs + CSV) + caching
+ * 4) Data loading (configs + CSV) + caching / Загрузка данных и кэш
  * =========================
+ * Источники: статические JSON-конфиги ресторанов (в /configs/) и CSV-меню
+ * из Google Sheets. Всё, что загружено, кэшируется в state.cache, чтобы
+ * переключение меню/языка не дёргало сеть повторно.
  */
+
+// Низкоуровневый GET JSON без кэша браузера; бросает при HTTP-ошибке.
 async function fetchJson(url) {
   const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
   return await res.json();
 }
 
+// Низкоуровневый GET текста (для CSV) без кэша браузера; бросает при HTTP-ошибке.
 async function fetchText(url) {
   const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
   return await res.text();
 }
 
+/**
+ * Определяет базовый путь приложения и КЭШИРУЕТ его в state.basePath (считается
+ * один раз). Если URL содержит /winegallery/ — конфиги лежат в /winegallery/configs/,
+ * иначе сервер запущен из самой папки и базовый путь — '/'.
+ */
 function getBasePath() {
   // Используем сохранённый basePath, если он есть
   if (state.basePath !== null) {
@@ -3052,6 +3361,7 @@ function getBasePath() {
   return state.basePath;
 }
 
+// Загружает индекс всех ресторанов (configs/index.json) с кэшированием.
 async function loadConfigsIndex() {
   if (state.cache.configsIndex) return state.cache.configsIndex;
   const basePath = getBasePath();
@@ -3060,6 +3370,7 @@ async function loadConfigsIndex() {
   return idx;
 }
 
+// Загружает JSON-конфиг конкретного ресторана (configs/<id>.json) с кэшированием.
 async function loadRestaurantConfig(restaurantId) {
   if (state.cache.configByRestaurant.has(restaurantId)) return state.cache.configByRestaurant.get(restaurantId);
   const basePath = getBasePath();
@@ -3068,6 +3379,7 @@ async function loadRestaurantConfig(restaurantId) {
   return cfg;
 }
 
+// Загружает CSV-меню по URL с кэшированием по URL (ключ — сам URL).
 async function loadCSV(csvUrl) {
   if (state.cache.csvByUrl.has(csvUrl)) return state.cache.csvByUrl.get(csvUrl);
   const text = await fetchText(csvUrl);
@@ -3075,6 +3387,11 @@ async function loadCSV(csvUrl) {
   return text;
 }
 
+/**
+ * Применяет брендовую тему из конфига ресторана: проставляет CSS-переменные
+ * и шрифт. Неочевидно: --bg1/--bg2 (фон) намеренно пропускаются, чтобы не
+ * перебивать системную light/dark тему фоном из конфига.
+ */
 function applyThemeFromConfig(config) {
   const vars = config?.theme?.variables || {};
   const root = document.documentElement;
@@ -3086,18 +3403,30 @@ function applyThemeFromConfig(config) {
   if (config?.theme?.font) root.style.setProperty('--font', config.theme.font);
 }
 
+// --- Блок Waste-фичи (режим учёта списания) ---
+
+// Конфиг waste-фичи из конфига ресторана (или null).
 function getWasteFeatureConfig(config = state.config) {
   return config?.features?.waste || null;
 }
 
+// Включена ли waste-фича для данного ресторана.
 function isWasteFeatureEnabled(config = state.config) {
   return !!getWasteFeatureConfig(config)?.enabled;
 }
 
+// Является ли ключ меню зарезервированным waste-маршрутом.
 function isWasteRouteKey(menuKey) {
   return menuKey === WASTE_MENU_KEY;
 }
 
+/**
+ * Приводит список меню из конфига к единому виду:
+ * 1) если есть массив menus — фильтрует waste, когда фича выключена, и
+ *    при включённой фиче добавляет синтетический пункт Waste, если его нет;
+ * 2) если есть только config.csvUrl — оборачивает его в одно меню «Wine List»;
+ * 3) иначе — пустой список.
+ */
 function normalizeMenus(config) {
   if (Array.isArray(config?.menus) && config.menus.length) {
     const wasteEnabled = isWasteFeatureEnabled(config);
@@ -3131,10 +3460,12 @@ function normalizeMenus(config) {
   return [];
 }
 
+// Находит объект меню по ключу в текущем списке меню.
 function getMenuByKey(key) {
   return (state.menus || []).find(m => m.key === key) || null;
 }
 
+// URL CSV для языка с каскадом фолбэков: меню → ресторан → en.
 function getCsvUrlForLang(lang) {
   const menuCsv = state.menuConfig?.csvUrl;
   const fallbackCsv = state.config?.csvUrl;
@@ -3142,14 +3473,20 @@ function getCsvUrlForLang(lang) {
   return source?.[lang] || source?.en || null;
 }
 
+// --- Определители типа/режима меню (управляют выбором layout и рендера) ---
+
+// Является ли меню waste-режимом (по ключу/типу/layout).
 function isWasteMenu(menu) {
   return !!menu && (menu.key === WASTE_MENU_KEY || menu.type === 'waste' || menu.layout === 'waste');
 }
 
+// Сейчас активно waste-меню.
 function isWasteMode() {
   return isWasteMenu(state.menuConfig);
 }
 
+// Pastry и Coffee используют один и тот же плоский photo-card layout,
+// маппинг строк и путь рендера.
 // Pastry and Coffee share the same flat photo-card layout, row mapping and render path.
 function isPastryMenu(menu) {
   if (!menu) return false;
@@ -3158,10 +3495,14 @@ function isPastryMenu(menu) {
   return key === 'pastry' || key === 'coffee' || type === 'pastry' || type === 'coffee';
 }
 
+// Сейчас активно pastry/coffee-меню.
 function isPastryMode() {
   return isPastryMenu(state.menuConfig);
 }
 
+// Photo-card layout покрывает Pastry, Coffee и Bar. Pastry/Coffee — плоские
+// (без секций); Bar добавляет табы секций сверху, но дизайн карточки и маппинг
+// строк те же.
 // Photo-card layout covers Pastry, Coffee and Bar. Pastry/Coffee are flat (no sections);
 // Bar adds section tabs on top, otherwise same card design and row mapping.
 function isPhotoCardMenu(menu) {
@@ -3172,8 +3513,14 @@ function isPhotoCardMenu(menu) {
       || type === 'pastry' || type === 'coffee' || type === 'bar';
 }
 
+// Расшифровка диет-бэйджей (аллергены/диеты) для подсказок на фото-карточках.
 const DIET_BADGE_LABELS = { V: 'Vegetarian', VE: 'Vegan', GF: 'Gluten-Free' };
 
+/**
+ * Маппер строки CSV → объект фото-карточки (Pastry/Coffee/Bar).
+ * Аналог mapWineRow, но для блюд/напитков: название/описание/цена/фото,
+ * нормализованный ключ секции и бэйджи аллергенов (без 'N/A').
+ */
 function mapPhotoCardRow(x, idx) {
   const title = String(x['name of dish'] ?? x.name ?? x.title ?? '').trim();
   const description = String(x.description ?? '').trim();
@@ -3210,8 +3557,11 @@ function mapPhotoCardRow(x, idx) {
   };
 }
 
+// --- Интеграция внешнего модуля Waste Mode (assets/js/waste-mode.js) ---
+// Ленивая ссылка на инстанс модуля; создаётся один раз через фабрику.
 let wasteModeModule = null;
 
+// Показывает оболочку waste-режима (классы-маркеры на контейнерах).
 function showWasteShell() {
   const appWrap = $('appWrap');
   if (appWrap) appWrap.classList.add('wasteActive');
@@ -3219,6 +3569,7 @@ function showWasteShell() {
   if (wasteView) wasteView.classList.add('wmVisible');
 }
 
+// Скрывает оболочку waste-режима.
 function hideWasteShell() {
   const appWrap = $('appWrap');
   if (appWrap) appWrap.classList.remove('wasteActive');
@@ -3226,6 +3577,8 @@ function hideWasteShell() {
   if (wasteView) wasteView.classList.remove('wmVisible');
 }
 
+// Лениво инициализирует модуль waste-режима через глобальную фабрику,
+// прокидывая ему доступ к state и хелперу $. Бросает, если фабрики нет.
 function getWasteModeModule() {
   if (wasteModeModule) return wasteModeModule;
   if (typeof window.createWasteModeModule !== 'function') {
@@ -3235,6 +3588,8 @@ function getWasteModeModule() {
   return wasteModeModule;
 }
 
+// Переключение на обычное винное представление: размонтирует waste-модуль
+// и прячет его оболочку.
 function showWineView() {
   if (wasteModeModule && typeof wasteModeModule.unmount === 'function') {
     wasteModeModule.unmount();
@@ -3242,10 +3597,12 @@ function showWineView() {
   hideWasteShell();
 }
 
+// Прячет винное представление, показывая оболочку waste.
 function hideWineView() {
   showWasteShell();
 }
 
+// Полный рендер waste-режима: прячет вино, закрывает модалку, монтирует модуль.
 function renderWasteMode() {
   hideWineView();
   closeModal(false, false);
@@ -3256,15 +3613,27 @@ function renderWasteMode() {
   showWasteShell();
 }
 
+/**
+ * =========================
+ * Авторизация (per-restaurant, на время сессии вкладки)
+ * =========================
+ * Факт входа хранится в sessionStorage с ключом, привязанным к ресторану,
+ * поэтому разные рестораны авторизуются независимо, а закрытие вкладки
+ * сбрасывает вход.
+ */
+
+// Ключ sessionStorage для авторизации текущего ресторана.
 function authStorageKey() {
   return `wg_auth_${state.restaurantId}`;
 }
 
+// Авторизован ли пользователь в текущем ресторане.
 function readAuthState() {
   const key = authStorageKey();
   return sessionStorage.getItem(key) === '1';
 }
 
+// Сохраняет факт входа и роль пользователя в sessionStorage и в state.
 function setAuthState(role) {
   const key = authStorageKey();
   sessionStorage.setItem(key, '1');
@@ -3273,6 +3642,7 @@ function setAuthState(role) {
   state.authRole = role || null;
 }
 
+// Полностью сбрасывает авторизацию текущего ресторана и возвращает светлую тему.
 function clearAuthState() {
   const key = authStorageKey();
   sessionStorage.removeItem(key);
@@ -3282,6 +3652,13 @@ function clearAuthState() {
   resetThemeToLight();
 }
 
+/**
+ * =========================
+ * Экраны и брендинг старта (стартовый экран ↔ экран приложения)
+ * =========================
+ */
+
+// Показывает стартовый экран (выбор меню/логин) и прячет приложение.
 function showStartScreen() {
   const startScreen = $('startScreen');
   const appWrap = $('appWrap');
@@ -3293,6 +3670,8 @@ function showStartScreen() {
   if (appWrap) appWrap.classList.add('hidden');
 }
 
+// Показывает экран приложения и прячет стартовый. Перед скрытием снимает
+// фокус с элементов стартового экрана и делает его inert (для доступности).
 function showAppScreen() {
   const startScreen = $('startScreen');
   if (startScreen) {
@@ -3310,6 +3689,11 @@ function showAppScreen() {
   }
 }
 
+/**
+ * Рендерит фирменный лого-локап HOSTERA на экране логина.
+ * Пытается показать картинку (webp → png через onerror), а если не
+ * загрузилась — откатывается на текстовый заголовок «HOSTERA» + слоган.
+ */
 function renderHosteraStartLockup() {
   const startLockup = $('startLockup');
   const startTitle = $('startTitle');
@@ -3345,6 +3729,12 @@ function renderHosteraStartLockup() {
   startLockup.src = webpPath;
 }
 
+/**
+ * Рендерит брендинг стартового экрана в зависимости от контекста:
+ * — если открыта форма логина → показываем фирменный локап HOSTERA;
+ * — иначе показываем лого/название ресторана из конфига, учитывая режим
+ *   logoOnly (только лого, без текста названия и подзаголовка).
+ */
 function renderStartBranding() {
   const logo = state.config?.branding?.logo || state.config?.logoUrl || '';
   const normalizedLogo = normalizeAssetPath(logo);
@@ -3383,10 +3773,15 @@ function renderStartBranding() {
   }
 }
 
+/**
+ * Рендер списка меню на стартовом экране (плитки выбора).
+ * Если у ресторана включён Waste — добавляет крупную кнопку «Open Menu»
+ * (ведёт в первое обычное меню) и отдельный вход в waste-режим.
+ */
 function renderMenuList() {
   const list = $('menuList');
   if (!list) return;
-  
+
   list.innerHTML = '';
 
   const wasteMenu = state.menus.find((m) => m?.key === WASTE_MENU_KEY);
@@ -3434,6 +3829,8 @@ function renderMenuList() {
   }
 }
 
+// Заполняет нативный <select> меню (фолбэк-навигация) и обновляет верхние
+// табы. Держит выбранным текущее меню.
 function renderMenuSelect() {
   const ms = $('menuSelect');
   if (!ms) {
@@ -3452,6 +3849,14 @@ function renderMenuSelect() {
   renderTopMenuNav();
 }
 
+/**
+ * Рендерит и активирует ГЛОБАЛЬНУЮ форму входа (единый логин для всех
+ * ресторанов через configs/auth.json). По сабмиту: валидирует креды,
+ * по логину определяет restaurantId, грузит его конфиг и тему, строит
+ * список меню и переводит пользователя на экран выбора меню.
+ * Неочевидно: URL НЕ меняется до выбора меню — pretty-URL вида /novikov_bh
+ * заставил бы браузер перейти на несуществующую страницу (404).
+ */
 function renderGlobalLoginForm() {
   showStartScreen();
   const loginForm = $('loginForm');
@@ -3484,6 +3889,7 @@ function renderGlobalLoginForm() {
   passwordInput.placeholder = t('password');
   applyLanguageUI();
   
+  // Обработчик сабмита формы входа (переопределяется целиком при каждом рендере).
   // Remove old onsubmit handler
   loginForm.onsubmit = async (e) => {
     e.preventDefault();
@@ -3555,10 +3961,13 @@ function renderGlobalLoginForm() {
 }
 
 
+// Требует ли конфиг ресторана локальной авторизации (есть режим local и юзеры).
 function requiresAuth(config) {
   return config?.auth?.mode === 'local' && Array.isArray(config?.auth?.users) && config.auth.users.length > 0;
 }
 
+// Проверяет креды по глобальному configs/auth.json (cache-busting через ?v=time).
+// Возвращает объект пользователя (с restaurantId и ролью) или null.
 async function validateGlobalCredentials(login, password) {
   try {
     const basePath = getBasePath();
@@ -3572,11 +3981,17 @@ async function validateGlobalCredentials(login, password) {
   }
 }
 
+// Проверка кред по локальным юзерам из конфига ресторана (per-restaurant auth).
 function validateCredentials(login, password) {
   const users = state.config?.auth?.users || [];
   return users.find(u => u.login === login && u.password === password) || null;
 }
 
+/**
+ * Вход в конкретное меню по ключу. Готовит state (сбрасывает поиск/секцию),
+ * обновляет шапку (лого/название ресторана), переключает на экран приложения
+ * и пишет URL. Для waste-меню уходит в renderWasteMode, иначе грузит вина.
+ */
 async function enterMenu(menuKey) {
   if (!menuKey) return;
   const wasWasteMode = isWasteMode();
@@ -3633,6 +4048,14 @@ async function enterMenu(menuKey) {
   scrollToTop();
 }
 
+/**
+ * Загружает и подготавливает данные для текущего меню.
+ * Грузит CSV → парсит → выбирает маппер по типу меню:
+ *  • photo-card (Pastry/Coffee/Bar) → mapPhotoCardRow; Pastry/Coffee плоские
+ *    (секция 'all'), Bar получает реальные секции;
+ *  • обычное винное меню → mapWineRow.
+ * Фильтрует невалидные/скрытые строки, считает секции и запускает рендер.
+ */
 async function loadWinesForCurrentMenu() {
   if (isWasteMode()) {
     renderWasteMode();
@@ -3689,6 +4112,12 @@ async function loadWinesForCurrentMenu() {
   }
 }
 
+/**
+ * Переключение меню ВНУТРИ приложения (вкладки в шапке), в отличие от
+ * enterMenu (вход со стартового экрана). Сбрасывает секцию/поиск, закрывает
+ * модалку, обновляет URL (кроме случая popstate — навигация «назад/вперёд»,
+ * тогда URL уже актуален) и грузит данные нового меню.
+ */
 async function setMenu(nextMenuKey, opts = {}) {
   const { fromPopstate = false } = opts;
   if (!nextMenuKey || nextMenuKey === state.menuKey) return;
@@ -3758,12 +4187,25 @@ async function setMenu(nextMenuKey, opts = {}) {
 
 /**
  * =========================
- * 5) Sections logic (Sprint 2.1)
+ * 5) Sections logic / Логика секций и подсекций (Sprint 2.1)
  * =========================
+ * Секции — это вкладки-фильтры (например, типы вин). Их состав и порядок
+ * берутся из конфига (sectionsOrder), но всегда сверяются с реально
+ * присутствующими в данных секциями. Особый случай — секция «by the glass»
+ * (BTG), у которой подсекции строятся из колонки btg.
  */
 const BTG_KEY = 'by_the_glass';
+// Желаемый порядок подсекций внутри «by the glass».
 const BTG_SUBSECTION_ORDER = ['Sparkling wine and Champagne', 'White wine', 'Rose wine', 'Red wine', 'Dessert wine'];
 
+/**
+ * Вычисляет итоговый список секций (ключей) для текущего меню.
+ * Берёт желаемый порядок из конфига (с учётом языка) и оставляет только те
+ * секции, что реально есть в данных; BTG включается лишь если есть вина «по
+ * бокалам». Попутно наполняет state.sectionLabels (ключ→подпись), учитывая
+ * языковые override. Если порядок задан, но не совпал ни с чем — fallback
+ * на секции из данных + предупреждение в консоль.
+ */
 function computeSectionsEffective(wines, config, lang) {
   const labelsFromData = {};
   const keysInData = new Set();
@@ -3811,16 +4253,23 @@ function computeSectionsEffective(wines, config, lang) {
   return Array.from(keysInData);
 }
 
+// Разрешена ли секция к показу (есть ли она в эффективном списке секций).
 function sectionAllowed(sectionKey) {
   const order = state.sectionsEffective;
   if (!order || order.length === 0) return true;
   return order.includes(sectionKey);
 }
 
+// Человекочитаемая подпись секции по её ключу (фолбэк — сам ключ).
 function labelForSectionKey(k) {
   return state.sectionLabels?.[k] || k;
 }
 
+/**
+ * Возвращает список подсекций для секции [{ key, label }].
+ * Для BTG подсекции берутся из колонки btg и сортируются по
+ * BTG_SUBSECTION_ORDER; для остальных секций — из subsectionKey/Label вин.
+ */
 function getSubsectionsForSection(sectionKey, wines) {
   if (sectionKey === BTG_KEY) {
     const seen = new Set();
@@ -3853,8 +4302,18 @@ function getSubsectionsForSection(sectionKey, wines) {
 
 /**
  * =========================
- * 6) Rendering
+ * 6) Rendering / Рендеринг UI
  * =========================
+ * Здесь живёт вся отрисовка: вкладки секций/подсекций, карточки (винные и
+ * фото-карточки) и сетка с ленивой подгрузкой. Источник истины — state,
+ * точка входа отрисовки контента — filterAndRender() (см. ниже).
+ */
+
+/**
+ * Рендер вкладок секций и подсекций (чипы).
+ * Учитывает два режима: обычный (фильтр по активной секции) и поисковый
+ * (добавляется псевдо-чип «Search», секции показаны, но не применяются как
+ * жёсткий фильтр). Для Pastry/Coffee вкладки скрыты (плоский список).
  */
 function renderSectionButtons() {
   const tabs = $('sectionTabs');
@@ -3869,6 +4328,7 @@ function renderSectionButtons() {
   tabs.classList.remove('hidden');
   tabs.innerHTML = '';
 
+  // Локальный конструктор чипа секции.
   const addChip = (key, label, active) => {
     const b = document.createElement('button');
     b.type = 'button';
@@ -3879,6 +4339,7 @@ function renderSectionButtons() {
     tabs.appendChild(b);
   };
 
+  // В режиме поиска добавляем отдельный чип «Search» (показ результатов поиска).
   // Add "Search" button only if in search mode
   if (state.isSearchMode) {
     const searchBtn = document.createElement('button');
@@ -3903,6 +4364,7 @@ function renderSectionButtons() {
     }
   }
 
+  // Строка подсекций: какие показывать — зависит от режима (поиск/обычный).
   // Subsection row
   let subsections = [];
   let sectionForSubsections = '';
@@ -3954,6 +4416,12 @@ function renderSectionButtons() {
   }
 }
 
+/**
+ * Строит DOM фото-карточки (layout Photo-card: Pastry/Coffee/Bar).
+ * Фото сверху (или плейсхолдер), заголовок и цена. Карточка кликабельна и
+ * доступна с клавиатуры (role=button, Enter/Space → openPhotoCardModal).
+ * Винные карточки строит отдельная функция buildWineCardElement.
+ */
 function buildCardElement(w) {
   if (isPhotoCardMenu(state.menuConfig)) {
     const card = document.createElement('div');
@@ -4002,6 +4470,12 @@ function buildCardElement(w) {
   return null;
 }
 
+/**
+ * Рендер сетки карточек с ленивой подгрузкой ради отзывчивости на больших меню.
+ * Первые FIRST_CHUNK карточек рисуются синхронно (быстрый первый экран),
+ * остальные — порциями по REST_CHUNK через requestIdleCallback (фолбэк на
+ * setTimeout). Тип карточки (винная/фото) выбирается по типу меню.
+ */
 function renderGrid(list) {
   const grid = $('grid');
   grid.innerHTML = '';
@@ -4024,6 +4498,7 @@ function renderGrid(list) {
 
   if (rest.length === 0) return;
 
+  // Подгрузка следующей порции карточек в простое браузера, пока есть остаток.
   let offset = 0;
   function renderChunk() {
     const chunk = rest.slice(offset, offset + REST_CHUNK);
@@ -4043,6 +4518,13 @@ function renderGrid(list) {
 
 }
 
+/**
+ * Строит DOM винной карточки (горизонтальный layout «Wine»: фото слева).
+ * Собирает блок мета-данных: производитель, название, строка
+ * страна|регион|винтаж, цены (бокал/бутылка), чипы вкусовых нот.
+ * Класс is86 помечает недоступные позиции (ресторанный сленг «86» = нет в наличии).
+ * Вся карточка — кликабельная кнопка, открывающая модалку вина.
+ */
 function buildWineCardElement(w) {
   const card = document.createElement('div');
   card.className = 'card';
@@ -4158,6 +4640,15 @@ function buildWineCardElement(w) {
   return card;
 }
 
+/**
+ * ГЛАВНАЯ функция отрисовки контента: применяет к state.wines все активные
+ * фильтры и рисует сетку. Учитывает множество веток:
+ *  • тип меню (фото-карточки vs винные) — у них разный набор фильтров;
+ *  • режим поиска vs обычный режим (разные источники секции/подсекции);
+ *  • спец-секция BTG (фильтр по колонке btg + подсекции);
+ *  • скрытие позиций без цены и недоступных (hide86).
+ * Вызывается после любой смены фильтра/поиска/секции.
+ */
 function filterAndRender() {
   if (isWasteMode()) return;
 
@@ -4234,6 +4725,8 @@ function filterAndRender() {
     }
   }
 
+  // Сортировка вин: сначала по фиксированному порядку секций, затем по цене
+  // (по возрастанию). Фото-карточные меню (Bar) сохраняют порядок из таблицы.
   // Wine sorts by section order and then by price; photo-card menus (Bar) respect sheet order.
   if (!isPhotoCardMenu(state.menuConfig)) {
     const sectionOrder = ['sparkling', 'champagne', 'white', 'rose', 'red', 'dessert'];
@@ -4262,9 +4755,15 @@ function filterAndRender() {
   renderGrid(list);
 }
 
+/**
+ * Обработчик выбора секции (клик по чипу). В режиме поиска переключает
+ * показываемую секцию, не теряя поисковый запрос; в обычном режиме меняет
+ * активную секцию и сбрасывает подсекцию на дефолтную. В конце синхронизирует
+ * URL, закрывает модалку и перерисовывает контент.
+ */
 function setActiveSection(sectionKey) {
   const key = sectionKey || '';
-  
+
   // If in search mode and clicking on a section
   if (state.isSearchMode && key) {
     state.currentDisplaySection = key;
@@ -4293,6 +4792,7 @@ function setActiveSection(sectionKey) {
   scrollToTop();
 }
 
+// Обработчик выбора подсекции: ставит активную подсекцию и перерисовывает.
 function setActiveSubsection(subKey) {
   state.activeSubsection = subKey || getDefaultSubsection(state.activeSection) || '';
   syncUrl();
@@ -4302,13 +4802,21 @@ function setActiveSubsection(subKey) {
 
 /**
  * =========================
- * 7) Modal + deep-link ?w=
+ * 7) Modal + deep-link ?w= / Модальное окно вина и глубокие ссылки
  * =========================
+ * Открытие карточки вина в модалке отражается в URL (?w=<id>), поэтому на
+ * вино можно дать прямую ссылку. Здесь же — блокировка скролла фона под
+ * модалкой и ловушка фокуса для доступности.
  */
 let searchTimer = null;
 let lastFocusEl = null;
 let scrollLockY = 0;
 
+/**
+ * Блокирует скролл фона под модалкой. Приём: запоминаем текущую прокрутку и
+ * фиксируем body (position:fixed + top:-Y), иначе на мобильных фон «уезжал» бы
+ * за модалкой. unlockBodyScroll возвращает всё обратно и восстанавливает Y.
+ */
 function lockBodyScroll() {
   if (document.body.classList.contains('modalOpen')) return;
   scrollLockY = window.scrollY || window.pageYOffset || 0;
@@ -4322,6 +4830,7 @@ function lockBodyScroll() {
   document.body.classList.add('modalOpen');
 }
 
+// Снимает блокировку скролла фона и (опционально) возвращает прежнюю прокрутку.
 function unlockBodyScroll(restoreScroll = true) {
   if (!document.body.classList.contains('modalOpen')) return;
 
@@ -4340,6 +4849,13 @@ function unlockBodyScroll(restoreScroll = true) {
   }
 }
 
+/**
+ * Открывает модалку детальной карточки вина по его id.
+ * Заполняет все поля (фото, производитель, название+винтаж, локация, сорт,
+ * цены, чипы) и строит радар-профиль вкуса (Body/Acidity/Sweetness/Texture,
+ * +Tannins для красных). Для фото-карточных меню модалка вина не нужна —
+ * сразу выходим. pushHistory управляет записью в историю браузера.
+ */
 function openWineModal(wineId, pushHistory = true) {
   if (isPhotoCardMenu(state.menuConfig)) {
     state.modalWineId = null;
@@ -4395,6 +4911,7 @@ function openWineModal(wineId, pushHistory = true) {
   modalChips.innerHTML = '';
   modalChips.style.display = 'none';
 
+  // Профиль вкуса: строим строки-шкалы (label + диапазон + значение 0..100).
   const modalProfile = $('modalProfile');
   modalProfile.innerHTML = '';
   const profile = getWineProfile(w);
@@ -4438,6 +4955,8 @@ function openWineModal(wineId, pushHistory = true) {
   modalDesc.textContent = descText;
   modalDesc.style.display = descText ? 'block' : 'none';
 
+  // Блок гастро-пар (pairing) показывается ТОЛЬКО для ресторана PeopleTalk
+  // (кастомная фича одного клиента, Task 5.1).
   // Pairing только для PeopleTalk (Task 5.1)
   const pairingEl = $('modalPairing');
   if (state.restaurantId === 'peopletalk' && safe(w.pairing)) {
@@ -4452,6 +4971,8 @@ function openWineModal(wineId, pushHistory = true) {
   mn.innerHTML = '';
   mn.style.display = 'none';
 
+  // Показываем модалку и блокируем фон. Класс .open ставится в следующем кадре,
+  // чтобы сработала CSS-анимация появления; фокус уводим на кнопку закрытия.
   const modalBack = $('modalBack');
   modalBack.style.display = 'flex';
   lockBodyScroll();
@@ -4468,6 +4989,11 @@ function openWineModal(wineId, pushHistory = true) {
   filterAndRender();
 }
 
+/**
+ * Закрывает модалку вина: снимает класс .open (анимация), разблокирует фон,
+ * по флагу sync чистит ?w= в URL, и через таймаут (после анимации) прячет
+ * элемент и возвращает фокус на ранее активный элемент.
+ */
 function closeModal(sync=true, restoreScroll=true) {
   const back = $('modalBack');
   const wasOpen = back.style.display === 'flex';
@@ -4493,14 +5019,20 @@ function closeModal(sync=true, restoreScroll=true) {
   }, 310);
 }
 
+// Закрытие модалки вина по клику на фон (overlay) или по кнопке-крестику.
 $('modalBack').addEventListener('click', (e) => {
   if (e.target === $('modalBack')) closeModal(true);
 });
 $('closeModalBtn').addEventListener('click', () => closeModal(true));
 
-/* ===== Photo-card modal ===== */
+/* ===== Photo-card modal / Модалка фото-карточки (Pastry/Coffee/Bar) ===== */
 let pcLastFocusEl = null;
 
+/**
+ * Открывает модалку фото-карточки (блюдо/напиток): большое фото или
+ * плейсхолдер, заголовок, цена, описание и диет-бэйджи (аллергены).
+ * Отдельна от модалки вина, т.к. набор полей и вёрстка другие.
+ */
 function openPhotoCardModal(item) {
   pcLastFocusEl = document.activeElement;
 
@@ -4567,6 +5099,7 @@ function openPhotoCardModal(item) {
   });
 }
 
+// Закрывает модалку фото-карточки (с анимацией) и возвращает фокус.
 function closePhotoCardModal() {
   const back = $('pcModalBack');
   back.classList.remove('open');
@@ -4581,6 +5114,7 @@ function closePhotoCardModal() {
   }
 }
 
+// Закрытие фото-модалки: крестик, клик по фону, либо клавиша Escape.
 $('pcModalClose').addEventListener('click', closePhotoCardModal);
 $('pcModalBack').addEventListener('click', (e) => {
   if (e.target === $('pcModalBack')) closePhotoCardModal();
@@ -4592,10 +5126,12 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+// Открыта ли модалка вина прямо сейчас.
 function isModalOpen() {
   return $('modalBack').style.display === 'flex';
 }
 
+// Список фокусируемых элементов внутри модалки (для focus trap, см. ниже).
 function getFocusableInModal() {
   const modal = $('modalBack').querySelector('.modal');
   return Array.from(modal.querySelectorAll(
@@ -4603,6 +5139,8 @@ function getFocusableInModal() {
   )).filter(el => !el.hasAttribute('disabled') && el.offsetParent !== null);
 }
 
+/* Единый обработчик клавиатуры для модалки вина: Escape закрывает,
+   Tab/Shift+Tab зацикливает фокус внутри модалки (focus trap для доступности). */
 /* (2) one keydown handler: ESC + focus trap */
 document.addEventListener('keydown', (e) => {
   if (!isModalOpen()) return;
@@ -4636,9 +5174,14 @@ document.addEventListener('keydown', (e) => {
 
 /**
  * =========================
- * 8) Search debounce
+ * 8) Search debounce / Поиск с дебаунсом
  * =========================
+ * Поиск работает в отдельном «режиме поиска»: при вводе запоминается текущая
+ * секция, чипы перестраиваются, а результаты ищутся по searchHaystack. Очистка
+ * поля возвращает в обычный режим к секции по умолчанию.
  */
+
+// Вход в режим поиска: запоминаем текущую секцию, чтобы вернуться к ней потом.
 function enterSearchMode() {
   if (!state.isSearchMode) {
     state.isSearchMode = true;
@@ -4648,6 +5191,7 @@ function enterSearchMode() {
   }
 }
 
+// Выход из режима поиска: чистим запрос и возвращаемся к секции по умолчанию.
 function exitSearchMode() {
   if (state.isSearchMode) {
     state.isSearchMode = false;
@@ -4659,6 +5203,8 @@ function exitSearchMode() {
   }
 }
 
+// Реакция на ввод в поле поиска с дебаунсом 250мс: входит/выходит из режима
+// поиска в зависимости от наличия запроса и перерисовывает результаты.
 function onSearchDebounced() {
   syncClearButton();
   if (searchTimer) clearTimeout(searchTimer);
@@ -4679,6 +5225,11 @@ function onSearchDebounced() {
 }
 $('searchInput').addEventListener('input', onSearchDebounced);
 
+/**
+ * Плавная прокрутка наверх со своей анимацией (easeOutCubic через rAF).
+ * Своя реализация вместо CSS scroll-behavior — ради надёжной работы в Safari
+ * (см. историю коммитов: нативный smooth-scroll там вёл себя нестабильно).
+ */
 function scrollToTop(smooth = true) {
   if (!smooth || window.scrollY === 0) {
     window.scrollTo(0, 0);
@@ -4698,6 +5249,8 @@ function scrollToTop(smooth = true) {
   requestAnimationFrame(step);
 }
 
+// Показывает/прячет кнопку очистки поиска и схлопывает раскрытое поле,
+// если оно пустое и не в фокусе.
 function syncClearButton() {
   const has = !!String($('searchInput').value || '').trim();
   $('clearSearchBtn').style.display = has ? 'inline-flex' : 'none';
@@ -4708,6 +5261,7 @@ function syncClearButton() {
   }
 }
 
+// Раскрывает свёрнутое поле поиска (иконка → инпут) и ставит фокус.
 function expandSearch() {
   const field = $('searchWrap');
   if (!field) return;
@@ -4716,6 +5270,7 @@ function expandSearch() {
   $('searchInput').focus();
 }
 
+// Полная очистка поиска: сбрасывает таймер, поле, выходит из режима поиска.
 function clearSearch() {
   if (searchTimer) clearTimeout(searchTimer);
   $('searchInput').value = '';
@@ -4730,6 +5285,8 @@ $('clearSearchBtn').addEventListener('click', (e) => {
   clearSearch();
 });
 
+// IIFE: навешивает поведение раскрывающегося поля поиска (клик/Enter раскрывают,
+// Escape очищает и сворачивает, blur синхронизирует кнопку очистки).
 (() => {
   const field = $('searchWrap');
   const input = $('searchInput');
@@ -4760,8 +5317,13 @@ $('themeToggleBtn').addEventListener('click', toggleTheme);
 
 /**
  * =========================
- * 9) Boot / init
+ * 9) Boot / init / Точка входа приложения
  * =========================
+ * Главный сценарий запуска: инициализация темы и sticky-отступов, загрузка
+ * индекса ресторанов, разбор URL. Если ресторан в URL не указан — показываем
+ * глобальный логин; иначе грузим конфиг ресторана, строим меню и
+ * восстанавливаем состояние (меню/секция/открытое вино) из URL — это и есть
+ * обработка deep-link при первом заходе.
  */
 async function boot() {
   try {
@@ -4806,6 +5368,8 @@ async function boot() {
     
     renderStartBranding();
 
+    // Локальная авторизация ресторана (если включена): определяем, нужен ли
+    // вход, и показываем форму логина либо сразу приложение.
     const needsAuth = requiresAuth(state.config);
     state.isAuthenticated = !needsAuth || readAuthState();
     const logoutBtn = $('logoutBtn');
@@ -4878,6 +5442,7 @@ async function boot() {
       return;
     }
 
+    // Загрузка и маппинг данных стартового меню (восстановление deep-link).
     const csvText = await loadCSV(csvUrl);
     const raw = csvToObjects(csvText);
 
@@ -4901,6 +5466,7 @@ async function boot() {
     syncUrl();
     filterAndRender();
 
+    // Если в URL указано конкретное вино (?w=) — сразу открываем его модалку.
     if (url.w) {
       const w = state.wines.find(x => x.id === url.w);
       if (w) {
@@ -4915,6 +5481,8 @@ async function boot() {
     setStatus('Error: ' + err.message, 'idle');
   }
 
+  // Диагностика данных в консоль: помогает на онбординге быстро понять, почему
+  // меню пустое или без картинок (проверка обязательных полей и доли фото).
   const sample = state.wines[0];
   if (!sample) {
     console.warn('[WineGallery] No wines after mapping/filters. Check visible/is_available and required fields.');
@@ -4938,6 +5506,13 @@ async function boot() {
   }
 }
 
+/**
+ * Обработчик навигации браузера (кнопки «назад/вперёд»).
+ * Перечитывает URL и приводит состояние приложения в соответствие: смена
+ * ресторана → полная перезагрузка; смена меню → setMenu(fromPopstate);
+ * иначе синхронизирует секцию и открытую/закрытую модалку вина.
+ * Флаг isLoadingRestaurant защищает от перезагрузки при наших же изменениях URL.
+ */
 window.addEventListener('popstate', () => {
   const url = readRoute();
 
@@ -4989,6 +5564,7 @@ window.addEventListener('popstate', () => {
   filterAndRender();
 });
 
+// При ресайзе окна пересчитываем авто-подгонку заголовков карточек.
 window.addEventListener('resize', () => {
   if (isWasteMode()) return;
   if (isPhotoCardMenu(state.menuConfig)) {
@@ -4998,6 +5574,7 @@ window.addEventListener('resize', () => {
   }
 });
 
+// Запуск приложения.
 boot();
 </script>
 </body>

@@ -6,27 +6,6 @@
     "subtitle": "Wine & Desserts",
     "logoOnly": true
   },
-  "theme": {
-    "preset": "novikov_clean",
-    "variables": {
-      "--bg1": "#F7F4EE",
-      "--bg2": "#F7F4EE",
-      "--card": "#FFFFFF",
-      "--card2": "#FFFFFF",
-      "--stroke": "#E8E2D8",
-      "--stroke2": "#D8D1C6",
-      "--text": "#121212",
-      "--muted": "#6E6A63",
-      "--muted2": "#8A847B",
-      "--chip": "#F2EEE6",
-      "--chipActive": "#F6ECEE",
-      "--good": "#2F9D6A",
-      "--accent": "#6F1D2B",
-      "--accentSoft": "#B46A74",
-      "--track": "#EFE7DE"
-    },
-    "font": "'Proxima Nova', 'Proxima Nova W01', 'Helvetica Neue', Helvetica, Arial, sans-serif"
-  },
   "logoUrl": "assets/novikov-logo.png",
   "defaultLanguage": "en",
   "enabledLanguages": ["en"],

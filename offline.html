@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Hostera — офлайн</title>
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F5F5F7" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1C1C1E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --bg:#F5F5F7; --text:#1C1C1E; --muted:#6E6E73; --accent:#C76B28; --card:#FFFFFF; --stroke:#E0E0E0;
+    }
+    @media (prefers-color-scheme: dark){
+      :root{ --bg:#1C1C1E; --text:#F5F5F7; --muted:#8E8E93; --accent:#D9883F; --card:#2C2C2E; --stroke:#3A3A3C; }
+    }
+    *{ box-sizing:border-box; font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; }
+    html,body{ margin:0; height:100%; }
+    body{
+      background:var(--bg); color:var(--text);
+      min-height:100svh; min-height:100dvh;
+      display:flex; align-items:center; justify-content:center;
+      padding:calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));
+      -webkit-font-smoothing:antialiased;
+    }
+    .box{ text-align:center; max-width:360px; }
+    .mark{ font-family:'Fraunces',Georgia,serif; font-weight:500; font-size:34px; letter-spacing:6px; margin:0 0 4px; }
+    .rule{ width:56px; height:3px; background:var(--accent); border-radius:2px; margin:14px auto 20px; }
+    h1{ font-size:18px; font-weight:500; margin:0 0 8px; }
+    p{ color:var(--muted); font-size:15px; line-height:1.5; margin:0 0 24px; }
+    button{
+      appearance:none; border:none; cursor:pointer;
+      background:var(--accent); color:#fff; font-size:15px; font-weight:600;
+      height:48px; padding:0 26px; border-radius:999px;
+      touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+    }
+    button:active{ transform:scale(0.98); }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="mark">HOSTERA</div>
+    <div class="rule"></div>
+    <h1>Нет соединения</h1>
+    <p>Меню недоступно офлайн. Проверьте интернет — и мы загрузим свежие позиции.</p>
+    <button type="button" onclick="location.reload()">Повторить</button>
+  </div>
+  <script>
+    // Автоповтор при восстановлении сети
+    window.addEventListener('online', function(){ location.reload(); });
+  </script>
+</body>
+</html>

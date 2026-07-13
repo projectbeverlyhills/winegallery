@@ -1,0 +1,36 @@
+{
+  "name": "Hostera — Wine Menu",
+  "short_name": "Hostera",
+  "description": "Меню ресторана Hostera: вина, бар, кухня. Titanium & Cognac.",
+  "lang": "en",
+  "dir": "ltr",
+  "id": "/winegallery/",
+  "start_url": "/winegallery/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#F5F5F7",
+  "theme_color": "#F5F5F7",
+  "categories": ["food", "lifestyle"],
+  "icons": [
+    {
+      "src": "/winegallery/assets/pwa/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/winegallery/assets/pwa/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/winegallery/assets/pwa/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

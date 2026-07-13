@@ -3949,8 +3949,11 @@ function renderStartBranding() {
 
 /**
  * Рендер списка меню на стартовом экране (плитки выбора).
- * Если у ресторана включён Waste — добавляет крупную кнопку «Open Menu»
- * (ведёт в первое обычное меню) и отдельный вход в waste-режим.
+ *
+ * Waste-режим сюда не попадает: списание — рабочий инструмент персонала, а не
+ * раздел гостевого меню, и вход в него отдельный (маршрут /<ресторан>/waste,
+ * кнопка «Open Waste Mode» в бэкофисе Hostera). Поэтому стартовый экран у всех
+ * ресторанов одинаковый — плитки обычных меню.
  */
 function renderMenuList() {
   const list = $('menuList');
@@ -3958,33 +3961,7 @@ function renderMenuList() {
 
   list.innerHTML = '';
 
-  const wasteMenu = state.menus.find((m) => m?.key === WASTE_MENU_KEY);
   const regularMenus = (state.menus || []).filter((m) => !isWasteMenu(m));
-
-  if (wasteMenu) {
-    const openMenuBtn = document.createElement('button');
-    openMenuBtn.type = 'button';
-    openMenuBtn.className = 'menuBtn';
-    openMenuBtn.textContent = 'Open Menu';
-
-    const menuToOpen = getFirstRegularMenu();
-
-    if (menuToOpen?.key) {
-      openMenuBtn.onclick = () => enterMenu(menuToOpen.key);
-    } else {
-      openMenuBtn.disabled = true;
-      openMenuBtn.textContent = `Open Menu (${t('comingSoon')})`;
-    }
-    list.appendChild(openMenuBtn);
-
-    const wasteBtn = document.createElement('button');
-    wasteBtn.type = 'button';
-    wasteBtn.className = 'menuBtn';
-    wasteBtn.textContent = wasteMenu.title || 'Waste Mode';
-    wasteBtn.onclick = () => enterMenu(WASTE_MENU_KEY);
-    list.appendChild(wasteBtn);
-    return;
-  }
 
   for (const menu of regularMenus) {
     const btn = document.createElement('button');

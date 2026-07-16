@@ -7,8 +7,9 @@
   <title>HOSTERA</title>
 
   <!-- ===================== PWA / iOS ===================== -->
-  <!-- Все PWA-ссылки — абсолютные от /winegallery/, т.к. pretty-URL ресторанов (/novikov_bh) ломают относительные пути (см. normalizeAssetPath). -->
-  <link rel="manifest" href="/winegallery/manifest.webmanifest" />
+  <!-- Единое PWA Hostera: манифест и service worker лежат в корне сайта (/manifest.webmanifest, /sw.js).
+       Все PWA-ссылки — абсолютные, т.к. pretty-URL ресторанов (/novikov_bh) ломают относительные пути. -->
+  <link rel="manifest" href="/manifest.webmanifest" />
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F5F5F7" />
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1C1C1E" />
   <!-- Apple-специфика (Safari не поддерживает часть Web-App-Manifest) -->
@@ -16,31 +17,53 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Hostera" />
-  <link rel="apple-touch-icon" href="/winegallery/assets/pwa/apple-touch-icon-180.png" />
+  <link rel="apple-touch-icon" href="/assets/pwa/apple-touch-icon-180.png" />
 
-  <!-- iOS splash-screens (apple-touch-startup-image). Портрет @3x, свет+тьма, iPhone 14–17 + Air.
+  <!-- iOS/iPadOS splash-screens (apple-touch-startup-image): iPhone 14–17 (+ Air) — портрет @3x,
+       iPad (Pro 11/12.9/13, Air, mini, 10.2/10.9) — портрет и альбом @2x; свет+тьма.
        Показывается только при точном совпадении media, поэтому матрица полная. -->
-  <!-- 390×844 — iPhone 14 -->
-  <link rel="apple-touch-startup-image" media="screen and (device-width:390px) and (device-height:844px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:light)" href="/winegallery/assets/pwa/splash-1170x2532-light.png" />
-  <link rel="apple-touch-startup-image" media="screen and (device-width:390px) and (device-height:844px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/winegallery/assets/pwa/splash-1170x2532-dark.png" />
-  <!-- 393×852 — iPhone 16 / 15 / 15 Pro / 14 Pro -->
-  <link rel="apple-touch-startup-image" media="screen and (device-width:393px) and (device-height:852px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:light)" href="/winegallery/assets/pwa/splash-1179x2556-light.png" />
-  <link rel="apple-touch-startup-image" media="screen and (device-width:393px) and (device-height:852px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/winegallery/assets/pwa/splash-1179x2556-dark.png" />
-  <!-- 402×874 — iPhone 17 / 17 Pro / 16 Pro -->
-  <link rel="apple-touch-startup-image" media="screen and (device-width:402px) and (device-height:874px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:light)" href="/winegallery/assets/pwa/splash-1206x2622-light.png" />
-  <link rel="apple-touch-startup-image" media="screen and (device-width:402px) and (device-height:874px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/winegallery/assets/pwa/splash-1206x2622-dark.png" />
-  <!-- 420×912 — iPhone Air -->
-  <link rel="apple-touch-startup-image" media="screen and (device-width:420px) and (device-height:912px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:light)" href="/winegallery/assets/pwa/splash-1260x2736-light.png" />
-  <link rel="apple-touch-startup-image" media="screen and (device-width:420px) and (device-height:912px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/winegallery/assets/pwa/splash-1260x2736-dark.png" />
-  <!-- 428×926 — iPhone 14 Plus -->
-  <link rel="apple-touch-startup-image" media="screen and (device-width:428px) and (device-height:926px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:light)" href="/winegallery/assets/pwa/splash-1284x2778-light.png" />
-  <link rel="apple-touch-startup-image" media="screen and (device-width:428px) and (device-height:926px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/winegallery/assets/pwa/splash-1284x2778-dark.png" />
-  <!-- 430×932 — iPhone 16 Plus / 15 Pro Max / 15 Plus / 14 Pro Max -->
-  <link rel="apple-touch-startup-image" media="screen and (device-width:430px) and (device-height:932px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:light)" href="/winegallery/assets/pwa/splash-1290x2796-light.png" />
-  <link rel="apple-touch-startup-image" media="screen and (device-width:430px) and (device-height:932px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/winegallery/assets/pwa/splash-1290x2796-dark.png" />
-  <!-- 440×956 — iPhone 17 Pro Max / 16 Pro Max -->
-  <link rel="apple-touch-startup-image" media="screen and (device-width:440px) and (device-height:956px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:light)" href="/winegallery/assets/pwa/splash-1320x2868-light.png" />
-  <link rel="apple-touch-startup-image" media="screen and (device-width:440px) and (device-height:956px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/winegallery/assets/pwa/splash-1320x2868-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:390px) and (device-height:844px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:light)" href="/assets/pwa/splash-1170x2532-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:390px) and (device-height:844px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-1170x2532-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:393px) and (device-height:852px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:light)" href="/assets/pwa/splash-1179x2556-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:393px) and (device-height:852px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-1179x2556-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:402px) and (device-height:874px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:light)" href="/assets/pwa/splash-1206x2622-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:402px) and (device-height:874px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-1206x2622-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:420px) and (device-height:912px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:light)" href="/assets/pwa/splash-1260x2736-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:420px) and (device-height:912px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-1260x2736-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:428px) and (device-height:926px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:light)" href="/assets/pwa/splash-1284x2778-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:428px) and (device-height:926px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-1284x2778-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:430px) and (device-height:932px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:light)" href="/assets/pwa/splash-1290x2796-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:430px) and (device-height:932px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-1290x2796-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:440px) and (device-height:956px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:light)" href="/assets/pwa/splash-1320x2868-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:440px) and (device-height:956px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-1320x2868-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:1032px) and (device-height:1376px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait) and (prefers-color-scheme:light)" href="/assets/pwa/splash-2064x2752-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:1032px) and (device-height:1376px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-2064x2752-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:1032px) and (device-height:1376px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape) and (prefers-color-scheme:light)" href="/assets/pwa/splash-2752x2064-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:1032px) and (device-height:1376px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-2752x2064-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:1024px) and (device-height:1366px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait) and (prefers-color-scheme:light)" href="/assets/pwa/splash-2048x2732-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:1024px) and (device-height:1366px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-2048x2732-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:1024px) and (device-height:1366px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape) and (prefers-color-scheme:light)" href="/assets/pwa/splash-2732x2048-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:1024px) and (device-height:1366px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-2732x2048-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:834px) and (device-height:1210px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait) and (prefers-color-scheme:light)" href="/assets/pwa/splash-1668x2420-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:834px) and (device-height:1210px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-1668x2420-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:834px) and (device-height:1210px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape) and (prefers-color-scheme:light)" href="/assets/pwa/splash-2420x1668-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:834px) and (device-height:1210px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-2420x1668-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:834px) and (device-height:1194px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait) and (prefers-color-scheme:light)" href="/assets/pwa/splash-1668x2388-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:834px) and (device-height:1194px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-1668x2388-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:834px) and (device-height:1194px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape) and (prefers-color-scheme:light)" href="/assets/pwa/splash-2388x1668-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:834px) and (device-height:1194px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-2388x1668-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:820px) and (device-height:1180px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait) and (prefers-color-scheme:light)" href="/assets/pwa/splash-1640x2360-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:820px) and (device-height:1180px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-1640x2360-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:820px) and (device-height:1180px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape) and (prefers-color-scheme:light)" href="/assets/pwa/splash-2360x1640-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:820px) and (device-height:1180px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-2360x1640-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:810px) and (device-height:1080px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait) and (prefers-color-scheme:light)" href="/assets/pwa/splash-1620x2160-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:810px) and (device-height:1080px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-1620x2160-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:810px) and (device-height:1080px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape) and (prefers-color-scheme:light)" href="/assets/pwa/splash-2160x1620-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:810px) and (device-height:1080px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-2160x1620-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:744px) and (device-height:1133px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait) and (prefers-color-scheme:light)" href="/assets/pwa/splash-1488x2266-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:744px) and (device-height:1133px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-1488x2266-dark.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:744px) and (device-height:1133px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape) and (prefers-color-scheme:light)" href="/assets/pwa/splash-2266x1488-light.png" />
+  <link rel="apple-touch-startup-image" media="screen and (device-width:744px) and (device-height:1133px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape) and (prefers-color-scheme:dark)" href="/assets/pwa/splash-2266x1488-dark.png" />
   <!-- =================== /PWA / iOS =================== -->
   <!-- Бренд-шрифты Hostera (Titanium & Cognac): Inter — UI, Fraunces — serif-акцент, IBM Plex Mono — цифры/данные -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -5750,15 +5773,13 @@ boot();
   'use strict';
 
   // --- Регистрация Service Worker ---
-  // sw.js обслуживается из /winegallery/. Сначала пробуем корневой scope '/'
-  // (требует заголовка Service-Worker-Allowed: / на ответе sw.js) — он охватывает
-  // и pretty-URL ресторанов. Если заголовка нет, браузер отклонит scope '/', и мы
-  // мягко откатываемся на дефолтный scope /winegallery/.
+  // Единое PWA Hostera: service worker лежит в корне (/sw.js), scope '/' —
+  // никакие спец-заголовки не нужны, он охватывает и /winegallery/,
+  // и pretty-URL ресторанов, и остальной сайт. Старая регистрация
+  // /winegallery/sw.js снимает себя сама (kill-switch в том файле).
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
-      var SW_URL = '/winegallery/sw.js';
-      navigator.serviceWorker.register(SW_URL, { scope: '/' })
-        .catch(function () { return navigator.serviceWorker.register(SW_URL); })
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
         .catch(function (err) { console.warn('[PWA] SW registration failed:', err); });
     });
   }
